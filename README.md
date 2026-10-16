@@ -118,7 +118,7 @@ src/
 └── utils/
     └── canon/           # pure helpers + the localStorage stores
 assets/                  # logo (light and dark) and the GitHub social preview
-e2e/                     # Playwright specs (table, tracking, filters, editions, screen, a11y, site, mobile)
+e2e/                     # Playwright specs (table, tracking, filters, editions, screen, a11y, site, responsive)
 scripts/                 # enrich-data.mjs, check-data.mjs, cache and report
 ```
 
