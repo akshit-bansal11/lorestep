@@ -78,7 +78,7 @@ export default function ToolbarActions({
   };
 
   return (
-    <div className="flex shrink-0 items-center gap-1.5">
+    <div className="flex flex-wrap items-center gap-1.5">
       <span className="px-1 text-[11px] text-faint tabular-nums whitespace-nowrap">
         {shown === total ? total : `${shown}/${total}`} rows · {tracked} tracked
       </span>

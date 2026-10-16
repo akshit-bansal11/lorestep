@@ -16,7 +16,7 @@ interface FilterControlsProps {
 
 export default function FilterControls({ filter, onChange }: FilterControlsProps) {
   return (
-    <div className="flex shrink-0 items-center gap-1.5">
+    <div className="flex flex-wrap items-center gap-1.5">
       <input
         aria-label="Search games"
         className={cn(CONTROL_CLASS, "w-40 placeholder:text-faint")}
