@@ -1,6 +1,14 @@
 # Lorestep
 
-Story order for connected franchises — what to play, watch and read in in-universe chronology rather than release order.
+Lorestep puts connected franchises in story order: what to play, watch and read in in-universe chronology rather than the order things were released. Every entry sits where it falls in the story, with the branches and side paths marked, and the progress you track through a franchise stays in your own browser — there is no account.
+
+[![CI](https://github.com/akshit-bansal11/lorestep/actions/workflows/ci.yml/badge.svg)](https://github.com/akshit-bansal11/lorestep/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Site](https://img.shields.io/badge/site-lorestep.vercel.app-black.svg)](https://lorestep.vercel.app)
+
+**Open it at [lorestep.vercel.app](https://lorestep.vercel.app).**
+
+## What it covers
 
 Three sections:
 
@@ -17,6 +25,21 @@ The current view lives in the URL (`/games#/witcher`, `/games#/ac/desmond`), so 
 **Movies & Series.** Watch orders across films and series. Where a chronology interleaves a series with the films around it, that placement is its own line rather than being folded into a title — those markers carry the ordering's reasoning and are counted separately from things you actually watch.
 
 **Books** is listed but empty. No dataset exists, and rather than show invented titles the section says so.
+
+## Keyboard
+
+| Key | Does |
+| --- | --- |
+| `Cmd/Ctrl K` | Jump to any franchise or game |
+| `/` | Focus the franchise filter |
+| `[` / `]` | Previous / next franchise |
+| `G` | Back to the franchise grid |
+| `Esc` | Close an overlay, or clear the filter |
+| `?` | Show the shortcut list |
+
+---
+
+Everything below is for working on the code.
 
 ## Stack
 
@@ -62,13 +85,16 @@ src/
 │   ├── games/           # the canon tracker
 │   ├── screen/          # chronology index and one page per chronology
 │   ├── globals.css      # monochrome token spine, motion scale, both themes
-│   ├── layout.tsx
-│   └── page.tsx
+│   ├── layout.tsx       # root metadata: metadataBase, Open Graph
+│   ├── page.tsx
+│   ├── robots.ts
+│   └── sitemap.ts       # static routes plus one entry per chronology
 ├── components/
 │   ├── canon/           # shell, sidebar, grid, table, drawer, palette, cells
 │   ├── screen/          # chronology timeline
 │   └── site/            # landing section cards, analytics provider
 ├── constants/
+│   ├── site.ts          # canonical URL, name, description, static routes
 │   └── canon/           # columns, statuses, devices, storefronts, tiers, filters, motion
 ├── data/
 │   ├── franchises.json  # games snapshot; seeds Neon, not read at runtime
@@ -121,7 +147,7 @@ A franchise may declare `arcs` — named storylines that stand alone within it. 
 
 The content pages are server components that read the database at build time and revalidate hourly, so the dataset is editable without a redeploy while the page stays statically generated. Filtering, sorting and search all still run on the client against the full dataset — that is what keeps the table instant, and it is why the read query returns everything rather than paginating.
 
-Three things are written to `localStorage`: your input (status, device and store per game, under `isitcanon/entries/v1`), the fetched price cache (`isitcanon/prices/v1`), and the theme choice (`isitcanon/theme/v1`). All are exposed through `useSyncExternalStore`, so two open tabs stay in sync. Clearing a game's status clears its device and store with it.
+Three things are written to `localStorage`: your input (status, device and store per game, under `isitcanon/entries/v1`), the fetched price cache (`isitcanon/prices/v1`), and the theme choice (`isitcanon/theme/v1`). The keys keep the `isitcanon/` prefix from before the rename on purpose: they are never shown, and changing them would drop every visitor's saved progress. All are exposed through `useSyncExternalStore`, so two open tabs stay in sync. Clearing a game's status clears its device and store with it.
 
 ## Deployment
 
@@ -151,17 +177,6 @@ Uptime monitoring and a deploy heartbeat live in Better Stack rather than in thi
 `.github/workflows/ci.yml`. The `check` job runs lint, types, data validation and unit tests with no secrets. The `build` job runs on pushes only, using the `DATABASE_URL` secret, because the content pages read the database at build time. It asserts that `/`, `/games` and `/screen` are still statically generated.
 
 `drizzle-kit` carries four moderate advisories through deprecated `@esbuild-kit/*` packages. The latest stable release is inside the affected range and only `1.0.0-rc.*` escapes it, so it is accepted rather than pinned to a release candidate: `npm ls --omit=dev` confirms none of it is reachable from the production tree.
-
-## Keyboard
-
-| Key | Does |
-| --- | --- |
-| `Cmd/Ctrl K` | Jump to any franchise or game |
-| `/` | Focus the franchise filter |
-| `[` / `]` | Previous / next franchise |
-| `G` | Back to the franchise grid |
-| `Esc` | Close an overlay, or clear the filter |
-| `?` | Show the shortcut list |
 
 ## Motion
 
