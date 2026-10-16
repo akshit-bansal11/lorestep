@@ -6,7 +6,7 @@ All notable changes to Lorestep. The format follows [Keep a Changelog](https://k
 
 ### Added
 
-- **A logo.** A staircase climbing left to right with a marker above the top step, as the favicon, in the README, and on a social preview card that link previews now show.
+- **A logo.** Two staircases locked into one square: an L stepping down left to right for the story so far, and an accent step for what comes next. It is the favicon, sits in the header and the README, and leads the social preview card that link previews now show.
 - **A header on every page**, with the logo, the sections, the current one marked, and the light/dark switch, which until now only existed in the games view.
 - **Issue forms** for a wrong or missing entry, a bug and a feature, and a pull request template. Blank issues are off, and security reports are pointed to a private advisory.
 - CONTRIBUTING gains a field-by-field guide to the data.

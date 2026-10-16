@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" role="img" aria-labelledby="title">
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="4 4 40 40" role="img" aria-labelledby="title">
   <title id="title">Lorestep</title>
-  <!-- Favicon: the Lorestep mark on a solid tile, so it reads on any tab-bar colour. -->
-  <rect width="32" height="32" rx="7" fill="#1c1a17"/>
-  <path d="M7 25h5.5v-5.5H18V14h7" fill="none" stroke="#fbfaf7" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="21.5" cy="8.5" r="2.6" fill="#f0894a"/>
+  <!-- Favicon: the Lorestep mark at full bleed, its ink flipped for dark browser chrome. -->
+  <style>.ink{fill:#1c1a17}.acc{fill:#ad3e0c}@media (prefers-color-scheme:dark){.ink{fill:#ede9e3}.acc{fill:#f0894a}}</style>
+  <path class="ink" d="M6 11A5 5 0 0 1 11 6L14.5 6A2 2 0 0 1 16.5 8L16.5 19.5L26.5 19.5A2 2 0 0 1 28.5 21.5L28.5 31.5L40 31.5A2 2 0 0 1 42 33.5L42 37A5 5 0 0 1 37 42L11 42A5 5 0 0 1 6 37Z"/>
+  <path class="acc" d="M19.5 8A2 2 0 0 1 21.5 6L37 6A5 5 0 0 1 42 11L42 26.5A2 2 0 0 1 40 28.5L33.5 28.5A2 2 0 0 1 31.5 26.5L31.5 16.5L21.5 16.5A2 2 0 0 1 19.5 14.5Z"/>
 </svg>
