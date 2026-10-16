@@ -40,4 +40,4 @@ The content pages read a Neon database when they render, so `npm run dev` and `n
 
 ## Releases
 
-The maintainer tags releases. A pull request does not bump the version or tag; a merged change ships in the next one.
+The maintainer tags releases: bumping `package.json`, moving **Unreleased** into a dated section, and pushing a `v<version>` tag, which the release workflow turns into a GitHub Release. A pull request does not bump the version or tag. A merged change is live as soon as Vercel deploys `main`, and is named in the next release.

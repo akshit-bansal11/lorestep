@@ -183,6 +183,8 @@ Uptime monitoring and a deploy heartbeat live in Better Stack rather than in thi
 
 `.github/workflows/ci.yml`. The `check` job runs lint, types, data validation and unit tests with no secrets. The `build` job runs on pushes only, using the `DATABASE_URL` secret, because the content pages read the database at build time. It asserts that `/`, `/games` and `/screen` are still statically generated.
 
+`.github/workflows/release.yml` runs on a `v*` tag. It fails unless the tag matches the `package.json` version, takes that version's section of `CHANGELOG.md` as the notes, and publishes a GitHub Release. Nothing is built or attached: Vercel deploys the site from `main`, so a release only names and dates a point in that history.
+
 `drizzle-kit` carries four moderate advisories through deprecated `@esbuild-kit/*` packages. The latest stable release is inside the affected range and only `1.0.0-rc.*` escapes it, so it is accepted rather than pinned to a release candidate: `npm ls --omit=dev` confirms none of it is reachable from the production tree.
 
 ## Motion

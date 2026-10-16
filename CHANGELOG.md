@@ -4,6 +4,8 @@ All notable changes to Lorestep. The format follows [Keep a Changelog](https://k
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-16
+
 ### Added
 
 - **An MIT licence.**
@@ -12,6 +14,7 @@ All notable changes to Lorestep. The format follows [Keep a Changelog](https://k
 - **A Docs page** (`/docs`): using the site, the keyboard shortcuts, where the data comes from, how to report a wrong entry, and a section for developers.
 - **A footer** on every page but the games view, linking About, Docs, GitHub and the licence. The games header links About and Docs.
 - CHANGELOG, CONTRIBUTING and SECURITY.
+- **A release workflow.** Pushing a `v*` tag checks the tag against `package.json`, takes that version's section of this file as the notes, and publishes a GitHub Release.
 
 ### Changed
 
@@ -36,5 +39,6 @@ The site as it stood before the rename, under the name isitcanon.
 - Light and dark themes, a reduced-motion mode, and keyboard shortcuts for the games view.
 - Release years, runtimes, ratings and prices for the original 12 franchises (72 games), pulled from IsThereAnyDeal and IGDB. The 114 franchises added later were written by hand and are not API-checked.
 
-[Unreleased]: https://github.com/akshit-bansal11/lorestep/compare/542c110...HEAD
+[Unreleased]: https://github.com/akshit-bansal11/lorestep/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/akshit-bansal11/lorestep/compare/542c110...v0.2.0
 [0.1.0]: https://github.com/akshit-bansal11/lorestep/tree/542c110
