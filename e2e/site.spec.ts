@@ -3,7 +3,10 @@ import { expect, test } from "@playwright/test";
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa"];
 
-for (const path of ["/about", "/docs"]) {
+// The home page and the screen routes read the database at build time, like the games view;
+// /about and /docs do not. The home page is here because its empty Books card once failed
+// contrast with no spec to notice.
+for (const path of ["/", "/screen", "/screen/mcu", "/about", "/docs"]) {
   for (const colorScheme of ["light", "dark"] as const) {
     test(`${path} has no WCAG A/AA violations in the ${colorScheme} theme`, async ({ page }) => {
       await page.emulateMedia({ colorScheme });
@@ -34,4 +37,26 @@ test("the footer links to About and Docs", async ({ page }) => {
   await footer.getByRole("link", { name: "Docs" }).click();
   await expect(page).toHaveURL(/\/docs$/);
   await expect(page.getByRole("heading", { level: 1, name: "Docs" })).toBeVisible();
+});
+
+test("the header switches the theme on a content page", async ({ page }) => {
+  await page.goto("/about");
+  const before = await page.evaluate(() => document.documentElement.dataset.theme ?? "");
+
+  await page.getByRole("button", { name: /^Switch to/ }).click();
+
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.dataset.theme ?? ""))
+    .not.toBe(before);
+});
+
+test("the header marks the current section", async ({ page }) => {
+  await page.goto("/docs");
+  const sections = page.getByRole("navigation", { name: "Sections" });
+
+  await expect(sections.getByRole("link", { name: "Docs" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await expect(sections.getByRole("link", { name: "About" })).not.toHaveAttribute("aria-current");
 });
