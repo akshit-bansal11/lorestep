@@ -4,7 +4,7 @@
     {
       "source": "/:path*",
       "has": [{ "type": "host", "value": "is-it-canon.vercel.app" }],
-      "destination": "https://lorestep.akshitbansal.me/:path*",
+      "destination": "https://lorestep.akshitbansal.dev/:path*",
       "permanent": true
     }
   ]

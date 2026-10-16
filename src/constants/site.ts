@@ -1,5 +1,5 @@
 /** The one canonical origin. Metadata, the sitemap and robots all resolve against it. */
-export const SITE_URL = "https://lorestep.akshitbansal.me";
+export const SITE_URL = "https://lorestep.akshitbansal.dev";
 
 export const SITE_NAME = "Lorestep";
 
