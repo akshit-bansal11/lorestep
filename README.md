@@ -1,4 +1,4 @@
-# isitcanon
+# Lorestep
 
 Story order for connected franchises — what to play, watch and read in in-universe chronology rather than release order.
 

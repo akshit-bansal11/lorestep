@@ -6,7 +6,7 @@ import Observability from "@/components/site/Observability";
 import "@/app/globals.css";
 
 export const metadata: Metadata = {
-  title: "isitcanon",
+  title: "Lorestep",
   description:
     "Story order for connected franchises — games, movies and series, in in-universe chronology.",
 };

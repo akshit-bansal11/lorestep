@@ -4,7 +4,7 @@ import { CONTROL_CLASS } from "@/constants/canon/ui";
 import { cn } from "@/utils/cn";
 
 export const metadata: Metadata = {
-  title: "Books — isitcanon",
+  title: "Books — Lorestep",
   description: "Reading orders for connected book series. Not yet written.",
 };
 

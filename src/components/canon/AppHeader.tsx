@@ -35,7 +35,7 @@ export default function AppHeader({
         onClick={onHome}
         type="button"
       >
-        <span className="font-medium text-[15px] text-ink tracking-[-0.02em]">isitcanon</span>
+        <span className="font-medium text-[15px] text-ink tracking-[-0.02em]">Lorestep</span>
         <span className="hidden text-[10px] text-faint uppercase tracking-[0.14em] sm:inline">
           story order
         </span>

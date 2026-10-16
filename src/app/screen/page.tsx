@@ -8,7 +8,7 @@ import { cn } from "@/utils/cn";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Movies & Series — isitcanon",
+  title: "Movies & Series — Lorestep",
   description: "Watch orders across films and series, in in-universe chronology.",
 };
 
