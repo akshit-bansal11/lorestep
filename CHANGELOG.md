@@ -9,6 +9,7 @@ All notable changes to Lorestep. The format follows [Keep a Changelog](https://k
 ### Added
 
 - **An MIT licence.**
+- **A logo.** A staircase climbing left to right with a marker above the top step, as the favicon, in the README, and on a social preview card that link previews now show.
 - **A canonical home, lorestep.vercel.app.** The site now declares its origin (`metadataBase`), carries an Open Graph card for shared links, and serves `robots.txt` and a sitemap listing every section and every chronology.
 - **An About page** (`/about`): what the site is, how its story order is decided, what it does not do, and where its data comes from.
 - **A Docs page** (`/docs`): using the site, the keyboard shortcuts, where the data comes from, how to report a wrong entry, and a section for developers.

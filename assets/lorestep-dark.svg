@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 32 32" role="img" aria-labelledby="title">
+  <title id="title">Lorestep</title>
+  <!-- The Lorestep mark: a staircase climbing left to right, one step at a time through the story, with a marker above the top step for where you are. -->
+  <path d="M5 27h7v-7h7v-7h8" fill="none" stroke="#ede9e3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="23" cy="6.5" r="3" fill="#f0894a"/>
+</svg>
