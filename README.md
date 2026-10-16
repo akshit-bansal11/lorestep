@@ -6,9 +6,9 @@ Lorestep puts connected franchises in story order: what to play, watch and read 
 
 [![CI](https://github.com/akshit-bansal11/lorestep/actions/workflows/ci.yml/badge.svg)](https://github.com/akshit-bansal11/lorestep/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Site](https://img.shields.io/badge/site-lorestep.vercel.app-black.svg)](https://lorestep.vercel.app)
+[![Site](https://img.shields.io/badge/site-lorestep.akshitbansal.me-black.svg)](https://lorestep.akshitbansal.me)
 
-**Open it at [lorestep.vercel.app](https://lorestep.vercel.app).**
+**Open it at [lorestep.akshitbansal.me](https://lorestep.akshitbansal.me).**
 
 ## What it covers
 

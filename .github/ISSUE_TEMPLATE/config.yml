@@ -5,5 +5,5 @@ contact_links:
     url: https://github.com/akshit-bansal11/lorestep/security/advisories/new
     about: Privately, as a security advisory. Please do not open a public issue for something exploitable.
   - name: Read the docs
-    url: https://lorestep.vercel.app/docs
+    url: https://lorestep.akshitbansal.me/docs
     about: How the site works, where the data comes from, and how story order is decided.

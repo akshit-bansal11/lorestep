@@ -20,6 +20,6 @@ describe("sitemap", () => {
       `${SITE_URL}/screen/mcu`,
       `${SITE_URL}/screen/star-wars`,
     ]);
-    expect(urls.every((url) => url.startsWith("https://lorestep.vercel.app/"))).toBe(true);
+    expect(urls.every((url) => url.startsWith("https://lorestep.akshitbansal.me/"))).toBe(true);
   });
 });

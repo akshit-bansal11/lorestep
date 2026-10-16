@@ -13,6 +13,7 @@ All notable changes to Lorestep. The format follows [Keep a Changelog](https://k
 
 ### Changed
 
+- **The site lives at lorestep.akshitbansal.me.** Its canonical address, sitemap, `robots.txt` and link-preview card all name it, and is-it-canon.vercel.app redirects to it, path for path, whenever that host is attached to the project.
 - **A warm palette with one accent colour**, in both themes. The accent marks what is active, current or a link, and the focus ring is drawn in it.
 - **A new home page**: a headline and the two ways in, the dataset's counts up front, the three sections, and a three-step "how it works".
 - **Chronologies read as a timeline**: a rail through numbered stops that light up on hover, with placement notes set in from it.
