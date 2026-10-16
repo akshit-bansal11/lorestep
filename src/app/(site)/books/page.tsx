@@ -1,7 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { CONTROL_CLASS } from "@/constants/canon/ui";
-import { cn } from "@/utils/cn";
 
 export const metadata: Metadata = {
   title: "Books — Lorestep",
@@ -26,9 +23,6 @@ export default function Page() {
         The games and screen sections are built from real datasets: 690 games across 126 franchises,
         and 322 titles across six chronologies.
       </p>
-      <Link className={cn(CONTROL_CLASS, "inline-flex w-fit items-center px-3")} href="/">
-        ← Back
-      </Link>
     </main>
   );
 }

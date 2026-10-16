@@ -22,3 +22,10 @@ export const EXTERNAL_LINKS = [
   { href: REPO_URL, label: "GitHub" },
   { href: `${REPO_URL}/blob/main/LICENSE`, label: "MIT License" },
 ] as const;
+
+/** The header's sections, in the order the home page lists them, then the site's own pages. */
+export const SITE_NAV = [
+  { href: "/games", label: "Games" },
+  { href: "/screen", label: "Movies & Series" },
+  ...PAGE_LINKS,
+] as const;

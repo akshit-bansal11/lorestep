@@ -1,12 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import ProseSection from "@/components/site/ProseSection";
-import {
-  CONTROL_CLASS,
-  PAGE_TITLE_CLASS,
-  PROSE_CLASS,
-  TEXT_LINK_CLASS,
-} from "@/constants/canon/ui";
+import { PAGE_TITLE_CLASS, PROSE_CLASS, TEXT_LINK_CLASS } from "@/constants/canon/ui";
 import { REPO_URL } from "@/constants/site";
 import { cn } from "@/utils/cn";
 
@@ -20,9 +15,6 @@ export default function Page() {
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-5 py-12">
       <header className="flex flex-col gap-3">
-        <Link className={cn(CONTROL_CLASS, "inline-flex w-fit items-center px-3")} href="/">
-          ← All sections
-        </Link>
         <h1 className={PAGE_TITLE_CLASS}>About Lorestep</h1>
         <p className={PROSE_CLASS}>
           Lorestep puts connected franchises in story order: what to play, watch and read in

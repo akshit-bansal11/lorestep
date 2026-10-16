@@ -87,7 +87,7 @@ src/
 │   │   ├── books/       # honest empty state
 │   │   ├── docs/        # usage, shortcuts, data, reporting, developers
 │   │   ├── screen/      # chronology index and one page per chronology
-│   │   ├── layout.tsx   # adds the footer; the games shell sits outside it
+│   │   ├── layout.tsx   # adds the header and footer; the games shell sits outside it
 │   │   └── page.tsx     # landing page
 │   ├── api/prices/      # ITAD price lookup route handler
 │   ├── games/           # the canon tracker, a fixed full-height shell
@@ -100,7 +100,7 @@ src/
 ├── components/
 │   ├── canon/           # shell, sidebar, grid, table, drawer, palette, cells
 │   ├── screen/          # chronology timeline
-│   └── site/            # section cards, footer, prose sections, analytics provider
+│   └── site/            # logo, header and nav, footer, section cards, prose sections, analytics
 ├── constants/
 │   ├── site.ts          # canonical URL, name, description, routes, site links
 │   ├── docs/            # the docs page's table of contents

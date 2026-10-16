@@ -14,6 +14,7 @@ All notable changes to Lorestep. The format follows [Keep a Changelog](https://k
 - **An About page** (`/about`): what the site is, how its story order is decided, what it does not do, and where its data comes from.
 - **A Docs page** (`/docs`): using the site, the keyboard shortcuts, where the data comes from, how to report a wrong entry, and a section for developers.
 - **A footer** on every page but the games view, linking About, Docs, GitHub and the licence. The games header links About and Docs.
+- **A header on every page**, with the logo, the sections, the current one marked, and the light/dark switch, which until now only existed in the games view.
 - CHANGELOG, CONTRIBUTING and SECURITY.
 - **A release workflow.** Pushing a `v*` tag checks the tag against `package.json`, takes that version's section of this file as the notes, and publishes a GitHub Release.
 
@@ -22,6 +23,8 @@ All notable changes to Lorestep. The format follows [Keep a Changelog](https://k
 - **Renamed to Lorestep.** The name had been written three ways: `is-it-canon`, `isitcanon` and `canonlogy`. The browser storage keys keep their `isitcanon/` prefix, so the progress, prices and theme you saved before the rename are still there after it.
 - **is-it-canon.vercel.app redirects to lorestep.vercel.app**, path for path, with a permanent redirect. A link into the games view keeps its place, since the part after `#` survives the redirect.
 - The README leads with what the site is for; the developer material follows it.
+- **A warm palette with one accent colour**, in both themes. The accent marks what is active, current or a link, and the focus ring is drawn in it.
+- The light/dark switch shows a sun or a moon rather than a half-filled circle.
 
 ## [0.1.0] - 2026-09-09
 
