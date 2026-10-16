@@ -91,7 +91,7 @@ src/
 │   │   └── page.tsx     # landing page
 │   ├── api/prices/      # ITAD price lookup route handler
 │   ├── games/           # the canon tracker, a fixed full-height shell
-│   ├── globals.css      # monochrome token spine, motion scale, both themes
+│   ├── globals.css      # warm token spine with one accent, motion scale, both themes
 │   ├── icon.svg         # favicon
 │   ├── layout.tsx       # root metadata: metadataBase, Open Graph
 │   ├── opengraph-image.png  # the link-preview card, same as assets/social-preview.png

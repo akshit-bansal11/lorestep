@@ -23,7 +23,11 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0a0a0a",
+  // Matches --tone-canvas, so a mobile browser's chrome runs into the page.
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fbfaf7" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f0e0d" },
+  ],
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

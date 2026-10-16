@@ -41,7 +41,7 @@ export default function FranchiseSidebar({
     cn(
       "flex w-full items-center gap-2 rounded-control px-2 py-1.5 text-left",
       "transition-[color,background-color] duration-[160ms] ease-out motion-reduce:transition-none",
-      active ? "bg-raise text-ink" : "text-muted hover:bg-surface hover:text-ink",
+      active ? "bg-accent-soft text-ink" : "text-muted hover:bg-surface hover:text-ink",
     );
 
   return (

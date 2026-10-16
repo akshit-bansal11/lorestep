@@ -11,11 +11,11 @@ export const NUM_CLASS = "font-mono tabular-nums";
 
 /** An inline link inside running text. */
 export const TEXT_LINK_CLASS =
-  "rounded-control text-ink underline decoration-edge underline-offset-2 transition-[text-decoration-color] duration-[160ms] hover:decoration-ink motion-reduce:transition-none";
+  "rounded-control text-ink underline decoration-accent-line underline-offset-2 transition-[color,text-decoration-color] duration-[160ms] hover:text-accent hover:decoration-accent motion-reduce:transition-none";
 
 /** A link that sits quietly in a row of others, such as the footer's. */
 export const QUIET_LINK_CLASS =
-  "rounded-control text-faint transition-colors duration-[160ms] hover:text-ink motion-reduce:transition-none";
+  "rounded-control text-muted transition-colors duration-[160ms] hover:text-accent motion-reduce:transition-none";
 
 export const PAGE_TITLE_CLASS = "font-medium text-[22px] text-ink leading-tight tracking-[-0.02em]";
 

@@ -35,7 +35,7 @@ export default function SortableHeader({ column, sort, onSort }: SortableHeaderP
           type="button"
         >
           {column.label}
-          <span aria-hidden="true" className={cn("text-[8px]", !active && "opacity-0")}>
+          <span aria-hidden="true" className={cn("text-[8px] text-accent", !active && "opacity-0")}>
             {sort.direction === 1 ? "▲" : "▼"}
           </span>
         </button>

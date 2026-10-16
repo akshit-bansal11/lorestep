@@ -23,7 +23,7 @@ export default function FranchiseCard({ franchise, stats, index, onSelect }: Fra
       className={cn(
         CARD_CLASS,
         "group flex flex-col items-stretch gap-2 p-3 text-left",
-        "hover:-translate-y-0.5 hover:border-edge hover:shadow-[var(--tone-cast)]",
+        "hover:-translate-y-0.5 hover:border-accent-line hover:shadow-[var(--tone-cast)]",
         "active:translate-y-0 motion-reduce:hover:translate-y-0",
       )}
       onClick={() => onSelect(franchise.id)}
@@ -36,7 +36,7 @@ export default function FranchiseCard({ franchise, stats, index, onSelect }: Fra
         </span>
         <span
           aria-hidden="true"
-          className="text-faint transition-transform duration-[160ms] ease-out group-hover:translate-x-0.5 motion-reduce:transition-none"
+          className="text-faint transition-[color,transform] duration-[160ms] ease-out group-hover:translate-x-0.5 group-hover:text-accent motion-reduce:transition-none"
         >
           →
         </span>

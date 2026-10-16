@@ -21,8 +21,8 @@ export default function ArcChips({ arcs, activeId, countFor, onSelect }: ArcChip
           "text-[11px] transition-[color,border-color,background-color,transform] duration-[160ms] ease-out",
           "active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100",
           active
-            ? "border-ink bg-ink text-invert"
-            : "border-line text-muted hover:border-edge hover:text-ink",
+            ? "border-accent bg-accent text-accent-ink"
+            : "border-line text-muted hover:border-accent-line hover:text-ink",
         )}
         key={id}
         onClick={() => onSelect(id)}
