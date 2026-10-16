@@ -26,7 +26,7 @@ npm ci
 cp .env.example .env.local
 ```
 
-The content pages read a Neon database when they render, so `npm run dev` and `npm run build` need `DATABASE_URL` in `.env.local`. `ITAD_API_KEY` is only needed for live prices. `.env.example` says what each variable is for. The dev server runs on port 3001. `/about` and `/docs` read nothing, so they render without a database.
+The content pages read a Neon database when they render, so `npm run dev` and `npm run build` need `DATABASE_URL` in `.env.local`. `ITAD_API_KEY` is only needed for live prices. `.env.example` says what each variable is for. The dev server runs on port 3001. [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) covers every script, the source layout and the data model. `/about` and `/docs` read nothing, so they render without a database.
 
 ## Changing the data
 

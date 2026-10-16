@@ -10,6 +10,7 @@ All notable changes to Lorestep. The format follows [Keep a Changelog](https://k
 - **A header on every page**, with the logo, the sections, the current one marked, and the light/dark switch, which until now only existed in the games view.
 - **Issue forms** for a wrong or missing entry, a bug and a feature, and a pull request template. Blank issues are off, and security reports are pointed to a private advisory.
 - CONTRIBUTING gains a field-by-field guide to the data.
+- **Screenshots in the README**, in both themes, and a shorter README that leads with why story order matters. The developer material moves, intact, to `docs/DEVELOPMENT.md`, which the Docs page now links.
 
 ### Changed
 
