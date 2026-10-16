@@ -11,7 +11,7 @@ import { listFranchises } from "@/lib/db/queries";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Games — isitcanon",
+  title: "Games — Lorestep",
   description:
     "Connected game franchises sorted by in-universe chronology rather than release order.",
 };

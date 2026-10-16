@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Backdrop from "@/components/canon/Backdrop";
-import { HOTKEYS } from "@/constants/canon/hotkeys";
+import HotkeyList from "@/components/canon/HotkeyList";
 import { CONTROL_CLASS } from "@/constants/canon/ui";
 import { cn } from "@/utils/cn";
 
@@ -32,14 +32,7 @@ export default function ShortcutsDialog({ onClose }: ShortcutsDialogProps) {
       >
         <h2 className="mb-3 font-medium text-[14px] text-ink">Keyboard shortcuts</h2>
 
-        <dl className="flex flex-col gap-2">
-          {HOTKEYS.map((hotkey) => (
-            <div className="flex items-baseline gap-3" key={hotkey.keys}>
-              <dt className="w-24 shrink-0 font-mono text-[11px] text-ink">{hotkey.keys}</dt>
-              <dd className="flex-1 text-[12px] text-muted">{hotkey.does}</dd>
-            </div>
-          ))}
-        </dl>
+        <HotkeyList />
 
         <button
           className={cn(CONTROL_CLASS, "mt-4 w-full")}

@@ -4,7 +4,7 @@ import { CONTROL_CLASS } from "@/constants/canon/ui";
 import { cn } from "@/utils/cn";
 
 export const metadata: Metadata = {
-  title: "Books — isitcanon",
+  title: "Books — Lorestep",
   description: "Reading orders for connected book series. Not yet written.",
 };
 
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
  */
 export default function Page() {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col justify-center gap-5 px-5 py-16">
+    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center gap-5 px-5 py-16">
       <h1 className="font-medium text-[22px] text-ink leading-tight tracking-[-0.02em]">Books</h1>
       <p className="max-w-prose text-[13px] text-muted leading-relaxed">
         Reading orders for connected book series will live here. Nothing has been written yet — no

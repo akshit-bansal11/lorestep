@@ -5,7 +5,7 @@ import { sectionCounts } from "@/lib/db/queries";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "isitcanon — story order for connected franchises",
+  title: "Lorestep — story order for connected franchises",
   description:
     "What to play, watch and read, in in-universe order rather than release order. Games, movies and series, and books.",
 };
@@ -16,10 +16,10 @@ export default async function Page() {
   const counts = await sectionCounts();
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col justify-center gap-8 px-5 py-16">
+    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center gap-8 px-5 py-16">
       <header className="flex flex-col gap-3">
         <h1 className="font-medium text-[22px] text-ink leading-tight tracking-[-0.02em]">
-          isitcanon
+          Lorestep
         </h1>
         <p className="max-w-prose text-[13px] text-muted leading-relaxed">
           Story order for connected franchises — what to play, watch and read in in-universe

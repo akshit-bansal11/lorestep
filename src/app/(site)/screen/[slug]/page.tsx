@@ -27,10 +27,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const franchise = await findFranchise(slug);
-  if (franchise === null) return { title: "Not found — isitcanon" };
+  if (franchise === null) return { title: "Not found — Lorestep" };
 
   return {
-    title: `${franchise.title} — isitcanon`,
+    title: `${franchise.title} — Lorestep`,
     description: franchise.description,
   };
 }

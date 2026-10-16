@@ -1,3 +1,11 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json"
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "is-it-canon.vercel.app" }],
+      "destination": "https://lorestep.vercel.app/:path*",
+      "permanent": true
+    }
+  ]
 }

@@ -3,12 +3,21 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import type { ReactNode } from "react";
 import Observability from "@/components/site/Observability";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/constants/site";
 import "@/app/globals.css";
 
 export const metadata: Metadata = {
-  title: "isitcanon",
-  description:
-    "Story order for connected franchises — games, movies and series, in in-universe chronology.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_NAME,
+  description: SITE_DESCRIPTION,
+  // No `url`: every page inherits this block, and a fixed one would point every
+  // shared link's card at the home page.
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export const viewport: Viewport = {
