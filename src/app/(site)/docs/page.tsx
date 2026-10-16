@@ -154,8 +154,8 @@ export default function Page() {
           </p>
           <p className={PROSE_CLASS}>
             The{" "}
-            <a className={TEXT_LINK_CLASS} href={`${REPO_URL}#readme`}>
-              README
+            <a className={TEXT_LINK_CLASS} href={`${REPO_URL}/blob/main/docs/DEVELOPMENT.md`}>
+              development guide
             </a>{" "}
             covers the scripts, layout, routes and data model, and{" "}
             <a className={TEXT_LINK_CLASS} href={`${REPO_URL}/blob/main/CONTRIBUTING.md`}>
