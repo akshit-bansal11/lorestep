@@ -95,7 +95,7 @@ export default function Page() {
       <ProseSection id="report" title="Reporting a wrong entry">
         <p className={PROSE_CLASS}>
           A game in the wrong place, a missing title or a wrong year:{" "}
-          <a className={TEXT_LINK_CLASS} href={`${REPO_URL}/issues/new`}>
+          <a className={TEXT_LINK_CLASS} href={`${REPO_URL}/issues/new?template=wrong-entry.yml`}>
             open an issue on GitHub
           </a>{" "}
           naming the franchise, the entry, what is wrong, and a source for the order you expect. For

@@ -15,7 +15,8 @@ All notable changes to Lorestep. The format follows [Keep a Changelog](https://k
 - **A Docs page** (`/docs`): using the site, the keyboard shortcuts, where the data comes from, how to report a wrong entry, and a section for developers.
 - **A footer** on every page but the games view, linking About, Docs, GitHub and the licence. The games header links About and Docs.
 - **A header on every page**, with the logo, the sections, the current one marked, and the light/dark switch, which until now only existed in the games view.
-- CHANGELOG, CONTRIBUTING and SECURITY.
+- CHANGELOG, CONTRIBUTING and SECURITY. CONTRIBUTING includes a field-by-field guide to the data.
+- **Issue forms** for a wrong or missing entry, a bug and a feature, and a pull request template. Blank issues are off, and security reports are pointed to a private advisory.
 - **A release workflow.** Pushing a `v*` tag checks the tag against `package.json`, takes that version's section of this file as the notes, and publishes a GitHub Release.
 
 ### Changed

@@ -1,0 +1,19 @@
+name: Feature request
+description: Something the site should do.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What you want to do
+      description: The thing you are trying to do and cannot, rather than the feature you have in mind.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: How you would expect it to work
+  - type: textarea
+    id: tried
+    attributes:
+      label: Anything you have tried
