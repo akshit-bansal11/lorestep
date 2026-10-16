@@ -5,13 +5,13 @@
 <p align="center"><strong>Play, watch and read it in the order it happened.</strong><br>Connected franchises in story order, not release order. Free, no account.</p>
 
 <p align="center">
-  <a href="https://lorestep.akshitbansal.me"><strong>Open Lorestep →</strong></a>
+  <a href="https://lorestep.akshitbansal.dev"><strong>Open Lorestep →</strong></a>
 </p>
 
 <p align="center">
   <a href="https://github.com/akshit-bansal11/lorestep/actions/workflows/ci.yml"><img src="https://github.com/akshit-bansal11/lorestep/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="https://lorestep.akshitbansal.me"><img src="https://img.shields.io/badge/site-lorestep.akshitbansal.me-black.svg" alt="Site"></a>
+  <a href="https://lorestep.akshitbansal.dev"><img src="https://img.shields.io/badge/site-lorestep.akshitbansal.dev-black.svg" alt="Site"></a>
 </p>
 
 <picture>
@@ -38,9 +38,9 @@ Lorestep does it once, per franchise: every entry sits where it falls in the sto
 
 | Section | Route | Holds |
 | --- | --- | --- |
-| **Games** | [`/games`](https://lorestep.akshitbansal.me/games) | 126 franchises, 690 games, 104 storylines |
-| **Movies & Series** | [`/screen`](https://lorestep.akshitbansal.me/screen) | 6 chronologies, 322 titles, 29 blocks: the MCU, Star Wars, the DCEU, the new DCU, Middle-earth, and Marvel on screen in full |
-| **Books** | [`/books`](https://lorestep.akshitbansal.me/books) | Nothing yet. No dataset has been written, and the section says so rather than showing invented titles |
+| **Games** | [`/games`](https://lorestep.akshitbansal.dev/games) | 126 franchises, 690 games, 104 storylines |
+| **Movies & Series** | [`/screen`](https://lorestep.akshitbansal.dev/screen) | 6 chronologies, 322 titles, 29 blocks: the MCU, Star Wars, the DCEU, the new DCU, Middle-earth, and Marvel on screen in full |
+| **Books** | [`/books`](https://lorestep.akshitbansal.dev/books) | Nothing yet. No dataset has been written, and the section says so rather than showing invented titles |
 
 <table>
   <tr>
@@ -110,7 +110,7 @@ npm run dev                  # http://localhost:3001
 
 ## Credits
 
-Prices and historical lows come from [IsThereAnyDeal](https://isthereanydeal.com). Release years, ratings and play times for the enriched franchises come from [IGDB](https://www.igdb.com). The film and series orders are merged from published watch-order guides, credited on the [About page](https://lorestep.akshitbansal.me/about#sources).
+Prices and historical lows come from [IsThereAnyDeal](https://isthereanydeal.com). Release years, ratings and play times for the enriched franchises come from [IGDB](https://www.igdb.com). The film and series orders are merged from published watch-order guides, credited on the [About page](https://lorestep.akshitbansal.dev/about#sources).
 
 ## License
 
