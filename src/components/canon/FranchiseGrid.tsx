@@ -40,7 +40,7 @@ export default function FranchiseGrid({
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="anim-lift mx-auto flex max-w-6xl flex-col gap-5 px-4 py-6 sm:px-6 sm:py-8">
+      <div className="anim-lift flex flex-col gap-5 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 2xl:px-10">
         <header className="flex flex-col gap-3">
           <h1 className="font-medium text-[22px] text-ink leading-tight tracking-[-0.02em] sm:text-[26px]">
             Every franchise, in story order
@@ -70,7 +70,7 @@ export default function FranchiseGrid({
             Nothing matches “{query}”. Try a game title instead of a series name.
           </p>
         ) : (
-          <div className="stagger grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="stagger grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {shown.map((franchise, index) => (
               <FranchiseCard
                 franchise={franchise}

@@ -29,7 +29,7 @@ body:
     attributes:
       label: Page
       description: The address you were on, including anything after `#`.
-      placeholder: https://lorestep.vercel.app/games#/witcher
+      placeholder: https://lorestep.akshitbansal.me/games#/witcher
   - type: input
     id: browser
     attributes:
