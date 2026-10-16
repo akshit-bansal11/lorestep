@@ -14,6 +14,7 @@ All notable changes to Lorestep. The format follows [Keep a Changelog](https://k
 ### Changed
 
 - **The site lives at lorestep.akshitbansal.me.** Its canonical address, sitemap, `robots.txt` and link-preview card all name it, and is-it-canon.vercel.app redirects to it, path for path, whenever that host is attached to the project.
+- **Every page uses the width of the screen**, up to 1760px, rather than a 768px column. Wide screens fill with columns and grids instead of longer lines: the home page's headline sits beside its numbers, About flows into two or three columns, Docs gets a sticky contents sidebar with its sections in two columns, a chronology's notes sit beside their titles, and card grids grow to three, four or five across. Type steps up on large screens.
 - **A warm palette with one accent colour**, in both themes. The accent marks what is active, current or a link, and the focus ring is drawn in it.
 - **A new home page**: a headline and the two ways in, the dataset's counts up front, the three sections, and a three-step "how it works".
 - **Chronologies read as a timeline**: a rail through numbered stops that light up on hover, with placement notes set in from it.

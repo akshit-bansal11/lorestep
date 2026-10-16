@@ -1,4 +1,4 @@
-import { NUM_CLASS } from "@/constants/canon/ui";
+import { NUM_CLASS, SECTION_TITLE_CLASS } from "@/constants/canon/ui";
 import type { ScreenEntry, ScreenFranchise, ScreenGroup } from "@/types/canon/screen";
 import { cn } from "@/utils/cn";
 
@@ -56,11 +56,17 @@ function Row({ entry, position }: { entry: ScreenEntry; position: number }) {
       >
         {position}
       </span>
-      <span className="flex flex-1 flex-col gap-1 pt-1">
-        <span className="text-[13px] text-ink leading-tight">{entry.name}</span>
-        <Meta entry={entry} />
+      {/* Title and details on the left, the note beside them from lg up, so a
+          wide screen spreads each row across instead of leaving it empty. */}
+      <span className="grid flex-1 grid-cols-1 gap-1 pt-1 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] lg:gap-x-10 2xl:grid-cols-[minmax(0,30rem)_minmax(0,1fr)]">
+        <span className="flex flex-col gap-1">
+          <span className="text-[13px] text-ink leading-tight lg:text-[14px]">{entry.name}</span>
+          <Meta entry={entry} />
+        </span>
         {entry.note === "" ? null : (
-          <span className="text-[11px] text-muted leading-relaxed">{entry.note}</span>
+          <span className="max-w-prose text-[11px] text-muted leading-relaxed lg:text-[12px]">
+            {entry.note}
+          </span>
         )}
       </span>
     </li>
@@ -92,9 +98,7 @@ export default function ScreenTimeline({ franchise }: ScreenTimelineProps) {
         <section className="flex flex-col gap-2" key={block.group?.id ?? "ungrouped"}>
           {block.group === null ? null : (
             <header className="flex flex-col gap-1">
-              <h2 className="font-medium text-[15px] text-ink tracking-[-0.01em]">
-                {block.group.name}
-              </h2>
+              <h2 className={SECTION_TITLE_CLASS}>{block.group.name}</h2>
               {block.group.blurb === "" ? null : (
                 <p className="max-w-prose text-[11px] text-muted leading-relaxed">
                   {block.group.blurb}
