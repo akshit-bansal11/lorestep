@@ -23,3 +23,7 @@ export const PROSE_CLASS = "max-w-prose text-[13px] text-muted leading-relaxed";
 
 /** A command, path or variable name inside running text. */
 export const CODE_CLASS = "font-mono tabular-nums text-[12px] text-ink";
+
+/** A page-level call to action. Colour comes from the caller: solid accent for the primary, outlined for the rest. */
+export const ACTION_CLASS =
+  "inline-flex h-10 items-center gap-2 rounded-card px-4 font-medium text-[13px] transition-[background-color,border-color,color,transform] duration-[160ms] ease-out active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100";

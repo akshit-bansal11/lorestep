@@ -25,6 +25,13 @@ All notable changes to Lorestep. The format follows [Keep a Changelog](https://k
 - The README leads with what the site is for; the developer material follows it.
 - **A warm palette with one accent colour**, in both themes. The accent marks what is active, current or a link, and the focus ring is drawn in it.
 - The light/dark switch shows a sun or a moon rather than a half-filled circle.
+- **A new home page**: a headline and the two ways in, the dataset's counts up front, the three sections, and a three-step "how it works".
+- **Chronologies read as a timeline**: a rail through numbered stops that light up on hover, with placement notes set in from it.
+
+### Fixed
+
+- The empty Books card on the home page faded its text to 60% opacity, below WCAG AA contrast. It is drawn with a dashed border instead.
+- On a phone, the games toolbar's filters could not wrap and pushed the whole page sideways.
 
 ## [0.1.0] - 2026-09-09
 

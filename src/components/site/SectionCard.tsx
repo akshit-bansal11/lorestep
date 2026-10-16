@@ -58,7 +58,9 @@ export default function SectionCard({
 
   if (empty) {
     return (
-      <div className={cn(CARD_CLASS, shape, "opacity-60")}>
+      // Dashed and untinted rather than faded: lowering opacity took its text
+      // below 4.5:1, and the card has to stay readable to say it is empty.
+      <div className={cn(CARD_CLASS, shape, "border-dashed bg-transparent")}>
         {body}
         <span className={cn(NUM_CLASS, "text-[10px] text-faint")}>not started</span>
       </div>
