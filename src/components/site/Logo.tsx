@@ -4,18 +4,18 @@ interface LogoProps {
   className?: string;
 }
 
-/** The mark, drawn in the current text colour with the accent marker. Decorative: it always sits beside the name. */
+/** The mark, its ink in the current text colour and the next step in the accent. Decorative: it always sits beside the name. */
 export default function Logo({ className }: LogoProps) {
   return (
-    <svg aria-hidden="true" className={cn("shrink-0", className)} fill="none" viewBox="0 0 32 32">
+    <svg aria-hidden="true" className={cn("shrink-0", className)} viewBox="0 0 48 48">
       <path
-        d="M5 27h7v-7h7v-7h8"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={3}
+        d="M6 11A5 5 0 0 1 11 6L14.5 6A2 2 0 0 1 16.5 8L16.5 19.5L26.5 19.5A2 2 0 0 1 28.5 21.5L28.5 31.5L40 31.5A2 2 0 0 1 42 33.5L42 37A5 5 0 0 1 37 42L11 42A5 5 0 0 1 6 37Z"
+        fill="currentColor"
       />
-      <circle className="fill-accent" cx={23} cy={6.5} r={3} />
+      <path
+        className="fill-accent"
+        d="M19.5 8A2 2 0 0 1 21.5 6L37 6A5 5 0 0 1 42 11L42 26.5A2 2 0 0 1 40 28.5L33.5 28.5A2 2 0 0 1 31.5 26.5L31.5 16.5L21.5 16.5A2 2 0 0 1 19.5 14.5Z"
+      />
     </svg>
   );
 }
