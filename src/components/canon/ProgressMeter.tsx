@@ -21,7 +21,7 @@ export default function ProgressMeter({ done, total, label, className }: Progres
     >
       {/* Width is data, not design — it cannot live in a class. */}
       <span
-        className="block h-full rounded-full bg-ink transition-[width] duration-[420ms] ease-out motion-reduce:transition-none"
+        className="block h-full rounded-full bg-accent transition-[width] duration-[420ms] ease-out motion-reduce:transition-none"
         style={{ width: `${pct}%` }}
       />
     </div>

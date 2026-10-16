@@ -4,13 +4,7 @@ import HotkeyList from "@/components/canon/HotkeyList";
 import ProseSection from "@/components/site/ProseSection";
 import { STATUSES } from "@/constants/canon/statuses";
 import { TIER_OPTIONS } from "@/constants/canon/tiers";
-import {
-  CODE_CLASS,
-  CONTROL_CLASS,
-  PAGE_TITLE_CLASS,
-  PROSE_CLASS,
-  TEXT_LINK_CLASS,
-} from "@/constants/canon/ui";
+import { CODE_CLASS, PAGE_TITLE_CLASS, PROSE_CLASS, TEXT_LINK_CLASS } from "@/constants/canon/ui";
 import { DOCS_SECTIONS } from "@/constants/docs/sections";
 import { REPO_URL } from "@/constants/site";
 import { cn } from "@/utils/cn";
@@ -28,9 +22,6 @@ export default function Page() {
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-5 py-12">
       <header className="flex flex-col gap-3">
-        <Link className={cn(CONTROL_CLASS, "inline-flex w-fit items-center px-3")} href="/">
-          ← All sections
-        </Link>
         <h1 className={PAGE_TITLE_CLASS}>Docs</h1>
         <nav aria-label="On this page">
           <ol className={cn(PROSE_CLASS, "flex list-decimal flex-col gap-1 pl-5")}>
@@ -104,7 +95,7 @@ export default function Page() {
       <ProseSection id="report" title="Reporting a wrong entry">
         <p className={PROSE_CLASS}>
           A game in the wrong place, a missing title or a wrong year:{" "}
-          <a className={TEXT_LINK_CLASS} href={`${REPO_URL}/issues/new`}>
+          <a className={TEXT_LINK_CLASS} href={`${REPO_URL}/issues/new?template=wrong-entry.yml`}>
             open an issue on GitHub
           </a>{" "}
           naming the franchise, the entry, what is wrong, and a source for the order you expect. For

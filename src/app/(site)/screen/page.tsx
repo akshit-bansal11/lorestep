@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import SectionCard from "@/components/site/SectionCard";
-import { CONTROL_CLASS } from "@/constants/canon/ui";
 import { listScreen } from "@/lib/db/queries";
-import { cn } from "@/utils/cn";
 
 export const revalidate = 3600;
 
@@ -18,9 +15,6 @@ export default async function Page() {
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-5 py-12">
       <header className="flex flex-col gap-3">
-        <Link className={cn(CONTROL_CLASS, "inline-flex w-fit items-center px-3")} href="/">
-          ← All sections
-        </Link>
         <h1 className="font-medium text-[22px] text-ink leading-tight tracking-[-0.02em]">
           Movies &amp; Series
         </h1>

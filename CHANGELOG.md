@@ -4,6 +4,25 @@ All notable changes to Lorestep. The format follows [Keep a Changelog](https://k
 
 ## [Unreleased]
 
+### Added
+
+- **A logo.** A staircase climbing left to right with a marker above the top step, as the favicon, in the README, and on a social preview card that link previews now show.
+- **A header on every page**, with the logo, the sections, the current one marked, and the light/dark switch, which until now only existed in the games view.
+- **Issue forms** for a wrong or missing entry, a bug and a feature, and a pull request template. Blank issues are off, and security reports are pointed to a private advisory.
+- CONTRIBUTING gains a field-by-field guide to the data.
+
+### Changed
+
+- **A warm palette with one accent colour**, in both themes. The accent marks what is active, current or a link, and the focus ring is drawn in it.
+- **A new home page**: a headline and the two ways in, the dataset's counts up front, the three sections, and a three-step "how it works".
+- **Chronologies read as a timeline**: a rail through numbered stops that light up on hover, with placement notes set in from it.
+- The light/dark switch shows a sun or a moon rather than a half-filled circle.
+
+### Fixed
+
+- The empty Books card on the home page faded its text to 60% opacity, below WCAG AA contrast. It is drawn with a dashed border instead.
+- On a phone, the games toolbar's filters could not wrap and pushed the whole page sideways.
+
 ## [0.2.0] - 2026-10-16
 
 ### Added

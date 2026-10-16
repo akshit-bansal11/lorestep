@@ -96,7 +96,7 @@ export default function CommandPalette({ franchises, onClose, onPick }: CommandP
                   className={cn(
                     "flex w-full items-baseline gap-2 rounded-control px-2.5 py-2 text-left",
                     "transition-colors duration-[90ms] ease-out motion-reduce:transition-none",
-                    index === active ? "bg-raise text-ink" : "text-muted hover:bg-surface",
+                    index === active ? "bg-accent-soft text-ink" : "text-muted hover:bg-surface",
                   )}
                   onClick={() => onPick(hit)}
                   onMouseEnter={() => setCursor(index)}

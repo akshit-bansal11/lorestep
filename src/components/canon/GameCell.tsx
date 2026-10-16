@@ -20,12 +20,12 @@ export default function GameCell({ game, onOpen }: GameCellProps) {
       type="button"
     >
       <span className="flex items-baseline gap-1.5">
-        <span className="text-ink underline decoration-transparent underline-offset-2 transition-[text-decoration-color] duration-[160ms] group-hover/title:decoration-edge motion-reduce:transition-none">
+        <span className="text-ink underline decoration-transparent underline-offset-2 transition-[text-decoration-color] duration-[160ms] group-hover/title:decoration-accent motion-reduce:transition-none">
           {game.title}
         </span>
 
         {game.starter ? (
-          <span className="shrink-0 border border-edge px-1 text-[9px] text-muted uppercase tracking-[0.1em]">
+          <span className="shrink-0 rounded-control border border-accent-line bg-accent-soft px-1 text-[9px] text-accent uppercase tracking-[0.1em]">
             start
           </span>
         ) : null}

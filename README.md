@@ -1,3 +1,5 @@
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/lorestep-dark.svg"><img src="assets/lorestep-light.svg" width="96" alt="Lorestep"></picture></p>
+
 # Lorestep
 
 Lorestep puts connected franchises in story order: what to play, watch and read in in-universe chronology rather than the order things were released. Every entry sits where it falls in the story, with the branches and side paths marked, and the progress you track through a franchise stays in your own browser — there is no account.
@@ -85,18 +87,20 @@ src/
 │   │   ├── books/       # honest empty state
 │   │   ├── docs/        # usage, shortcuts, data, reporting, developers
 │   │   ├── screen/      # chronology index and one page per chronology
-│   │   ├── layout.tsx   # adds the footer; the games shell sits outside it
+│   │   ├── layout.tsx   # adds the header and footer; the games shell sits outside it
 │   │   └── page.tsx     # landing page
 │   ├── api/prices/      # ITAD price lookup route handler
 │   ├── games/           # the canon tracker, a fixed full-height shell
-│   ├── globals.css      # monochrome token spine, motion scale, both themes
+│   ├── globals.css      # warm token spine with one accent, motion scale, both themes
+│   ├── icon.svg         # favicon
 │   ├── layout.tsx       # root metadata: metadataBase, Open Graph
+│   ├── opengraph-image.png  # the link-preview card, same as assets/social-preview.png
 │   ├── robots.ts
 │   └── sitemap.ts       # static routes plus one entry per chronology
 ├── components/
 │   ├── canon/           # shell, sidebar, grid, table, drawer, palette, cells
 │   ├── screen/          # chronology timeline
-│   └── site/            # section cards, footer, prose sections, analytics provider
+│   └── site/            # logo, header and nav, footer, section cards, prose sections, analytics
 ├── constants/
 │   ├── site.ts          # canonical URL, name, description, routes, site links
 │   ├── docs/            # the docs page's table of contents
@@ -113,7 +117,8 @@ src/
 │   └── canon/           # franchise, game, arc, table, user, price, theme, view types
 └── utils/
     └── canon/           # pure helpers + the localStorage stores
-e2e/                     # Playwright specs (table, tracking, filters, editions, screen, a11y, site)
+assets/                  # logo (light and dark) and the GitHub social preview
+e2e/                     # Playwright specs (table, tracking, filters, editions, screen, a11y, site, mobile)
 scripts/                 # enrich-data.mjs, check-data.mjs, cache and report
 ```
 

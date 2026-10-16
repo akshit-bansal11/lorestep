@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import SiteFooter from "@/components/site/SiteFooter";
+import SiteHeader from "@/components/site/SiteHeader";
 
 /**
  * Every document-flow page, and not the games view. That one is a fixed
@@ -9,6 +10,7 @@ import SiteFooter from "@/components/site/SiteFooter";
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col">
+      <SiteHeader />
       {children}
       <SiteFooter />
     </div>

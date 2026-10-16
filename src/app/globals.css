@@ -1,18 +1,25 @@
 @import "tailwindcss";
 
-/* ── Tone spine — monochrome only. Light is the base; dark redefines. ───── */
+/* ── Tone spine — warm neutrals and one accent. Light is the base; dark
+   redefines. Every text tone is checked at 4.5:1 or better against canvas,
+   surface, raise and accent-soft in both themes; the accent is the only hue,
+   and it marks what is active, current or a link. ───────────────────────── */
 :root {
-  --tone-canvas: #fff;
-  --tone-surface: #fafafa;
-  --tone-raise: #f2f2f2;
-  --tone-line: #e4e4e4;
-  --tone-edge: #cfcfcf;
-  --tone-text: #171717;
-  --tone-muted: #5b5b5b;
-  --tone-faint: #6b6b6b;
-  --tone-invert: #fff;
-  --tone-veil: rgb(23 23 23 / 32%);
-  --tone-cast: 0 12px 40px rgb(23 23 23 / 12%);
+  --tone-canvas: #fbfaf7;
+  --tone-surface: #f4f2ee;
+  --tone-raise: #ebe8e2;
+  --tone-line: #e3dfd8;
+  --tone-edge: #cdc7bd;
+  --tone-text: #1c1a17;
+  --tone-muted: #57524b;
+  --tone-faint: #6a645c;
+  --tone-invert: #fbfaf7;
+  --tone-accent: #ad3e0c;
+  --tone-accent-ink: #fff;
+  --tone-accent-soft: #fbeee4;
+  --tone-accent-line: #e2b597;
+  --tone-veil: rgb(28 26 23 / 32%);
+  --tone-cast: 0 12px 40px rgb(28 26 23 / 12%);
 
   /* Motion — one scale, no bounce. Every duration is multiplied by
      --motion-scale, which the reduced-motion query drops to zero; that removes
@@ -33,30 +40,38 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --tone-canvas: #0a0a0a;
-    --tone-surface: #111;
-    --tone-raise: #171717;
-    --tone-line: #232323;
-    --tone-edge: #3a3a3a;
-    --tone-text: #ededed;
-    --tone-muted: #a0a0a0;
-    --tone-faint: #868686;
-    --tone-invert: #0a0a0a;
+    --tone-canvas: #0f0e0d;
+    --tone-surface: #171615;
+    --tone-raise: #201e1c;
+    --tone-line: #2a2724;
+    --tone-edge: #403b36;
+    --tone-text: #ede9e3;
+    --tone-muted: #a9a299;
+    --tone-faint: #8e877e;
+    --tone-invert: #0f0e0d;
+    --tone-accent: #f0894a;
+    --tone-accent-ink: #1a0d05;
+    --tone-accent-soft: #2a1c14;
+    --tone-accent-line: #6b3a1f;
     --tone-veil: rgb(0 0 0 / 62%);
     --tone-cast: 0 12px 40px rgb(0 0 0 / 55%);
   }
 }
 
 :root[data-theme="dark"] {
-  --tone-canvas: #0a0a0a;
-  --tone-surface: #111;
-  --tone-raise: #171717;
-  --tone-line: #232323;
-  --tone-edge: #3a3a3a;
-  --tone-text: #ededed;
-  --tone-muted: #a0a0a0;
-  --tone-faint: #868686;
-  --tone-invert: #0a0a0a;
+  --tone-canvas: #0f0e0d;
+  --tone-surface: #171615;
+  --tone-raise: #201e1c;
+  --tone-line: #2a2724;
+  --tone-edge: #403b36;
+  --tone-text: #ede9e3;
+  --tone-muted: #a9a299;
+  --tone-faint: #8e877e;
+  --tone-invert: #0f0e0d;
+  --tone-accent: #f0894a;
+  --tone-accent-ink: #1a0d05;
+  --tone-accent-soft: #2a1c14;
+  --tone-accent-line: #6b3a1f;
   --tone-veil: rgb(0 0 0 / 62%);
   --tone-cast: 0 12px 40px rgb(0 0 0 / 55%);
 }
@@ -71,6 +86,10 @@
   --color-muted: var(--tone-muted);
   --color-faint: var(--tone-faint);
   --color-invert: var(--tone-invert);
+  --color-accent: var(--tone-accent);
+  --color-accent-ink: var(--tone-accent-ink);
+  --color-accent-soft: var(--tone-accent-soft);
+  --color-accent-line: var(--tone-accent-line);
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", "Menlo", monospace;
   --radius-control: 3px;
@@ -92,12 +111,17 @@ body {
 }
 
 :focus-visible {
-  outline: 1px solid var(--tone-text);
+  outline: 2px solid var(--tone-accent);
   outline-offset: 2px;
   transition: outline-offset var(--dur-1) var(--ease-out);
 }
 
-/* Thin monochrome scrollbars. Hiding them entirely costs the reader any sense
+::selection {
+  background: var(--tone-accent-soft);
+  color: var(--tone-text);
+}
+
+/* Thin scrollbars. Hiding them entirely costs the reader any sense
    of how far down a 700-row table they are. */
 * {
   scrollbar-width: thin;

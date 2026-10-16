@@ -1,0 +1,47 @@
+name: Bug report
+description: Something on the site does not work the way it should.
+labels: [bug]
+body:
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps
+      description: From opening the page to seeing the problem.
+      placeholder: |
+        1. Open /games#/witcher
+        2. ...
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Page
+      description: The address you were on, including anything after `#`.
+      placeholder: https://lorestep.vercel.app/games#/witcher
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      placeholder: Firefox 131 on Windows 11, or Safari on an iPhone 15
+    validations:
+      required: true
+  - type: dropdown
+    id: theme
+    attributes:
+      label: Theme
+      options:
+        - Light
+        - Dark
+        - Not sure

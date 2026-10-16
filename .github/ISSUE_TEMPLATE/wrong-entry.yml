@@ -1,0 +1,50 @@
+name: Wrong or missing entry
+description: A game, film or series in the wrong place, missing, or with wrong details.
+title: "[data] <franchise>: <what is wrong>"
+labels: [data]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Each franchise lists its scope and a note on how its order was decided, under "How this order was decided" above its table. Read those first: an entry that looks missing may be left out on purpose.
+  - type: input
+    id: franchise
+    attributes:
+      label: Franchise or chronology
+      placeholder: Assassin's Creed, or the MCU watch order
+    validations:
+      required: true
+  - type: input
+    id: entry
+    attributes:
+      label: Entry
+      description: The title as the site shows it, or the title that is missing.
+      placeholder: Assassin's Creed Mirage
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is wrong
+      options:
+        - It is in the wrong place in the order
+        - It is missing
+        - It should not be listed
+        - It is in the wrong storyline or block
+        - A detail is wrong (year, platform, edition, length, price, note)
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What it should be
+      description: Where it belongs, or the correct detail, and why.
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source
+      description: A link or reference that supports the change. Story order is argued over; a source is what settles it.
+    validations:
+      required: true

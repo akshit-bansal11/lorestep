@@ -30,7 +30,7 @@ export default function SectionCard({
         {empty ? null : (
           <span
             aria-hidden="true"
-            className="text-faint transition-transform duration-[160ms] ease-out group-hover:translate-x-0.5 motion-reduce:transition-none"
+            className="text-faint transition-[color,transform] duration-[160ms] ease-out group-hover:translate-x-0.5 group-hover:text-accent motion-reduce:transition-none"
           >
             →
           </span>
@@ -58,7 +58,9 @@ export default function SectionCard({
 
   if (empty) {
     return (
-      <div className={cn(CARD_CLASS, shape, "opacity-60")}>
+      // Dashed and untinted rather than faded: lowering opacity took its text
+      // below 4.5:1, and the card has to stay readable to say it is empty.
+      <div className={cn(CARD_CLASS, shape, "border-dashed bg-transparent")}>
         {body}
         <span className={cn(NUM_CLASS, "text-[10px] text-faint")}>not started</span>
       </div>
@@ -70,8 +72,8 @@ export default function SectionCard({
       className={cn(
         CARD_CLASS,
         shape,
-        "group hover:-translate-y-0.5 hover:border-edge hover:shadow-[var(--tone-cast)]",
-        "focus-visible:border-edge focus-visible:outline-none",
+        "group hover:-translate-y-0.5 hover:border-accent-line hover:shadow-[var(--tone-cast)]",
+        "focus-visible:border-accent",
         "active:translate-y-0 motion-reduce:hover:translate-y-0",
       )}
       href={href}

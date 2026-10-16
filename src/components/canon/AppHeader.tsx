@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import ThemeToggle from "@/components/canon/ThemeToggle";
+import Logo from "@/components/site/Logo";
 import { CONTROL_CLASS, QUIET_LINK_CLASS } from "@/constants/canon/ui";
 import { PAGE_LINKS } from "@/constants/site";
 import { cn } from "@/utils/cn";
@@ -33,10 +34,11 @@ export default function AppHeader({
       </button>
 
       <button
-        className="group flex shrink-0 items-baseline gap-1.5 rounded-control px-1 py-1"
+        className="group flex shrink-0 items-center gap-1.5 rounded-control px-1 py-1"
         onClick={onHome}
         type="button"
       >
+        <Logo className="size-5 text-ink" />
         <span className="font-medium text-[15px] text-ink tracking-[-0.02em]">Lorestep</span>
         <span className="hidden text-[10px] text-faint uppercase tracking-[0.14em] sm:inline">
           story order

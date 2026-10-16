@@ -1,0 +1,9 @@
+# Every issue starts from a form, so a report arrives with what is needed to act on it.
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security hole
+    url: https://github.com/akshit-bansal11/lorestep/security/advisories/new
+    about: Privately, as a security advisory. Please do not open a public issue for something exploitable.
+  - name: Read the docs
+    url: https://lorestep.vercel.app/docs
+    about: How the site works, where the data comes from, and how story order is decided.
