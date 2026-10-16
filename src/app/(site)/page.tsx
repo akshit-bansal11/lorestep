@@ -16,7 +16,7 @@ export default async function Page() {
   const counts = await sectionCounts();
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col justify-center gap-8 px-5 py-16">
+    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center gap-8 px-5 py-16">
       <header className="flex flex-col gap-3">
         <h1 className="font-medium text-[22px] text-ink leading-tight tracking-[-0.02em]">
           Lorestep

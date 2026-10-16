@@ -80,21 +80,26 @@ Everything below is for working on the code.
 ```txt
 src/
 ├── app/
+│   ├── (site)/          # every document-flow page, sharing the footer layout
+│   │   ├── about/       # what it is, how order is decided, sources
+│   │   ├── books/       # honest empty state
+│   │   ├── docs/        # usage, shortcuts, data, reporting, developers
+│   │   ├── screen/      # chronology index and one page per chronology
+│   │   ├── layout.tsx   # adds the footer; the games shell sits outside it
+│   │   └── page.tsx     # landing page
 │   ├── api/prices/      # ITAD price lookup route handler
-│   ├── books/           # honest empty state
-│   ├── games/           # the canon tracker
-│   ├── screen/          # chronology index and one page per chronology
+│   ├── games/           # the canon tracker, a fixed full-height shell
 │   ├── globals.css      # monochrome token spine, motion scale, both themes
 │   ├── layout.tsx       # root metadata: metadataBase, Open Graph
-│   ├── page.tsx
 │   ├── robots.ts
 │   └── sitemap.ts       # static routes plus one entry per chronology
 ├── components/
 │   ├── canon/           # shell, sidebar, grid, table, drawer, palette, cells
 │   ├── screen/          # chronology timeline
-│   └── site/            # landing section cards, analytics provider
+│   └── site/            # section cards, footer, prose sections, analytics provider
 ├── constants/
-│   ├── site.ts          # canonical URL, name, description, static routes
+│   ├── site.ts          # canonical URL, name, description, routes, site links
+│   ├── docs/            # the docs page's table of contents
 │   └── canon/           # columns, statuses, devices, storefronts, tiers, filters, motion
 ├── data/
 │   ├── franchises.json  # games snapshot; seeds Neon, not read at runtime
@@ -108,7 +113,7 @@ src/
 │   └── canon/           # franchise, game, arc, table, user, price, theme, view types
 └── utils/
     └── canon/           # pure helpers + the localStorage stores
-e2e/                     # Playwright specs (table, tracking, filters, editions, a11y)
+e2e/                     # Playwright specs (table, tracking, filters, editions, screen, a11y, site)
 scripts/                 # enrich-data.mjs, check-data.mjs, cache and report
 ```
 
@@ -121,6 +126,8 @@ scripts/                 # enrich-data.mjs, check-data.mjs, cache and report
 | `/screen` | static, revalidated hourly |
 | `/screen/[slug]` | SSG, one prerendered page per chronology |
 | `/books` | static |
+| `/about` | static |
+| `/docs` | static |
 | `/api/prices` | dynamic — the only route rendered on demand, by design |
 
 `npm run build` prints this table. It is worth reading rather than skimming: a content route showing as `ƒ` means it has silently started hitting the database per visitor. CI asserts against exactly that.

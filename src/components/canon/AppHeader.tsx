@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import ThemeToggle from "@/components/canon/ThemeToggle";
-import { CONTROL_CLASS } from "@/constants/canon/ui";
+import { CONTROL_CLASS, QUIET_LINK_CLASS } from "@/constants/canon/ui";
+import { PAGE_LINKS } from "@/constants/site";
 import { cn } from "@/utils/cn";
 
 interface AppHeaderProps {
@@ -51,6 +53,14 @@ export default function AppHeader({
       )}
 
       <div className={cn("flex items-center gap-1.5", crumb === "" ? "ml-auto" : "")}>
+        <nav aria-label="Site" className="hidden items-center gap-3 px-1.5 text-[12px] sm:flex">
+          {PAGE_LINKS.map((link) => (
+            <Link className={QUIET_LINK_CLASS} href={link.href} key={link.href}>
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
         <button
           className={cn(CONTROL_CLASS, "hidden items-center gap-2 sm:flex")}
           onClick={onOpenPalette}

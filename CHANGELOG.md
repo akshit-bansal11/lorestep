@@ -8,6 +8,9 @@ All notable changes to Lorestep. The format follows [Keep a Changelog](https://k
 
 - **An MIT licence.**
 - **A canonical home, lorestep.vercel.app.** The site now declares its origin (`metadataBase`), carries an Open Graph card for shared links, and serves `robots.txt` and a sitemap listing every section and every chronology.
+- **An About page** (`/about`): what the site is, how its story order is decided, what it does not do, and where its data comes from.
+- **A Docs page** (`/docs`): using the site, the keyboard shortcuts, where the data comes from, how to report a wrong entry, and a section for developers.
+- **A footer** on every page but the games view, linking About, Docs, GitHub and the licence. The games header links About and Docs.
 - CHANGELOG, CONTRIBUTING and SECURITY.
 
 ### Changed
