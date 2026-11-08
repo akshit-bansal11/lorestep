@@ -8,7 +8,7 @@ import { parseRetryAfter } from "@/utils/auth/auth-failure";
 const errorSchema = z.object({ error: z.object({ code: z.string(), message: z.string() }) });
 
 interface RequestOptions {
-  method?: "GET" | "POST" | "PATCH" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   json?: unknown;
 }
 

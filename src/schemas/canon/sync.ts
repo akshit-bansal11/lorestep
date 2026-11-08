@@ -13,8 +13,6 @@ export const syncRecordSchema = z.object({
   pending: z.record(z.string(), z.record(z.string(), gameEntrySchema)).catch({}),
 });
 
-export const csrfResponseSchema = z.object({ data: z.object({ token: z.string() }) });
-
 export const importResponseSchema = z.object({
   data: z.object({ inserted: z.number(), skipped: z.number() }),
 });
