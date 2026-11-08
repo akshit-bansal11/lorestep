@@ -88,3 +88,20 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
   rows owned by a missing user instead of deleting them.
 - Export covers profile, entries, links, lists and items; it leaves out session device metadata
   (user agent, IP). Closes if an access request asks for it.
+
+## Deferred (M13 follow-ups)
+
+- Dogear pairing is UNVERIFIED end to end: the `/device/token` after hook (signed `access_token`,
+  session relabelled "Dogear (Chrome)") relies on Better-Auth 1.7.18 keeping the endpoint's JSON in
+  `context.returned`; only the signature format is unit-tested. The M13 e2e (approve a code in the
+  browser, exchange it over `request`, push and pull a mark) is not written. Closes when that e2e
+  passes on the CI branch (needs `DATABASE_URL_CI`) or D2's live pairing calls `/api/v1/sync`.
+- M13 sync SQL is UNVERIFIED against Postgres: the D-15 keep expression (`EXISTS` over
+  `list_items` join `lists`), the `(updated_at, id) >` keyset, `coalesce(excluded.url, ...)` in the
+  link upsert, and the batch as one transaction. Unit tests mock the database. Closes with the e2e
+  above.
+- Sync pull can miss a write whose transaction commits with an `updated_at` earlier than a cursor
+  already handed out (keyset on a commit-order-free clock). Closes if Dogear shows stale marks, by
+  adding an overlap window to the cursor.
+- Sync push checks the 5000-entry cap by a read before the batch; two concurrent pushes can pass it
+  by a few rows. Accepted (one Dogear per browser, 60 pushes a minute).

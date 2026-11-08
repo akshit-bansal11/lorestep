@@ -289,3 +289,18 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
   The hook depends on `context.returned` being the plain JSON object, which a Better-Auth upgrade
   could change; the round-trip unit test pins only the signature format.
 - Revisit when: Better-Auth upgrades past 1.7.x, or ships signed device tokens itself.
+
+## 2026-11-08 Sync routes are bearer only; a Dogear clear keeps entries in a list by external id
+
+- Context: PLAN.md section 5 allowed a session cookie on `GET /api/v1/sync`; the M13 brief says
+  sync is bearer only. D-15 keeps a cleared entry that is in a list, but `list_items` has no entry
+  id.
+- Options: accept cookies on pull; bearer only. For list membership: add an entry id to
+  `list_items` (a migration), match by title, or match by `(ext_source, ext_id)`.
+- Choice: both sync routes answer 403 `bearer_required` to cookie callers
+  (`require-bearer-user.ts`), so they need no CSRF check. List membership = a live list's item with
+  the entry's external id. The push is planned by a pure function (`plan-push.ts`) over two
+  owner-scoped reads and written in one `db.batch`, with LWW repeated in the UPDATE's WHERE.
+- Consequence: the website cannot call sync (it has `/api/v1/entries`). An entry Dogear created
+  has no external id, so it is never a list member until the user links one.
+- Revisit when: `list_items` gains an entry id, or a browser client needs the change feed.
