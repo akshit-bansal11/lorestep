@@ -58,19 +58,57 @@ jobs:
     name: Browser tests
     runs-on: ubuntu-latest
     # Playwright builds and starts the app itself (see playwright.config.ts), and
-    # the content pages read the database at build time, so this job needs the
-    # same connection string the build job does. Gated identically: skipped
-    # rather than faked when the secret is absent.
+    # the content pages read the database at build time. The auth tests will sign
+    # users up, so they run against a Neon CI branch (DATABASE_URL_CI), never production:
+    # the job migrates and seeds that branch first. Without the secret every step
+    # below is skipped with a notice, never faked.
     if: ${{ github.event_name == 'push' }}
+    env:
+      BETTER_AUTH_URL: http://localhost:3001
     steps:
+      - name: Check for the CI database
+        id: db
+        env:
+          DATABASE_URL_CI: ${{ secrets.DATABASE_URL_CI }}
+        run: |
+          if [ -n "$DATABASE_URL_CI" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice title=Browser tests skipped::DATABASE_URL_CI is not set, so nothing below ran. Create the Neon CI branch and add the secret (PLAN.md section 9, step 1)."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/checkout@v5
+        if: steps.db.outputs.ready == 'true'
 
       - uses: actions/setup-node@v5
+        if: steps.db.outputs.ready == 'true'
         with:
           node-version: 24
           cache: npm
 
       - run: npm ci
+        if: steps.db.outputs.ready == 'true'
+
+      # A fresh secret per run: nothing outside this job ever holds it.
+      - name: Generate BETTER_AUTH_SECRET
+        if: steps.db.outputs.ready == 'true'
+        run: |
+          secret="$(openssl rand -base64 32)"
+          echo "::add-mask::$secret"
+          echo "BETTER_AUTH_SECRET=$secret" >> "$GITHUB_ENV"
+
+      - run: npm run db:migrate
+        if: steps.db.outputs.ready == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_CI }}
+
+      # The script directly, not `npm run data:seed`: that passes
+      # --env-file=.env.local, and Node exits when the file is missing.
+      - run: node scripts/seed-db.mjs
+        if: steps.db.outputs.ready == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_CI }}
 
       # Chromium only: playwright.config.ts declares one project, so the other
       # two engines would be ~300 MB nothing runs.
@@ -81,10 +119,12 @@ jobs:
       # critical path of every build. The image already carries Chrome and Edge,
       # so the shared libraries Chromium needs are present without it.
       - run: npx playwright install chromium
+        if: steps.db.outputs.ready == 'true'
 
       - run: npm run test:e2e
+        if: steps.db.outputs.ready == 'true'
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL_CI }}
 
       # `reporter: "list"` prints one line per failure and nothing else, which is
       # not enough to diagnose a failure that only reproduces on the runner. The

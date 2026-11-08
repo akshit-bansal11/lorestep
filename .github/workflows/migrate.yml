@@ -1,0 +1,34 @@
+name: Migrate production
+
+# Applies db/migrations to the production database. Manual only, and gated by the
+# `production` environment: the `environment:` line enforces nothing until that
+# environment exists in the repository settings with a required reviewer.
+on:
+  workflow_dispatch:
+
+# Two migration runs must never overlap; a second dispatch waits for the first.
+concurrency:
+  group: migrate-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  migrate:
+    name: Apply pending migrations
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run db:migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
