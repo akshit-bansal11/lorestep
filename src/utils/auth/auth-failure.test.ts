@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { AUTH_COPY } from "@/constants/auth/copy";
 import type { AuthContext, AuthFailure } from "@/types/auth/auth-form";
 import { failureMessage, formatWait, parseRetryAfter } from "@/utils/auth/auth-failure";
 
@@ -53,8 +54,21 @@ describe("failureMessage", () => {
     expect(failureMessage(failure(0), "sign-in")).toContain("connection");
   });
 
+  it("reads a 400 on the device page as a dead code, not a credential error", () => {
+    expect(failureMessage(failure(400, "INVALID_REQUEST"), "device")).toBe(
+      AUTH_COPY.errors.deviceCode,
+    );
+  });
+
   it("never returns an empty message", () => {
-    const contexts: AuthContext[] = ["sign-in", "sign-up", "reset-request", "reset", "social"];
+    const contexts: AuthContext[] = [
+      "sign-in",
+      "sign-up",
+      "reset-request",
+      "reset",
+      "social",
+      "device",
+    ];
     for (const context of contexts) {
       expect(failureMessage(failure(418, "TEAPOT"), context)).not.toBe("");
     }

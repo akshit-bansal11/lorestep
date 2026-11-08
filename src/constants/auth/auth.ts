@@ -10,6 +10,9 @@ export const DOGEAR_CLIENT_ID = "dogear";
 /** The user-agent a Dogear session is stored with, so `/account` names the device. */
 export const DOGEAR_SESSION_LABEL = "Dogear (Chrome)";
 
+/** Longest `?user_code=` the `/device` page passes on (Better-Auth's codes are 8 characters). */
+export const DEVICE_USER_CODE_MAX = 32;
+
 /** The Better-Auth endpoint that hands a paired device its token. */
 export const DEVICE_TOKEN_PATH = "/device/token";
 
