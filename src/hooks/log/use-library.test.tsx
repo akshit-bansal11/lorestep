@@ -58,8 +58,9 @@ describe("useLibrary", () => {
       data: { items: [dune], nextCursor: null },
     });
     act(() => view.result.current.reload());
-    await waitFor(() => expect(view.result.current.failure).toBeNull());
-    expect(titles(view)).toEqual(["Dune"]);
+    // reload() clears the failure before the request settles, so wait for the data itself.
+    await waitFor(() => expect(titles(view)).toEqual(["Dune"]));
+    expect(view.result.current.failure).toBeNull();
   });
 
   it("shows an edit at once and keeps the server's copy", async () => {
