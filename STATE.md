@@ -8,10 +8,12 @@ Snapshot, rewritten in place (`.claude/CLAUDE.md` section 19).
   guards `requireUser` / `assertSameOrigin` / `clientIp` / `rateLimit`), M4 (`/sign-in`,
   `/sign-up`, `/reset-password`, header account control), M5 (migration `0002_log_tables`:
   `entries`, `entry_links`, `lists`, `list_items`), M9 (`/api/v1/{metadata,search,resolve-link}`).
+- Done, committed, NOT pushed: M6 (status mapper `src/mappers/log/status-mapper.ts` with a
+  round-trip test; `src/services/log/entries-service.ts`; `/api/v1/entries`, `/entries/:id`,
+  `/entries/game/:gameId`; shared `guardMutation`, `readJson`, `noContent`). CI has not run it.
   Routes: `docs/ROUTE-REGISTER.md`.
-- CI: lint/types/tests were green at `7e31244` (M3); later pushes failed only on Biome formatting.
-  `.github/workflows/format-fix.yml` now formats feature branches in CI and commits the result.
-- Never executed: both migrations, the auth server against Neon, every browser test. The e2e job
-  skips until `DATABASE_URL_CI` exists (OPEN_ITEMS.md).
-- Next: M6 (entries domain, status mapper + round-trip test), then M7, M8, M10-M13, D2-D3, P1.
-  M13 must give Dogear a signed device token (OPEN_ITEMS.md).
+- CI: green at `50d458f`. `.github/workflows/format-fix.yml` formats feature branches and commits.
+- Never executed: both migrations, the auth server against Neon, the M6 SQL, every browser test.
+  The e2e job skips until `DATABASE_URL_CI` exists (OPEN_ITEMS.md).
+- Next: push M6 and read CI; then M7, M8, M10-M13, D2-D3, P1. M13 must give Dogear a signed
+  device token (OPEN_ITEMS.md) and should reuse `utils/log/entry-cursor.ts`.

@@ -183,3 +183,28 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
   non-main pushes and commits the result. Lint fixes stay manual; the gate is unchanged.
 - Consequence: a bot commit may follow a push; pull before the next commit.
 - Revisit when: formatting can run before commit (a hook on a machine that can run node).
+
+## 2026-11-08 Entry create is a raw INSERT ... SELECT
+
+- Context: PLAN.md section 4 wants the 5000-entry cap and the unique keys checked in one statement
+  (DB-23); neon-http has no interactive transactions.
+- Options: count then insert (racy, read-then-write); drizzle `insert().select()` with a builder
+  (every value needs a typed alias, unverifiable without a local typecheck); one raw
+  `INSERT ... SELECT ... WHERE (SELECT count(*) ...) < cap RETURNING id`, then a typed re-read.
+- Choice: the raw statement, with explicit casts on non-text values. Unique violations (23505)
+  answer 409 `duplicate`, CHECK violations (23514) 400, no row back 409 `limit`.
+- Consequence: the column list is written by hand and must follow schema changes; two concurrent
+  creates at 4999 can both pass (cap overshoot by the concurrency, accepted).
+- Revisit when: drizzle's insert-select can express it with typed values, or the cap must be exact.
+
+## 2026-11-08 Entry list cursor carries `updated_at::text`
+
+- Context: keyset paging on `(updated_at, id)`; Postgres stores microseconds, a JS `Date` holds
+  milliseconds, so a cursor built from the mapped `Date` would skip or repeat rows.
+- Options: truncate to milliseconds in SQL (defeats the index); write only millisecond times;
+  carry the database's own text form.
+- Choice: select `updated_at::text` beside the row and put it in the opaque base64url cursor,
+  compared as `(updated_at, id) < ($at::timestamptz, $id::uuid)`. Decoded cursors are pattern-checked
+  before any cast, so a forged one is 400, never a 500.
+- Consequence: M13's sync cursor should reuse `utils/log/entry-cursor.ts`.
+- Revisit when: never, unless the order key changes.

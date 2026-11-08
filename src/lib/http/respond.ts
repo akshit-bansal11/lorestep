@@ -24,3 +24,8 @@ export function fail(error: unknown) {
     { status: 500 },
   );
 }
+
+/** 204 with no body. */
+export function noContent() {
+  return new NextResponse(null, { status: 204 });
+}

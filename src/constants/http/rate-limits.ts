@@ -9,4 +9,6 @@ export const RATE_LIMITS = {
   metadata: { limit: 60, windowSec: 60 },
   search: { limit: 60, windowSec: 60 },
   resolveLink: { limit: 30, windowSec: 60 },
+  /** Per user, every entries mutation (create, edit, delete, game status). */
+  entriesWrite: { limit: 120, windowSec: 60 },
 };

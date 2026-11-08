@@ -52,3 +52,13 @@ export interface EntryCursor {
   at: string;
   id: string;
 }
+
+/** Second argument of the `/api/v1/entries/[id]` handlers. */
+export interface EntryRouteContext {
+  params: Promise<{ id: string }>;
+}
+
+/** Second argument of the `/api/v1/entries/game/[gameId]` handler. */
+export interface GameEntryRouteContext {
+  params: Promise<{ gameId: string }>;
+}
