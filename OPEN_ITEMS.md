@@ -55,7 +55,7 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
 
 ## Deferred (M4, M9 follow-ups)
 
-- Header menu links `/library`, `/lists` and `/account` 404 until M10, M11 and M12 ship. Closes
+- Header menu links `/lists` and `/account` 404 until M11 and M12 ship. Closes
   when those pages exist.
 - `/games` renders `AppHeader`, not `SiteHeader`, so it has no sign-in control. Closes when the
   library UI (M10) settles one header for signed-in pages.
@@ -74,8 +74,5 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
   pulls the marks back. Closes when clearing is either disabled signed in or sent to the account.
 - Sync runs per tab: a second open tab does not see the other's account switch or queue until it
   reloads. Accepted for now; closes if a `storage` listener on `isitcanon/import/v1` is added.
-- `src/lib/api/entries-sync-client.ts` has its own CSRF-token fetch, written before M10's
-  `src/lib/api/{csrf-token,api-request}.ts` landed; `apiRequest` has no `PUT`. Closes when the
-  sync client calls `apiRequest`/`apiSend` (after adding `PUT` there).
 - Planned and on-hold game marks (from the library or Dogear) are left out of the games-table
   cache, as the table has no ids for them yet. Closes when the table shows them read-only (M10).

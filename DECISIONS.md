@@ -223,3 +223,27 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
   a signed-out account stay in this browser's localStorage (not shown in the UI) until it signs in
   again.
 - Revisit when: a signed-in "clear all" or multi-tab sync is wanted.
+
+## 2026-11-08 Lists: item cap, shared write budget, hard item delete
+
+- Context: PLAN.md M8 was silent on how many items a list holds and on the write budget; D-16 makes
+  every delete soft, but list items are a membership row, not a sync record.
+- Options: no item cap; a separate list-write budget; soft-delete items (a tombstone per removal,
+  carried to the purge cron).
+- Choice: 500 items per list (`LIST_LIMITS.itemsPerList`); list writes share the entries write
+  budget under bucket `lists:<userId>`; removing an item is a hard delete of the membership row.
+  Re-adding the title restores it. Dogear does not sync list items, so no tombstone is needed. This
+  deviates from D-16 for list items only.
+- Consequence: a removed item cannot be undone except by adding it again; the entry itself is
+  untouched.
+- Revisit when: Dogear or a second device needs to sync list membership, or 500 proves too low.
+
+## 2026-11-08 Undo of a delete restores the row
+
+- Context: M10's undo re-POSTed the deleted entry, which made a new id and lost its Dogear links and
+  list memberships.
+- Options: keep re-POST; clear `deleted_at` on the tombstone while the purge window allows.
+- Choice: `POST /api/v1/entries/:id/restore` clears `deleted_at` within 30 days (404 otherwise, 409
+  at the cap or on a title taken meanwhile).
+- Consequence: the entry keeps its id, links and list memberships.
+- Revisit when: the purge window changes (`ENTRY_LIMITS.restoreWindowDays` must follow it).
