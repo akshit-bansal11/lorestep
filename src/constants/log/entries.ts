@@ -18,6 +18,9 @@ export const ENTRY_LIMITS = {
   pageMax: 100,
   /** PLAN.md section 5: every JSON body. */
   bodyBytes: 64 * 1024,
+  /** POST /api/v1/import/local: marks per request, and its body cap (1000 marks fit easily). */
+  importMax: 1000,
+  importBytes: 256 * 1024,
 } as const;
 
 /** Rating scale (`entries_rating_range`). */

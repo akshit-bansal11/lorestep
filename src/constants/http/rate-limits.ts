@@ -11,4 +11,6 @@ export const RATE_LIMITS = {
   resolveLink: { limit: 30, windowSec: 60 },
   /** Per user, every entries mutation (create, edit, delete, game status). */
   entriesWrite: { limit: 120, windowSec: 60 },
+  /** Per user: a one-off bulk insert of up to 1000 rows. */
+  importLocal: { limit: 10, windowSec: 3600 },
 };
