@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import OptionSelect from "@/components/canon/OptionSelect";
+import ListAddTabs, { addPanelId, addTabId } from "@/components/log/ListAddTabs";
+import ListLibraryPicker from "@/components/log/ListLibraryPicker";
 import ModalDialog from "@/components/log/ModalDialog";
 import { LOG_CONTROL_CLASS, LOG_LABEL_CLASS, LOG_SECONDARY_CLASS } from "@/constants/log/classes";
 import { KIND_NAMES } from "@/constants/log/copy";
@@ -9,7 +11,7 @@ import { KIND_TABS } from "@/constants/log/library";
 import { LISTS_COPY } from "@/constants/log/lists-copy";
 import { useMetadataSearch } from "@/hooks/log/use-metadata-search";
 import type { ApiResult } from "@/types/api/api";
-import type { ListItem, ListItemCreate } from "@/types/log/list";
+import type { ListAddMode, ListItem, ListItemCreate } from "@/types/log/list";
 import type { MediaKind, SearchResult } from "@/types/metadata/metadata";
 import { cn } from "@/utils/cn";
 import { failureMessage } from "@/utils/log/failure-message";
@@ -21,17 +23,19 @@ const copy = LISTS_COPY.addDialog;
 interface ListAddDialogProps {
   open: boolean;
   name: string;
+  /** What the list holds now, so library titles already in it show as added. */
+  existing: readonly ListItem[];
   onClose: () => void;
   onAdd: (item: ListItemCreate) => Promise<ApiResult<ListItem>>;
 }
 
-type FormProps = Omit<ListAddDialogProps, "open" | "name">;
+type SearchPaneProps = Pick<ListAddDialogProps, "onAdd">;
 
 function describe(result: SearchResult): string {
   return [KIND_NAMES[result.type], result.year].filter(Boolean).join(" · ");
 }
 
-function AddForm({ onClose, onAdd }: FormProps) {
+function SearchPane({ onAdd }: SearchPaneProps) {
   const [term, setTerm] = useState("");
   const [type, setType] = useState<MediaKind | "">("");
   const [adding, setAdding] = useState<SearchResult | null>(null);
@@ -126,6 +130,22 @@ function AddForm({ onClose, onAdd }: FormProps) {
         </ul>
       )}
 
+    </div>
+  );
+}
+
+function AddBody({ existing, onAdd, onClose }: Omit<ListAddDialogProps, "open" | "name">) {
+  const [mode, setMode] = useState<ListAddMode>("search");
+  return (
+    <div className="flex flex-col gap-4">
+      <ListAddTabs onChange={setMode} value={mode} />
+      <div aria-labelledby={addTabId(mode)} id={addPanelId(mode)} role="tabpanel">
+        {mode === "search" ? (
+          <SearchPane onAdd={onAdd} />
+        ) : (
+          <ListLibraryPicker existing={existing} onAdd={onAdd} />
+        )}
+      </div>
       <button className={LOG_SECONDARY_CLASS} onClick={onClose} type="button">
         {copy.close}
       </button>
@@ -133,8 +153,14 @@ function AddForm({ onClose, onAdd }: FormProps) {
   );
 }
 
-/** Type to search every provider and add picks to the list; it stays open for several adds. */
-export default function ListAddDialog({ open, name, onClose, onAdd }: ListAddDialogProps) {
+/** Add to the list by searching every provider or by picking from your library; stays open. */
+export default function ListAddDialog({
+  open,
+  name,
+  existing,
+  onClose,
+  onAdd,
+}: ListAddDialogProps) {
   return (
     <ModalDialog
       initialFocus="field"
@@ -143,7 +169,7 @@ export default function ListAddDialog({ open, name, onClose, onAdd }: ListAddDia
       title={copy.title.replace("{name}", name)}
       variant="centre"
     >
-      {open && <AddForm onAdd={onAdd} onClose={onClose} />}
+      {open && <AddBody existing={existing} onAdd={onAdd} onClose={onClose} />}
     </ModalDialog>
   );
 }

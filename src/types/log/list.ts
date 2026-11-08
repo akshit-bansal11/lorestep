@@ -41,3 +41,6 @@ export interface ListRouteContext {
 export interface ListItemRouteContext {
   params: Promise<{ id: string; itemId: string }>;
 }
+
+/** The two ways to fill a list from its add dialog. */
+export type ListAddMode = "search" | "library";

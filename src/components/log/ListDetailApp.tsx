@@ -169,6 +169,7 @@ export default function ListDetailApp({ id }: ListDetailAppProps) {
         open={dialog === "rename"}
       />
       <ListAddDialog
+        existing={list.items}
         name={list.name}
         onAdd={detail.add}
         onClose={closeDialog}
