@@ -51,7 +51,7 @@ src/
 │   │   ├── screen/      # chronology index and one page per chronology
 │   │   ├── layout.tsx   # adds the header and footer; the games shell sits outside it
 │   │   └── page.tsx     # landing page
-│   ├── api/prices/      # ITAD price lookup route handler
+│   ├── api/             # route handlers: prices, auth (Better-Auth), v1 (docs/ROUTE-REGISTER.md)
 │   ├── games/           # the canon tracker, a fixed full-height shell
 │   ├── globals.css      # warm token spine with one accent, motion scale, both themes
 │   ├── icon.svg         # favicon
@@ -67,6 +67,8 @@ src/
 │   ├── site.ts          # canonical URL, name, description, routes, site links
 │   ├── docs/            # the docs page's table of contents
 │   ├── home/            # the landing page's "how it works" steps
+│   ├── auth/            # session TTL, password policy, auth limiter rules, reset email copy
+│   ├── http/            # client-IP and CSRF names, app rate limits
 │   └── canon/           # columns, statuses, devices, storefronts, tiers, filters, motion
 ├── data/
 │   ├── franchises.json  # games snapshot; seeds Neon, not read at runtime
@@ -74,9 +76,13 @@ src/
 ├── hooks/
 │   └── canon/           # tracked entries, theme, prices, hotkeys, chunked rendering
 ├── lib/
-│   ├── db/              # Neon client, Drizzle schema, and the app's three reads
+│   ├── auth/            # Better-Auth server (lazy), Argon2id, hooks, guards, auth env
+│   ├── db/              # Neon clients (HTTP + auth Pool), Drizzle schema, reads, rate limiter
+│   ├── http/            # client IP, CSRF/origin check, JSON responses, HttpError
 │   └── observability/   # Better Stack token presence
 ├── types/
+│   ├── auth/            # auth and password types
+│   ├── http/            # limiter result
 │   └── canon/           # franchise, game, arc, table, user, price, theme, view types
 └── utils/
     └── canon/           # pure helpers + the localStorage stores
@@ -97,7 +103,10 @@ scripts/                 # seed, enrich, audit and check scripts, plus their cac
 | `/books` | static |
 | `/about` | static |
 | `/docs` | static |
-| `/api/prices` | dynamic — the only route rendered on demand, by design |
+| `/api/prices` | dynamic |
+| `/api/auth/*`, `/api/v1/*` | dynamic — every route in `docs/ROUTE-REGISTER.md` |
+
+Only API routes render on demand, by design.
 
 `npm run build` prints this table. It is worth reading rather than skimming: a content route showing as `ƒ` means it has silently started hitting the database per visitor. CI asserts against exactly that.
 
