@@ -12,6 +12,7 @@ import { useAuthForm } from "@/hooks/auth/use-auth-form";
 import { useAuthProviders } from "@/hooks/auth/use-auth-providers";
 import { callAuth } from "@/lib/auth/auth-call";
 import { authClient } from "@/lib/auth/auth-client";
+import { nextPathFromLocation } from "@/utils/auth/safe-next-path";
 import { fieldValue, validateSignIn } from "@/utils/auth/validate-auth";
 import { cn } from "@/utils/cn";
 
@@ -30,7 +31,7 @@ export default function SignInForm() {
           options,
         ),
       ),
-    onDone: () => router.replace("/"),
+    onDone: () => router.replace(nextPathFromLocation()),
   });
   const locked = form.pending || form.done;
 

@@ -11,6 +11,7 @@ import { useAuthForm } from "@/hooks/auth/use-auth-form";
 import { useAuthProviders } from "@/hooks/auth/use-auth-providers";
 import { callAuth } from "@/lib/auth/auth-call";
 import { authClient } from "@/lib/auth/auth-client";
+import { nextPathFromLocation } from "@/utils/auth/safe-next-path";
 import { fieldValue, validateSignUp } from "@/utils/auth/validate-auth";
 
 const copy = AUTH_COPY.signUp;
@@ -32,7 +33,7 @@ export default function SignUpForm() {
           options,
         ),
       ),
-    onDone: () => router.replace("/"),
+    onDone: () => router.replace(nextPathFromLocation()),
   });
   const locked = form.pending || form.done;
 
