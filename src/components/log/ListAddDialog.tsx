@@ -129,7 +129,6 @@ function SearchPane({ onAdd }: SearchPaneProps) {
           ))}
         </ul>
       )}
-
     </div>
   );
 }

@@ -87,7 +87,13 @@ export function useListDetail(id: string) {
       setBusy(true);
       const result = await deleteListItem(id, item.id);
       setBusy(false);
-      if (result.ok) change((prev) => withItems(prev, prev.items.filter((x) => x.id !== item.id)));
+      if (result.ok)
+        change((prev) =>
+          withItems(
+            prev,
+            prev.items.filter((x) => x.id !== item.id),
+          ),
+        );
       return result;
     },
     [id, change],
