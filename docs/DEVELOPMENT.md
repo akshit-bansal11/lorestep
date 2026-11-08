@@ -48,6 +48,8 @@ src/
 │   │   ├── about/       # what it is, how order is decided, sources
 │   │   ├── books/       # honest empty state
 │   │   ├── docs/        # usage, shortcuts, data, reporting, developers
+│   │   ├── reset-password/  # request a reset link, or set a new password from one
+│   │   ├── sign-in/ sign-up/  # email and password, plus the providers the server reports
 │   │   ├── screen/      # chronology index and one page per chronology
 │   │   ├── layout.tsx   # adds the header and footer; the games shell sits outside it
 │   │   └── page.tsx     # landing page
@@ -61,34 +63,37 @@ src/
 │   └── sitemap.ts       # static routes plus one entry per chronology
 ├── components/
 │   ├── canon/           # shell, sidebar, grid, table, drawer, palette, cells
+│   ├── auth/            # sign-in, sign-up and reset forms, OAuth buttons, account menu, avatar
 │   ├── screen/          # chronology timeline
 │   └── site/            # logo, header and nav, footer, section cards, prose sections, analytics
 ├── constants/
 │   ├── site.ts          # canonical URL, name, description, routes, site links
 │   ├── docs/            # the docs page's table of contents
 │   ├── home/            # the landing page's "how it works" steps
-│   ├── auth/            # session TTL, password policy, auth limiter rules, reset email copy
+│   ├── auth/            # session TTL, password policy, limiter rules, reset email, auth screen copy and classes
 │   ├── http/            # client-IP and CSRF names, app rate limits
 │   └── canon/           # columns, statuses, devices, storefronts, tiers, filters, motion
 ├── data/
 │   ├── franchises.json  # games snapshot; seeds Neon, not read at runtime
 │   └── screen.json      # movies and series snapshot, same role
 ├── hooks/
+│   ├── auth/            # session, providers lookup, shared form submit flow
 │   └── canon/           # tracked entries, theme, prices, hotkeys, chunked rendering
 ├── lib/
-│   ├── auth/            # Better-Auth server (lazy), Argon2id, hooks, guards, auth env
+│   ├── auth/            # Better-Auth server (lazy), Argon2id, hooks, guards, auth env; browser client, call wrapper, providers lookup
 │   ├── db/              # Neon clients (HTTP + auth Pool), Drizzle schema, reads, rate limiter
 │   ├── http/            # client IP, CSRF/origin check, JSON responses, HttpError
 │   └── observability/   # Better Stack token presence
 ├── types/
-│   ├── auth/            # auth and password types
+│   ├── auth/            # auth, password and auth-form types
 │   ├── http/            # limiter result
 │   └── canon/           # franchise, game, arc, table, user, price, theme, view types
 └── utils/
+    ├── auth/            # form validation, failure messages, initials
     └── canon/           # pure helpers + the localStorage stores
 assets/                  # logo (light and dark), README screenshots, the GitHub social preview
 docs/                    # this file
-e2e/                     # Playwright specs (table, tracking, filters, editions, screen, a11y, site, responsive)
+e2e/                     # Playwright specs (table, tracking, filters, editions, screen, a11y, site, responsive, auth)
 scripts/                 # seed, enrich, audit and check scripts, plus their cache and reports
 ```
 
@@ -103,6 +108,7 @@ scripts/                 # seed, enrich, audit and check scripts, plus their cac
 | `/books` | static |
 | `/about` | static |
 | `/docs` | static |
+| `/sign-in`, `/sign-up`, `/reset-password` | static — forms are client components; the session is read in the browser, so the header stays static |
 | `/api/prices` | dynamic |
 | `/api/auth/*`, `/api/v1/*` | dynamic — every route in `docs/ROUTE-REGISTER.md` |
 
