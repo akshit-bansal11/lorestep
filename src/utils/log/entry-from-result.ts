@@ -4,7 +4,7 @@ import type { MetadataResponse } from "@/types/log/metadata-response";
 import type { SearchResult } from "@/types/metadata/metadata";
 
 /** The provider that issued a search result's id: MAL for anime and manga, IGDB for games, else TMDB or OMDb. */
-function sourceOf(result: SearchResult): "tmdb" | "omdb" | "mal" | "igdb" {
+export function sourceOf(result: SearchResult): "tmdb" | "omdb" | "mal" | "igdb" {
   if (result.type === "anime" || result.type === "manga") return "mal";
   if (result.type === "game") return "igdb";
   return result.id.startsWith("tt") ? "omdb" : "tmdb";

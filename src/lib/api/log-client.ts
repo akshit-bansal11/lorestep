@@ -6,11 +6,24 @@ import {
   entryResponseSchema,
   searchResultsResponseSchema,
 } from "@/schemas/log/entry-response";
+import {
+  listItemResponseSchema,
+  listResponseSchema,
+  listWithItemsResponseSchema,
+} from "@/schemas/log/list-response";
 import { metadataResponseSchema } from "@/schemas/log/metadata-response";
 import type { ApiResult } from "@/types/api/api";
 import type { Entry, EntryPage } from "@/types/log/entry";
 import type { EntryCreateInput, EntryPatchInput } from "@/types/log/entry-input";
 import type { LibraryFilters } from "@/types/log/library";
+import type {
+  List,
+  ListCreate,
+  ListItem,
+  ListItemCreate,
+  ListPatch,
+  ListWithItems,
+} from "@/types/log/list";
 import type { MetadataResponse } from "@/types/log/metadata-response";
 import type { MediaKind, SearchResult } from "@/types/metadata/metadata";
 import { buildEntriesQuery } from "@/utils/log/entries-query";
@@ -68,4 +81,46 @@ export function restoreEntry(id: string): Promise<ApiResult<Entry>> {
       method: "POST",
     }),
   );
+}
+
+const listsEnvelope = z.object({ data: z.array(listResponseSchema) });
+const listEnvelope = z.object({ data: listResponseSchema });
+const listDetailEnvelope = z.object({ data: listWithItemsResponseSchema });
+const listItemEnvelope = z.object({ data: listItemResponseSchema });
+
+const listPath = (id: string) => `/api/v1/lists/${encodeURIComponent(id)}`;
+
+export function fetchLists(): Promise<ApiResult<List[]>> {
+  return unwrap(apiRequest("/api/v1/lists", listsEnvelope));
+}
+
+export function createList(input: ListCreate): Promise<ApiResult<List>> {
+  return unwrap(apiRequest("/api/v1/lists", listEnvelope, { method: "POST", json: input }));
+}
+
+export function fetchList(id: string): Promise<ApiResult<ListWithItems>> {
+  return unwrap(apiRequest(listPath(id), listDetailEnvelope));
+}
+
+export function patchList(id: string, patch: ListPatch): Promise<ApiResult<List>> {
+  return unwrap(apiRequest(listPath(id), listEnvelope, { method: "PATCH", json: patch }));
+}
+
+export function deleteList(id: string): Promise<ApiResult<null>> {
+  return apiSend(listPath(id), { method: "DELETE" });
+}
+
+export function addListItem(id: string, item: ListItemCreate): Promise<ApiResult<ListItem>> {
+  return unwrap(
+    apiRequest(`${listPath(id)}/items`, listItemEnvelope, { method: "POST", json: item }),
+  );
+}
+
+export function deleteListItem(id: string, itemId: string): Promise<ApiResult<null>> {
+  return apiSend(`${listPath(id)}/items/${encodeURIComponent(itemId)}`, { method: "DELETE" });
+}
+
+/** The full new order: the ids must be exactly the list's items (400 `invalid_order` otherwise). */
+export function reorderListItems(id: string, ids: readonly string[]): Promise<ApiResult<null>> {
+  return apiSend(`${listPath(id)}/items/order`, { method: "PUT", json: { ids } });
 }
