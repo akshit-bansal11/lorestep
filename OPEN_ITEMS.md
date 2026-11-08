@@ -48,3 +48,14 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
 - Unverified until CI e2e runs with `DATABASE_URL_CI`: the auth server against Neon (Pool,
   `transaction: true`, model mapping), whether `next start` sets `x-forwarded-for` (if not,
   `/api/v1/auth-providers` answers 403 `ip_unresolved` locally), and the Resend call.
+
+## Deferred (M4, M9 follow-ups)
+
+- Header menu links `/library`, `/lists` and `/account` 404 until M10, M11 and M12 ship. Closes
+  when those pages exist.
+- `/games` renders `AppHeader`, not `SiteHeader`, so it has no sign-in control. Closes when the
+  library UI (M10) settles one header for signed-in pages.
+- Metadata and search caches are per serverless instance (best effort, 5 min). Accepted: Neon is
+  the only store and the cache only saves provider quota. Revisit if provider limits are hit.
+- No IMDb rating on TMDB-link or title-search resolves, and OMDb search hits carry no rating.
+  Closes if a resolve path fetches OMDb by IMDb id.

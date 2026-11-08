@@ -165,3 +165,21 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
   spec; the conflict is recorded in OPEN_ITEMS.md.
 - Consequence: a client can spend up to twice the limit across a window edge.
 - Revisit when: that double burst matters for a provider quota (M9 metadata/search).
+
+## 2026-11-08 resolve-link reuses the metadata fetchers
+
+- Context: Plotline had separate resolvers per site; M9 ports resolve-link to Lorestep.
+- Options: copy Plotline's resolvers; parse the link to a provider id and call the M9 metadata
+  fetchers.
+- Choice: parse, then reuse the fetchers. One code path per provider, one SSRF guard.
+- Consequence: links the fetchers cannot express return 422 `unresolvable`.
+- Revisit when: a supported site needs page scraping the fetchers cannot do.
+
+## 2026-11-08 Formatting applied in CI on feature branches
+
+- Context: agents cannot run Biome locally, and every formatter diff failed the gate.
+- Options: hand-fix each CI diff; a workflow that formats and commits to the branch.
+- Choice: `.github/workflows/format-fix.yml` runs `biome check --write --linter-enabled=false` on
+  non-main pushes and commits the result. Lint fixes stay manual; the gate is unchanged.
+- Consequence: a bot commit may follow a push; pull before the next commit.
+- Revisit when: formatting can run before commit (a hook on a machine that can run node).
