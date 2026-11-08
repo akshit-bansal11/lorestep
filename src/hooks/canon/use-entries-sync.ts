@@ -27,7 +27,8 @@ export interface UseEntriesSync {
 export function useEntriesSync(): UseEntriesSync {
   const { data, isPending } = authClient.useSession();
   const userId = data?.user.id ?? null;
-  const [prompt, setPrompt] = useState(false);
+  const [promptFor, setPromptFor] = useState<string | null>(null);
+  const prompt = userId !== null && promptFor === userId;
   const [busy, setBusy] = useState(false);
   const failed = useSyncExternalStore(subscribeSync, getSyncFailed, getServerSyncFailed);
 
@@ -35,12 +36,11 @@ export function useEntriesSync(): UseEntriesSync {
     if (isPending) return;
     if (userId === null) {
       leaveAccount();
-      setPrompt(false);
       return;
     }
     let cancelled = false;
     void startSession(userId).then((result) => {
-      if (!cancelled) setPrompt(result === "prompt");
+      if (!cancelled) setPromptFor(result === "prompt" ? userId : null);
     });
     return () => {
       cancelled = true;
@@ -53,13 +53,13 @@ export function useEntriesSync(): UseEntriesSync {
       setBusy(true);
       void decideImport(userId, decision).then((done) => {
         setBusy(false);
-        if (done) setPrompt(false);
+        if (done) setPromptFor(null);
       });
     },
     [userId],
   );
 
-  const dismiss = useCallback(() => setPrompt(false), []);
+  const dismiss = useCallback(() => setPromptFor(null), []);
 
   return { prompt, failed, busy, decide, dismiss };
 }
