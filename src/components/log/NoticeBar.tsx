@@ -19,14 +19,14 @@ interface NoticeBarProps {
  */
 export default function NoticeBar({ notice, onDismiss }: NoticeBarProps) {
   const undo = useRef<HTMLButtonElement>(null);
-  const undoable = notice?.onUndo !== undefined;
+  const onUndo = notice?.onUndo;
 
   useEffect(() => {
-    if (!undoable) return;
+    if (onUndo === undefined) return;
     undo.current?.focus();
     const timer = setTimeout(onDismiss, UNDO_WINDOW_SEC * 1000);
     return () => clearTimeout(timer);
-  }, [undoable, notice, onDismiss]);
+  }, [onUndo, onDismiss]);
 
   return (
     <div aria-live="polite" role="status">

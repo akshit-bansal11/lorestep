@@ -15,12 +15,17 @@ import {
 // A stand-in for the drizzle builder: every step returns another awaitable step, `where` records
 // its condition, and awaiting a `select` yields `state.selectRows`, anything else `state.rows`.
 // `execute` answers `state.execute`.
-const state = vi.hoisted(() => ({
-  rows: new Array<unknown>(),
-  selectRows: new Array<unknown>(),
-  where: new Array<unknown>(),
-  execute: (): Promise<unknown> => Promise.resolve({ rows: [] }),
-}));
+const state = vi.hoisted(() => {
+  const rows: unknown[] = [];
+  const selectRows: unknown[] = [];
+  const where: unknown[] = [];
+  return {
+    rows,
+    selectRows,
+    where,
+    execute: (): Promise<unknown> => Promise.resolve({ rows: [] }),
+  };
+});
 
 vi.mock("@/lib/db/client", () => {
   function chain(rows: unknown): unknown {

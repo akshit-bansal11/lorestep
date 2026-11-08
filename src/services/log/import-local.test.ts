@@ -8,11 +8,12 @@ import type { LocalMarks } from "@/types/log/import";
 
 // The catalog select resolves to `state.catalog`; `execute` records its SQL and answers
 // `state.returned` (the ids Postgres would hand back from RETURNING).
-const state = vi.hoisted(() => ({
-  catalog: new Array<{ id: string; title: string }>(),
-  returned: new Array<{ id: string }>(),
-  executed: new Array<unknown>(),
-}));
+const state = vi.hoisted(() => {
+  const catalog: { id: string; title: string }[] = [];
+  const returned: { id: string }[] = [];
+  const executed: unknown[] = [];
+  return { catalog, returned, executed };
+});
 
 vi.mock("@/lib/db/client", () => {
   const select = () => ({
