@@ -16,7 +16,8 @@ export async function eraseAccount(userId: string, confirmEmail: string): Promis
   const confirmed = sql`EXISTS (SELECT 1 FROM users WHERE id = ${userId} AND lower(email) = lower(${confirmEmail}))`;
   const steps = [
     ...USER_TABLES.map(
-      (table) => sql`DELETE FROM ${sql.identifier(table)} WHERE user_id = ${userId} AND ${confirmed}`,
+      (table) =>
+        sql`DELETE FROM ${sql.identifier(table)} WHERE user_id = ${userId} AND ${confirmed}`,
     ),
     sql`DELETE FROM verifications WHERE value = ${userId} AND ${confirmed}`,
     sql`DELETE FROM rate_limits WHERE right(bucket, ${userId.length + 1}::int) = ${`:${userId}`} AND ${confirmed}`,
