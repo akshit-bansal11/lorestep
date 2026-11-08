@@ -15,6 +15,10 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
 
 - CI and `migrate.yml` run Node 24, whose support ended 2026-10-20 (CI-D03 wants 26). Out of M1's
   scope. Closes when every workflow's `node-version` is an Active LTS release.
+- DB-22 plans for migration 0002 are UNVERIFIED: the expected `EXPLAIN` shape of the hot queries
+  (library list, Dogear matching, sync cursor, purge sweep, lists page) is written as comments in
+  `db/migrations/0002_log_tables.sql`, never run. Closes when `EXPLAIN` from the CI branch, showing
+  each index in use, is attached to the pull request (needs `DATABASE_URL_CI`).
 
 ## Accepted
 
