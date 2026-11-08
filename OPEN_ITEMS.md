@@ -63,3 +63,19 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
   the only store and the cache only saves provider quota. Revisit if provider limits are hit.
 - No IMDb rating on TMDB-link or title-search resolves, and OMDb search hits carry no rating.
   Closes if a resolve path fetches OMDb by IMDb id.
+
+## Deferred (M7 follow-ups)
+
+- M7 import SQL is UNVERIFIED against Postgres: `INSERT ... SELECT FROM jsonb_to_recordset ...
+  ORDER BY ... LIMIT ... ON CONFLICT (user_id, game_id) WHERE ... DO NOTHING`. Unit tests mock the
+  database and only assert the statement's shape and the counts. Closes when `e2e/import.spec.ts`
+  passes on the CI branch (needs `DATABASE_URL_CI`, and the catalog seeded there).
+- Signed in, "Clear all" clears only the local cache, not the account; the next session start
+  pulls the marks back. Closes when clearing is either disabled signed in or sent to the account.
+- Sync runs per tab: a second open tab does not see the other's account switch or queue until it
+  reloads. Accepted for now; closes if a `storage` listener on `isitcanon/import/v1` is added.
+- `src/lib/api/entries-sync-client.ts` has its own CSRF-token fetch, written before M10's
+  `src/lib/api/{csrf-token,api-request}.ts` landed; `apiRequest` has no `PUT`. Closes when the
+  sync client calls `apiRequest`/`apiSend` (after adding `PUT` there).
+- Planned and on-hold game marks (from the library or Dogear) are left out of the games-table
+  cache, as the table has no ids for them yet. Closes when the table shows them read-only (M10).

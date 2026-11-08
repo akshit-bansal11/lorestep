@@ -208,3 +208,18 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
   before any cast, so a forged one is 400, never a 500.
 - Consequence: M13's sync cursor should reuse `utils/log/entry-cursor.ts`.
 - Revisit when: never, unless the order key changes.
+
+## 2026-11-08 Signed-in tracker keeps the browser's own marks aside, never deletes them
+
+- Context: PLAN.md M7 has the signed-in cache replaced by the account's marks and cleared on
+  sign-out, but local data must never be deleted until the server confirms it, and a "Never"
+  answer leaves the browser's marks unimported.
+- Options: clear the cache on sign-out (loses "Never" and unsynced marks); keep account marks after
+  sign-out (leaks one account's marks to the next person on a shared machine); set the browser's
+  marks aside in the `isitcanon/import/v1` record while signed in and put them back on sign-out.
+- Choice: the last. The record also queues each edit per user until the server answers 2xx (or
+  404, a game not in the catalog), and replays the queue at the next session start.
+- Consequence: one storage key holds decisions, the set-aside marks and the queue; queued edits of
+  a signed-out account stay in this browser's localStorage (not shown in the UI) until it signs in
+  again.
+- Revisit when: a signed-in "clear all" or multi-tab sync is wanted.

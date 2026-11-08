@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import ImportBanner from "@/components/auth/ImportBanner";
 import AppHeader from "@/components/canon/AppHeader";
 import Backdrop from "@/components/canon/Backdrop";
 import CanonTable from "@/components/canon/CanonTable";
@@ -224,6 +225,7 @@ export default function CanonApp({ franchises: FRANCHISES }: CanonAppProps) {
         onOpenPalette={() => setPaletteOpen(true)}
         onOpenShortcuts={() => setShortcutsOpen(true)}
       />
+      <ImportBanner />
 
       <div className="flex min-h-0 flex-1">
         <aside className="hidden w-60 shrink-0 border-line border-r lg:block xl:w-64">
