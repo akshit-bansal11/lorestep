@@ -51,8 +51,7 @@ export function mapTmdbDetails(
     image: data.poster_path ? `${TMDB_IMAGE_BASE}${data.poster_path}` : null,
     rating: vote,
     tmdbRating: vote,
-    lengthMinutes:
-      kind === "movie" ? (data.runtime ?? null) : (data.episode_run_time?.[0] ?? null),
+    lengthMinutes: kind === "movie" ? (data.runtime ?? null) : (data.episode_run_time?.[0] ?? null),
     episodeCount: kind === "series" ? (data.number_of_episodes ?? null) : null,
     genresThemes: namesOf(data.genres),
     genreIds: Array.isArray(data.genres)

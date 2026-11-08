@@ -86,9 +86,9 @@ describe("fetchGuardedText", () => {
   it("rejects a disallowed starting URL without fetching", async () => {
     const fetchImpl = vi.fn();
 
-    await expect(
-      fetchGuardedText("https://127.0.0.1/", HEADERS, fetchImpl),
-    ).rejects.toBeInstanceOf(UnsafeUrlError);
+    await expect(fetchGuardedText("https://127.0.0.1/", HEADERS, fetchImpl)).rejects.toBeInstanceOf(
+      UnsafeUrlError,
+    );
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
