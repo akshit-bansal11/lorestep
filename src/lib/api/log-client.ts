@@ -60,3 +60,12 @@ export function fetchMetadata(result: SearchResult): Promise<ApiResult<MetadataR
   if (/^\d{4}$/.test(result.year)) params.set("year", result.year);
   return apiRequest(`/api/v1/metadata?${params.toString()}`, metadataResponseSchema);
 }
+
+/** Undo a delete: the same entry, with its id, links and list memberships, comes back. */
+export function restoreEntry(id: string): Promise<ApiResult<Entry>> {
+  return unwrap(
+    apiRequest(`/api/v1/entries/${encodeURIComponent(id)}/restore`, entryEnvelope, {
+      method: "POST",
+    }),
+  );
+}

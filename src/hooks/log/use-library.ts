@@ -3,7 +3,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DEFAULT_KIND, SEARCH_DEBOUNCE_MS } from "@/constants/log/library";
-import { createEntry, deleteEntry, fetchEntries, patchEntry } from "@/lib/api/log-client";
+import {
+  createEntry,
+  deleteEntry,
+  fetchEntries,
+  patchEntry,
+  restoreEntry,
+} from "@/lib/api/log-client";
 import type { ApiFailure, ApiResult } from "@/types/api/api";
 import type { Entry } from "@/types/log/entry";
 import type { EntryCreateInput } from "@/types/log/entry-input";
@@ -17,7 +23,6 @@ import {
   replaceEntry,
   sortEntries,
 } from "@/utils/log/entry-list";
-import { entryToCreate } from "@/utils/log/entry-to-create";
 
 /** One answered load. `key` ties it to the filters it answered, so a stale one never shows. */
 interface Loaded {
@@ -31,13 +36,6 @@ interface MoreState {
   loading: boolean;
   failure: ApiFailure | null;
 }
-
-const UNRESTORABLE: ApiFailure = {
-  status: 400,
-  code: "unrestorable",
-  message: "This title cannot be restored. Add it again from search.",
-  retryAfterSec: null,
-};
 
 const hasId = (items: readonly Entry[], id: string) => items.some((entry) => entry.id === id);
 
@@ -137,10 +135,14 @@ export function useLibrary() {
 
   const restore = useCallback(
     async (entry: Entry): Promise<ApiResult<Entry>> => {
-      const input = entryToCreate(entry);
-      return input === null ? { ok: false, failure: UNRESTORABLE } : create(input);
+      const result = await restoreEntry(entry.id);
+      if (result.ok && matchesFilters(result.data, filters)) {
+        const restored = result.data;
+        setLoaded((prev) => mapItems(prev, (list) => insertEntry(list, restored)));
+      }
+      return result;
     },
-    [create],
+    [filters],
   );
 
   return {

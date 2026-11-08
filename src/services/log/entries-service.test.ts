@@ -8,6 +8,7 @@ import {
   deleteEntry,
   getEntry,
   listEntries,
+  restoreEntry,
   setGameEntry,
   updateEntry,
 } from "@/services/log/entries-service";
@@ -124,5 +125,20 @@ describe("entries service", () => {
     const { sql, params } = lastWhere();
     expect(sql).toContain('"entries"."game_id" = $');
     expect(params).toEqual(expect.arrayContaining([USER_B, "hades"]));
+  });
+
+  it("restore scopes to the caller's tombstone inside the purge window and answers null otherwise", async () => {
+    await expect(restoreEntry(USER_B, ID)).resolves.toBeNull();
+
+    const { sql, params } = lastWhere();
+    expect(sql).toContain('"entries"."user_id" = $');
+    expect(sql).toContain('"entries"."deleted_at" > $');
+    expect(params).toEqual(expect.arrayContaining([ID, USER_B]));
+  });
+
+  it("restore answers 409 limit when the tombstone exists but the library is full", async () => {
+    state.selectRows = [{ id: ID }];
+
+    await expect(restoreEntry(USER_B, ID)).rejects.toMatchObject({ status: 409, code: "limit" });
   });
 });

@@ -21,6 +21,8 @@ export const ENTRY_LIMITS = {
   /** POST /api/v1/import/local: marks per request, and its body cap (1000 marks fit easily). */
   importMax: 1000,
   importBytes: 256 * 1024,
+  /** How long a soft-deleted entry can be restored; the purge cron removes it after this. */
+  restoreWindowDays: 30,
 } as const;
 
 /** Rating scale (`entries_rating_range`). */

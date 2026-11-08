@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull, type SQL, sql } from "drizzle-orm";
+import { and, desc, eq, gt, isNull, type SQL, sql } from "drizzle-orm";
 
 import { PG_CHECK_VIOLATION, PG_UNIQUE_VIOLATION } from "@/constants/db/pg";
 import { ENTRY_LIMITS } from "@/constants/log/entries";
@@ -209,4 +209,41 @@ export async function setGameEntry(
     device,
     storefront,
   });
+}
+
+/**
+ * Undoes a soft delete: clears `deleted_at` on the caller's own tombstone while it is still inside
+ * the purge window. The row keeps its id, links and list memberships. `null` when there is no such
+ * tombstone (never deleted, purged, or not the caller's); 409 `limit` at the per-user cap; 409
+ * `duplicate` when a live entry took the title meanwhile (unique index).
+ */
+export async function restoreEntry(userId: string, id: string): Promise<Entry | null> {
+  const cutoff = new Date(Date.now() - ENTRY_LIMITS.restoreWindowDays * 86_400_000);
+  const tombstone = and(
+    eq(entries.id, id),
+    eq(entries.userId, userId),
+    gt(entries.deletedAt, cutoff),
+  );
+  try {
+    const rows = await db()
+      .update(entries)
+      .set({ deletedAt: null, updatedAt: new Date() })
+      .where(
+        and(
+          tombstone,
+          sql`(SELECT count(*) FROM entries WHERE user_id = ${userId} AND deleted_at IS NULL)
+            < ${ENTRY_LIMITS.perUser}`,
+        ),
+      )
+      .returning({ id: entries.id });
+    if (rows.length === 0) {
+      const [exists] = await db().select({ id: entries.id }).from(entries).where(tombstone);
+      if (exists === undefined) return null;
+      throw new HttpError(409, "limit", `Your library is full (${ENTRY_LIMITS.perUser} entries).`);
+    }
+  } catch (error) {
+    if (error instanceof HttpError) throw error;
+    rethrowAsClientError(error);
+  }
+  return getEntry(userId, id);
 }

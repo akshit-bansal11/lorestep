@@ -1,7 +1,13 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useLibrary } from "@/hooks/log/use-library";
-import { createEntry, deleteEntry, fetchEntries, patchEntry } from "@/lib/api/log-client";
+import {
+  createEntry,
+  deleteEntry,
+  fetchEntries,
+  patchEntry,
+  restoreEntry,
+} from "@/lib/api/log-client";
 import type { ApiFailure } from "@/types/api/api";
 import { testEntry } from "@/utils/log/test-entry";
 
@@ -10,6 +16,7 @@ vi.mock("@/lib/api/log-client", () => ({
   createEntry: vi.fn(),
   patchEntry: vi.fn(),
   deleteEntry: vi.fn(),
+  restoreEntry: vi.fn(),
 }));
 
 const dune = testEntry({ id: "a", title: "Dune", status: "completed", updatedAt: "2026-11-02" });
@@ -106,19 +113,20 @@ describe("useLibrary", () => {
     expect(titles(view)).toEqual(["Heat"]);
   });
 
-  it("restores a deleted entry by posting it again", async () => {
+  it("restores a deleted entry through the restore endpoint, keeping its id", async () => {
     const view = await loaded();
     vi.mocked(deleteEntry).mockResolvedValueOnce({ ok: true, data: null });
     await act(async () => {
       await view.result.current.remove(dune);
     });
 
-    vi.mocked(createEntry).mockResolvedValueOnce({ ok: true, data: { ...dune, id: "new" } });
+    vi.mocked(restoreEntry).mockResolvedValueOnce({ ok: true, data: dune });
     await act(async () => {
       await view.result.current.restore(dune);
     });
-    expect(vi.mocked(createEntry).mock.calls[0]?.[0]).toMatchObject({ title: "Dune" });
-    expect(view.result.current.items.some((entry) => entry.id === "new")).toBe(true);
+    expect(vi.mocked(restoreEntry)).toHaveBeenCalledWith("a");
+    expect(vi.mocked(createEntry)).not.toHaveBeenCalled();
+    expect(view.result.current.items.some((entry) => entry.id === "a")).toBe(true);
   });
 
   it("lists a new entry only when it belongs under the current filters", async () => {
