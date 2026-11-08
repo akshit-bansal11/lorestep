@@ -1,8 +1,13 @@
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { isPasswordCompromised } from "better-auth/plugins/haveibeenpwned";
 
-import { NEW_PASSWORD_FIELDS } from "@/constants/auth/auth";
+import {
+  DEVICE_TOKEN_PATH,
+  DOGEAR_SESSION_LABEL,
+  NEW_PASSWORD_FIELDS,
+} from "@/constants/auth/auth";
 import { mailCredentials } from "@/lib/auth/auth-env";
+import { signSessionToken } from "@/lib/auth/sign-session-token";
 
 /** The new password a Better-Auth request carries, or null when the path sets none. */
 export function newPasswordIn(path: string, body: unknown): string | null {
@@ -49,4 +54,21 @@ export const beforeAuthHook = createAuthMiddleware(async (ctx) => {
   if (ctx.path === "/change-password") {
     return { context: { ...ctx, body: { ...ctx.body, revokeOtherSessions: true } } };
   }
+});
+
+/**
+ * Runs after every Better-Auth endpoint. On `/device/token` (Dogear's code exchange) it swaps the
+ * raw `access_token` for its signed form, which is what `bearer({ requireSignature: true })`
+ * accepts (OPEN_ITEMS R1), and labels the new session so `/account` lists it as the extension.
+ * Errors (pending, slow_down, denied) arrive as APIError and pass through untouched.
+ */
+export const afterAuthHook = createAuthMiddleware(async (ctx) => {
+  if (ctx.path !== DEVICE_TOKEN_PATH) return;
+  const returned = ctx.context.returned;
+  if (typeof returned !== "object" || returned === null || returned instanceof Error) return;
+  const token: unknown = Reflect.get(returned, "access_token");
+  if (typeof token !== "string" || token.includes(".")) return;
+
+  await ctx.context.internalAdapter.updateSession(token, { userAgent: DOGEAR_SESSION_LABEL });
+  ctx.context.returned = { ...returned, access_token: signSessionToken(token, ctx.context.secret) };
 });

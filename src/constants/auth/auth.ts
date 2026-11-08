@@ -7,6 +7,12 @@ export const RESET_TOKEN_TTL_SEC = 60 * 60;
 /** The only device-authorization client Lorestep accepts: the Dogear extension. */
 export const DOGEAR_CLIENT_ID = "dogear";
 
+/** The user-agent a Dogear session is stored with, so `/account` names the device. */
+export const DOGEAR_SESSION_LABEL = "Dogear (Chrome)";
+
+/** The Better-Auth endpoint that hands a paired device its token. */
+export const DEVICE_TOKEN_PATH = "/device/token";
+
 /** Better-Auth endpoints whose body carries a new password, mapped to that body field. */
 export const NEW_PASSWORD_FIELDS: Readonly<Record<string, string>> = {
   "/sign-up/email": "password",

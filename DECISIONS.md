@@ -270,3 +270,22 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
 - Choice: the email, compared case-insensitively on the server inside the delete statement.
 - Consequence: a mistyped email deletes nothing (400 `confirm_mismatch`).
 - Revisit when: accounts can exist without an email.
+
+## 2026-11-08 Dogear's device token is signed by an after hook on /device/token
+
+- Context: Better-Auth 1.7.18's `/device/token` returns `access_token` = the raw session token.
+  `bearer({ requireSignature: true })` ignores any bearer without a dot, so Dogear could pair but
+  never authenticate. Relaxing `requireSignature` would let a token read from the database
+  authenticate (R1).
+- Options: relax `requireSignature`; a Lorestep route that repeats the code exchange; a global
+  `hooks.after` that rewrites the endpoint's JSON.
+- Choice: `afterAuthHook` (`src/lib/auth/auth-hooks.ts`) replaces `access_token` with
+  `token.base64(HMAC-SHA256(BETTER_AUTH_SECRET, token))` (`sign-session-token.ts`, node:crypto),
+  the exact signed-cookie form better-call 1.4.5 verifies (44-character padded base64), and sets
+  the new session's `user_agent` to "Dogear (Chrome)" so `/account` can revoke it by name. Read
+  from the 1.7.18 sources: `plugins/bearer/index.ts`, `plugins/device-authorization/routes.ts`,
+  `api/dispatch.ts` (`runAfterHooks` keeps `context.returned`), better-call `crypto.mjs`.
+- Consequence: Better-Auth still owns the RFC 8628 flow (polling, slow_down, single-use claim).
+  The hook depends on `context.returned` being the plain JSON object, which a Better-Auth upgrade
+  could change; the round-trip unit test pins only the signature format.
+- Revisit when: Better-Auth upgrades past 1.7.x, or ships signed device tokens itself.

@@ -13,7 +13,7 @@ import {
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "@/constants/auth/password";
 import { CLIENT_IP_HEADER } from "@/constants/http/http";
 import { githubCredentials, googleCredentials, mailCredentials } from "@/lib/auth/auth-env";
-import { beforeAuthHook } from "@/lib/auth/auth-hooks";
+import { afterAuthHook, beforeAuthHook } from "@/lib/auth/auth-hooks";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { sendResetEmail } from "@/lib/auth/send-reset-email";
 import { authDb } from "@/lib/db/auth-db";
@@ -77,7 +77,7 @@ function createAuth() {
     advanced: {
       ipAddress: { ipAddressHeaders: [CLIENT_IP_HEADER] },
     },
-    hooks: { before: beforeAuthHook },
+    hooks: { before: beforeAuthHook, after: afterAuthHook },
     plugins: [
       // Only HMAC-signed tokens become sessions, so a token read from the database alone cannot
       // authenticate (PLAN.md section 11 Q2; OPEN_ITEMS.md R1).

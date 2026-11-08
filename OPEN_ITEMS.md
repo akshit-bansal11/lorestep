@@ -41,10 +41,6 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
 
 ## Deferred (M3 follow-ups)
 
-- Dogear device sign-in vs signed tokens: `/api/auth/device/token` returns the raw session token,
-  which `requireSignature` refuses as a bearer. M13 must return the signed form (for example an
-  after hook on `/device/token` that signs `access_token` the way the bearer plugin signs
-  `set-auth-token`). Closes when D2's e2e pairs a device and calls `/api/v1/sync`.
 - `src/lib/auth/auth-client.ts` (PLAN.md M3 file list) is not written: it has no consumer until
   M4's forms. Closes in M4.
 - Unverified until CI e2e runs with `DATABASE_URL_CI`: the auth server against Neon (Pool,
