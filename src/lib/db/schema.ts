@@ -397,9 +397,7 @@ export const entries = pgTable(
       .on(table.userId, table.titleNorm, table.kind)
       .where(sql`${table.deletedAt} IS NULL`),
     index("entries_sync_idx").on(table.userId, table.updatedAt, table.id),
-    index("entries_deleted_at_idx")
-      .on(table.deletedAt)
-      .where(sql`${table.deletedAt} IS NOT NULL`),
+    index("entries_deleted_at_idx").on(table.deletedAt).where(sql`${table.deletedAt} IS NOT NULL`),
   ],
 );
 
