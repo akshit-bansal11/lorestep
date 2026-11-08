@@ -44,7 +44,13 @@ export const TITLE_CLEAN_MAX = 200;
 /** A normalised title shorter than this is too little to match on and becomes "". */
 export const TITLE_NORM_MIN = 2;
 
-/** `updated_at::text` as Postgres prints a timestamptz. */
+/**
+ * `updated_at::text` as Postgres prints a timestamptz. The named groups let `decodeCursor` check
+ * the parts form a real instant, so 2026-99-99 never reaches the `::timestamptz` cast.
+ */
 export const CURSOR_AT_PATTERN =
-  /^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(\.\d{1,6})?([+-]\d{2}(:?\d{2})?|Z)$/;
+  /^(?<y>\d{4})-(?<mo>\d{2})-(?<d>\d{2})[ T](?<h>\d{2}):(?<mi>\d{2}):(?<s>\d{2})(\.\d{1,6})?((?<oh>[+-]\d{2})(:?(?<om>\d{2}))?|Z)$/;
+
+/** Postgres accepts UTC offsets up to ±15:59. */
+export const CURSOR_MAX_OFFSET_HOURS = 15;
 export const CURSOR_SEPARATOR = "|";

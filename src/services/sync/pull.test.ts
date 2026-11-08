@@ -110,4 +110,12 @@ describe("pullChanges", () => {
     const forged = Buffer.from("not-a-cursor").toString("base64url");
     await expect(pullChanges(USER, { limit: 50, since: forged })).rejects.toThrow(HttpError);
   });
+
+  it("answers 400 for a well-shaped cursor whose date is not real", async () => {
+    const since = encodeCursor({ at: "2026-99-99 10:00:00+00", id: ID_1 });
+    await expect(pullChanges(USER, { limit: 50, since })).rejects.toMatchObject({
+      status: 400,
+      code: "invalid_cursor",
+    });
+  });
 });
