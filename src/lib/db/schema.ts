@@ -167,18 +167,23 @@ export const sessions = pgTable(
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     /** @classification personal */
     ipAddress: text("ip_address"),
-    /** @classification personal */
+    /** @classification personal — display label only, never an authorization input. */
     userAgent: text("user_agent"),
     /** @classification personal — owner id. */
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    /** @classification neither — which client holds the session; authorization reads this. */
+    client: text("client").notNull().default("browser"),
     /** @classification neither */
     createdAt: createdAt(),
     /** @classification neither */
     updatedAt: updatedAt(),
   },
-  (table) => [index("sessions_user_id_idx").on(table.userId)],
+  (table) => [
+    index("sessions_user_id_idx").on(table.userId),
+    check("sessions_client_known", sql`${table.client} IN ('browser', 'dogear')`),
+  ],
 );
 
 export const accounts = pgTable(

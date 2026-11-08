@@ -16,10 +16,14 @@ describe("requireUser", () => {
   });
 
   it("returns the session user and marks cookie callers as session", async () => {
-    getSession.mockResolvedValueOnce({ user: { id: "u1" }, session: {} });
+    getSession.mockResolvedValueOnce({ user: { id: "u1" }, session: { client: "browser" } });
     const req = request({ cookie: "__Secure-better-auth.session_token=signed" });
 
-    await expect(requireUser(req)).resolves.toEqual({ userId: "u1", via: "session" });
+    await expect(requireUser(req)).resolves.toEqual({
+      userId: "u1",
+      via: "session",
+      client: "browser",
+    });
     expect(getSession).toHaveBeenCalledWith({ headers: req.headers });
   });
 
@@ -30,8 +34,20 @@ describe("requireUser", () => {
       await expect(requireUser(request({ authorization }))).resolves.toEqual({
         userId: "u2",
         via: "bearer",
+        client: "browser",
       });
     }
+  });
+
+  it("classifies a Dogear session row as bearer even when its token arrives as a cookie", async () => {
+    getSession.mockResolvedValueOnce({ user: { id: "u3" }, session: { client: "dogear" } });
+    const req = request({ cookie: "__Secure-better-auth.session_token=dogear-token" });
+
+    await expect(requireUser(req)).resolves.toEqual({
+      userId: "u3",
+      via: "bearer",
+      client: "dogear",
+    });
   });
 
   it("throws a 401 HttpError when there is no session", async () => {

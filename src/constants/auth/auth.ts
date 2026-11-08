@@ -7,7 +7,13 @@ export const RESET_TOKEN_TTL_SEC = 60 * 60;
 /** The only device-authorization client Lorestep accepts: the Dogear extension. */
 export const DOGEAR_CLIENT_ID = "dogear";
 
-/** The user-agent a Dogear session is stored with, so `/account` names the device. */
+/**
+ * Who holds a session row. Authorization reads this column, never the transport: a Dogear token
+ * is byte-identical to a cookie value, so how it arrives proves nothing (DECISIONS.md).
+ */
+export const SESSION_CLIENTS = ["browser", "dogear"] as const;
+
+/** The user-agent a Dogear session is stored with, so `/account` names it. Display only. */
 export const DOGEAR_SESSION_LABEL = "Dogear (Chrome)";
 
 /** Longest `?user_code=` the `/device` page passes on (Better-Auth's codes are 8 characters). */

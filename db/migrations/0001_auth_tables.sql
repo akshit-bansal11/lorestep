@@ -23,10 +23,12 @@ CREATE TABLE IF NOT EXISTS sessions (
   token text NOT NULL UNIQUE,                            -- credential (stored raw: OPEN_ITEMS R1)
   expires_at timestamptz NOT NULL,                       -- neither
   ip_address text,                                       -- personal
-  user_agent text,                                       -- personal
+  user_agent text,                                       -- personal (display label only)
   user_id text NOT NULL REFERENCES users (id) ON DELETE CASCADE, -- personal (owner id)
+  client text NOT NULL DEFAULT 'browser',                -- neither (authorization class)
   created_at timestamptz NOT NULL DEFAULT now(),         -- neither
-  updated_at timestamptz NOT NULL DEFAULT now()          -- neither
+  updated_at timestamptz NOT NULL DEFAULT now(),         -- neither
+  CONSTRAINT sessions_client_known CHECK (client IN ('browser', 'dogear'))
 );
 CREATE INDEX IF NOT EXISTS sessions_user_id_idx ON sessions (user_id);
 

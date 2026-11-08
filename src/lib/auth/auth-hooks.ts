@@ -59,7 +59,8 @@ export const beforeAuthHook = createAuthMiddleware(async (ctx) => {
 /**
  * Runs after every Better-Auth endpoint. On `/device/token` (Dogear's code exchange) it swaps the
  * raw `access_token` for its signed form, which is what `bearer({ requireSignature: true })`
- * accepts (OPEN_ITEMS R1), and labels the new session so `/account` lists it as the extension.
+ * accepts (OPEN_ITEMS R1), and marks the new session row `client = 'dogear'`, which is what
+ * authorization reads (require-user.ts). The user-agent label is for `/account` display only.
  * Errors (pending, slow_down, denied) arrive as APIError and pass through untouched.
  */
 export const afterAuthHook = createAuthMiddleware(async (ctx) => {
@@ -69,6 +70,9 @@ export const afterAuthHook = createAuthMiddleware(async (ctx) => {
   const token: unknown = Reflect.get(returned, "access_token");
   if (typeof token !== "string" || token.includes(".")) return;
 
-  await ctx.context.internalAdapter.updateSession(token, { userAgent: DOGEAR_SESSION_LABEL });
+  await ctx.context.internalAdapter.updateSession(token, {
+    client: "dogear",
+    userAgent: DOGEAR_SESSION_LABEL,
+  });
   ctx.context.returned = { ...returned, access_token: signSessionToken(token, ctx.context.secret) };
 });
