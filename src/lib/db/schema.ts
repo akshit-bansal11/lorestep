@@ -142,6 +142,9 @@ export const users = pgTable(
     updatedAt: updatedAt(),
   },
   (table) => [
+    check("users_name_length", sql`char_length(${table.name}) BETWEEN 1 AND 100`),
+    // RFC 5321 path limit.
+    check("users_email_length", sql`char_length(${table.email}) <= 254`),
     check("users_image_https", sql`${table.image} IS NULL OR ${table.image} LIKE 'https://%'`),
     check("users_image_length", sql`char_length(${table.image}) <= 500`),
   ],

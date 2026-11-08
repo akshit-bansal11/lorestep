@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS users (
   image text,                                            -- personal (provider avatar URL)
   created_at timestamptz NOT NULL DEFAULT now(),         -- neither
   updated_at timestamptz NOT NULL DEFAULT now(),         -- neither
+  CONSTRAINT users_name_length CHECK (char_length(name) BETWEEN 1 AND 100),
+  CONSTRAINT users_email_length CHECK (char_length(email) <= 254), -- RFC 5321 path limit
   CONSTRAINT users_image_https CHECK (image IS NULL OR image LIKE 'https://%'),
   CONSTRAINT users_image_length CHECK (char_length(image) <= 500)
 );
