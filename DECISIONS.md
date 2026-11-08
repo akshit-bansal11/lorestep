@@ -247,3 +247,26 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
   at the cap or on a title taken meanwhile).
 - Consequence: the entry keeps its id, links and list memberships.
 - Revisit when: the purge window changes (`ENTRY_LIMITS.restoreWindowDays` must follow it).
+
+## 2026-11-08 Account erase, device sign-out and export bypass Better-Auth's endpoints
+
+- Context: M12 needs erasure (SEC-22, DB-11), per-device sign-out and export.
+- Options: Better-Auth `deleteUser` (needs `user.deleteUser.enabled`, a password or fresh session,
+  and deletes only Better-Auth's own tables), `listSessions` / `revokeSession` (return and take the
+  raw session token); or Lorestep's own routes over the Drizzle tables.
+- Choice: own routes. Erase is one statement over `services/account/user-tables.ts` plus the
+  user's `rate_limits` and reset `verifications`, guarded on the typed email. Sessions are listed
+  by id with display columns only and revoked by `DELETE ... WHERE id AND user_id`. All three
+  account routes refuse bearer tokens (403), so the Dogear token cannot export or erase.
+- Consequence: no session token reaches the browser; revocation is immediate because no cookie
+  cache or secondary storage is configured. Enabling `session.cookieCache` would break that.
+- Revisit when: `session.cookieCache` or secondary storage is turned on.
+
+## 2026-11-08 Erase confirms with the account's email, not the word DELETE
+
+- Context: PLAN.md section 5 sketched `{confirm:"DELETE"}`; UX-SPEC UX-05 wants the unique name of
+  the object typed for an irreversible action.
+- Options: a fixed word; the account's email.
+- Choice: the email, compared case-insensitively on the server inside the delete statement.
+- Consequence: a mistyped email deletes nothing (400 `confirm_mismatch`).
+- Revisit when: accounts can exist without an email.
