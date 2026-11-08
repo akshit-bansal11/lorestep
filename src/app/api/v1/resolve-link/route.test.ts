@@ -104,4 +104,12 @@ describe("POST /api/v1/resolve-link", () => {
     expect(await res.json()).toEqual({ data: { id: "tt1", title: "Heat" } });
     expect(resolveLink).toHaveBeenCalledWith("https://www.imdb.com/title/tt1/");
   });
+
+  it("answers 413 for a body past the JSON cap and resolves nothing", async () => {
+    const res = await call(JSON.stringify({ url: "x".repeat(65 * 1024) }));
+
+    expect(res.status).toBe(413);
+    expect((await res.json()).error.code).toBe("too_large");
+    expect(resolveLink).not.toHaveBeenCalled();
+  });
 });

@@ -1,11 +1,13 @@
 import type { NextRequest } from "next/server";
 
 import { RATE_LIMITS } from "@/constants/http/rate-limits";
+import { ENTRY_LIMITS } from "@/constants/log/entries";
 import { requireUser } from "@/lib/auth/require-user";
 import { assertSameOrigin } from "@/lib/http/assert-same-origin";
 import { enforceRateLimit } from "@/lib/http/enforce-rate-limit";
 import { UnsafeUrlError } from "@/lib/http/guard-url";
 import { HttpError } from "@/lib/http/http-error";
+import { readJson } from "@/lib/http/read-json";
 import { fail, ok } from "@/lib/http/respond";
 import { resolveLink } from "@/lib/resolve";
 import { resolveBodySchema } from "@/schemas/log/resolve";
@@ -19,7 +21,7 @@ export async function POST(request: NextRequest) {
     if (via === "session") assertSameOrigin(request);
     await enforceRateLimit(`resolve:${userId}`, RATE_LIMITS.resolveLink);
 
-    const body = resolveBodySchema.safeParse(await request.json().catch(() => null));
+    const body = resolveBodySchema.safeParse(await readJson(request, ENTRY_LIMITS.bodyBytes));
     if (!body.success) throw new HttpError(400, "invalid_body", "Send a JSON body with a url.");
 
     const media = await resolveLink(body.data.url);
