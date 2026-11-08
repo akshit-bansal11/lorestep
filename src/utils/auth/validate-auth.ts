@@ -1,9 +1,4 @@
-import {
-  AUTH_COPY,
-  EMAIL_MAX_LENGTH,
-  EMAIL_PATTERN,
-  NAME_MAX_LENGTH,
-} from "@/constants/auth/copy";
+import { AUTH_COPY, EMAIL_MAX_LENGTH, EMAIL_PATTERN, NAME_MAX_LENGTH } from "@/constants/auth/copy";
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "@/constants/auth/password";
 import type { FieldErrors } from "@/types/auth/auth-form";
 
