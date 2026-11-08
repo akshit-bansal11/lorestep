@@ -4,15 +4,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DELETE, GET, PATCH } from "@/app/api/v1/entries/[id]/route";
 import { HttpError } from "@/lib/http/http-error";
 
-const { requireUser, rateLimit, assertSameOrigin, getEntry, updateEntry, deleteEntry } =
-  vi.hoisted(() => ({
+const { requireUser, rateLimit, assertSameOrigin, getEntry, updateEntry, deleteEntry } = vi.hoisted(
+  () => ({
     requireUser: vi.fn(),
     rateLimit: vi.fn(),
     assertSameOrigin: vi.fn(),
     getEntry: vi.fn(),
     updateEntry: vi.fn(),
     deleteEntry: vi.fn(),
-  }));
+  }),
+);
 
 vi.mock("@/lib/auth/require-user", () => ({ requireUser }));
 vi.mock("@/lib/db/rate-limit", () => ({ rateLimit }));

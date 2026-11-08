@@ -20,7 +20,8 @@ export async function PUT(request: NextRequest, { params }: GameEntryRouteContex
     const gameId = gameIdSchema.safeParse((await params).gameId);
     if (!gameId.success) throw new HttpError(404, "not_found", "That game is not in the catalog.");
     const body = gameEntrySchema.safeParse(await readJson(request, ENTRY_LIMITS.bodyBytes));
-    if (!body.success) throw new HttpError(400, "invalid_body", "Send a status, device or storefront.");
+    if (!body.success)
+      throw new HttpError(400, "invalid_body", "Send a status, device or storefront.");
     const entry = await setGameEntry(userId, gameId.data, body.data);
     return entry === null ? noContent() : ok(entry);
   } catch (error) {
