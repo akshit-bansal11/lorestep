@@ -47,16 +47,13 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
   `set-auth-token`). Closes when D2's e2e pairs a device and calls `/api/v1/sync`.
 - `src/lib/auth/auth-client.ts` (PLAN.md M3 file list) is not written: it has no consumer until
   M4's forms. Closes in M4.
-- `rate_limits` and `auth_rate_limits` rows are never deleted. Closes when M12's purge cron removes
-  windows older than a day.
 - Unverified until CI e2e runs with `DATABASE_URL_CI`: the auth server against Neon (Pool,
   `transaction: true`, model mapping), whether `next start` sets `x-forwarded-for` (if not,
   `/api/v1/auth-providers` answers 403 `ip_unresolved` locally), and the Resend call.
 
 ## Deferred (M4, M9 follow-ups)
 
-- Header menu links `/lists` and `/account` 404 until M11 and M12 ship. Closes
-  when those pages exist.
+- Header menu link `/lists` 404s until M11 ships. Closes when that page exists.
 - `/games` renders `AppHeader`, not `SiteHeader`, so it has no sign-in control. Closes when the
   library UI (M10) settles one header for signed-in pages.
 - Metadata and search caches are per serverless instance (best effort, 5 min). Accepted: Neon is
@@ -76,3 +73,22 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
   reloads. Accepted for now; closes if a `storage` listener on `isitcanon/import/v1` is added.
 - Planned and on-hold game marks (from the library or Dogear) are left out of the games-table
   cache, as the table has no ids for them yet. Closes when the table shows them read-only (M10).
+
+## Deferred (M12 follow-ups)
+
+- `CRON_SECRET` is unprovisioned: until it is set in the Vercel project, `/api/cron/purge` answers
+  401 to Vercel Cron and nothing is purged. Closes when a Vercel cron log shows a 200.
+- M12 erase and purge SQL is UNVERIFIED against Postgres: data-modifying CTEs over every user
+  table, `right(bucket, n)` on `rate_limits`, the `verifications.value = user id` match for reset
+  tokens, and the counts row. Unit tests mock the database and assert the statement's shape. The
+  SEC-22 end-to-end check (zero rows left for the user, other users untouched) is
+  `e2e/account.spec.ts` plus a DB-backed row count, neither run yet. Closes when both pass on the
+  CI branch (needs `DATABASE_URL_CI`).
+- DPDP inactivity retention (SECURITY-SPEC SEC-23): personal data must not be kept past one year
+  of inactivity, with 48 hours' notice before erasure; core obligations apply about May 2027 (18
+  months from the DPDP Rules' notification on 14 November 2025). Not built: no last-active column
+  and no notice mail. Closes when an inactivity sweep with notice ships before that date.
+- DB-12 orphan sweep (the alerting backstop for erase) is not built. Closes when a sweep reports
+  rows owned by a missing user instead of deleting them.
+- Export covers profile, entries, links, lists and items; it leaves out session device metadata
+  (user agent, IP). Closes if an access request asks for it.
