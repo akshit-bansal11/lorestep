@@ -15,6 +15,19 @@ export function retryAfterFor(nowMs: number, windowSec: number): number {
   return Math.max(1, windowStartFor(nowMs, windowSec) + windowSec - Math.ceil(nowMs / 1000));
 }
 
+/** The stored bucket key: the caller's bucket plus the window length, `<bucket>:<windowSec>`. */
+export function bucketKey(bucket: string, windowSec: number): string {
+  return `${bucket}:${windowSec}`;
+}
+
+/**
+ * What every stored bucket of one user contains: user-keyed buckets are `<prefix>:<userId>`, so the
+ * stored key is `<prefix>:<userId>:<windowSec>` (`bucketKey`). Erase matches on this (SEC-22).
+ */
+export function userBucketNeedle(userId: string): string {
+  return `:${userId}:`;
+}
+
 /**
  * Fixed-window limiter: one atomic `INSERT ... ON CONFLICT DO UPDATE ... RETURNING` per call, so
  * concurrent requests can never both read the same count (PLAN.md D-11, a user decision that
@@ -34,7 +47,7 @@ export async function rateLimit(
     const [row] = await db()
       .insert(rateLimits)
       .values({
-        bucket: `${bucket}:${windowSec}`,
+        bucket: bucketKey(bucket, windowSec),
         windowStart: windowStartFor(nowMs, windowSec),
         count: 1,
       })

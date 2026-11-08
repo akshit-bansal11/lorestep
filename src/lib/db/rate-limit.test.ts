@@ -1,6 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { rateLimit, retryAfterFor, windowStartFor } from "@/lib/db/rate-limit";
+import {
+  bucketKey,
+  rateLimit,
+  retryAfterFor,
+  userBucketNeedle,
+  windowStartFor,
+} from "@/lib/db/rate-limit";
 
 const { returning, values, onConflictDoUpdate } = vi.hoisted(() => ({
   returning: vi.fn(),
@@ -77,5 +83,23 @@ describe("rateLimit", () => {
       allowed: true,
     });
     expect(warn).toHaveBeenCalledOnce();
+  });
+});
+
+describe("userBucketNeedle", () => {
+  const prefixes = ["account", "export", "meta", "resolve", "search", "sync-pull", "sync-push"];
+
+  it("is found in every stored bucket keyed by the user, whatever the window", () => {
+    for (const prefix of prefixes) {
+      for (const windowSec of [1, 60, 3600]) {
+        expect(bucketKey(`${prefix}:user-a`, windowSec)).toContain(userBucketNeedle("user-a"));
+      }
+    }
+  });
+
+  it("never matches another user's bucket or an IP bucket", () => {
+    for (const bucket of ["account:user-ab", "account:xuser-a", "ip:203.0.113.7"]) {
+      expect(bucketKey(bucket, 60)).not.toContain(userBucketNeedle("user-a"));
+    }
   });
 });

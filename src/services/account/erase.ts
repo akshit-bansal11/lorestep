@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 
 import { db } from "@/lib/db/client";
+import { userBucketNeedle } from "@/lib/db/rate-limit";
 import { HttpError } from "@/lib/http/http-error";
 import { USER_TABLES } from "@/services/account/user-tables";
 
@@ -20,7 +21,7 @@ export async function eraseAccount(userId: string, confirmEmail: string): Promis
         sql`DELETE FROM ${sql.identifier(table)} WHERE user_id = ${userId} AND ${confirmed}`,
     ),
     sql`DELETE FROM verifications WHERE value = ${userId} AND ${confirmed}`,
-    sql`DELETE FROM rate_limits WHERE right(bucket, ${userId.length + 1}::int) = ${`:${userId}`} AND ${confirmed}`,
+    sql`DELETE FROM rate_limits WHERE strpos(bucket, ${userBucketNeedle(userId)}) > 0 AND ${confirmed}`,
   ];
   const ctes = sql.join(
     steps.map((step, index) => sql`${sql.identifier(`erase_${index}`)} AS (${step})`),

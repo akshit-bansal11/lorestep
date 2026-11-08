@@ -46,13 +46,13 @@ describe("eraseAccount", () => {
       expect(sql).toMatch(new RegExp(`DELETE FROM "${table}" WHERE user_id = \\$\\d+ AND EXISTS`));
     }
     expect(sql).toContain("DELETE FROM verifications WHERE value = $");
-    expect(sql).toContain("DELETE FROM rate_limits WHERE right(bucket, $");
+    expect(sql).toContain("DELETE FROM rate_limits WHERE strpos(bucket, $");
     expect(sql).toMatch(
       /DELETE FROM users WHERE id = \$\d+ AND lower\(email\) = lower\(\$\d+\)\s+RETURNING id$/,
     );
-    expect(params).toContain(`:${USER}`);
-    // Every value is the caller's id, the typed email or the suffix length: never another user.
-    expect(new Set(params)).toEqual(new Set([USER, EMAIL, `:${USER}`, USER.length + 1]));
+    expect(params).toContain(`:${USER}:`);
+    // Every value is the caller's id, the typed email or its bucket needle: never another user.
+    expect(new Set(params)).toEqual(new Set([USER, EMAIL, `:${USER}:`]));
   });
 
   it("guards every delete on the typed email matching the account", async () => {
