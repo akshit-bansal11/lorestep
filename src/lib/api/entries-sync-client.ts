@@ -1,9 +1,4 @@
-import {
-  CSRF_URL,
-  GAME_ENTRIES_URL,
-  GAME_ENTRY_URL,
-  IMPORT_URL,
-} from "@/constants/canon/sync";
+import { CSRF_URL, GAME_ENTRIES_URL, GAME_ENTRY_URL, IMPORT_URL } from "@/constants/canon/sync";
 import { CSRF_HEADER } from "@/constants/http/http";
 import {
   csrfResponseSchema,

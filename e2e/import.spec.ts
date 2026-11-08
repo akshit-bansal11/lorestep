@@ -30,7 +30,9 @@ test.describe("importing this browser's marks", () => {
     await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
 
     await page.goto("/games");
-    await expect(page.getByText("Import 1 mark from this browser into your account?")).toBeVisible();
+    await expect(
+      page.getByText("Import 1 mark from this browser into your account?"),
+    ).toBeVisible();
     const imported = page.waitForResponse("**/api/v1/import/local");
     await page.getByRole("button", { name: "Import", exact: true }).click();
     expect((await imported).status()).toBe(200);

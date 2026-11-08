@@ -39,7 +39,8 @@ export const LIBRARY_COPY = {
       "You are offline. The list below is what loaded before; edits will not save until you reconnect.",
   },
   failure: {
-    offline: "You are offline, or the connection dropped. Nothing was lost. Retry once you reconnect.",
+    offline:
+      "You are offline, or the connection dropped. Nothing was lost. Retry once you reconnect.",
     unauthorized: "Your session ended. Sign in again to keep editing.",
     rateLimited: "Too many requests. Try again in {wait}.",
     rateLimitedNoWait: "Too many requests. Try again in a minute.",

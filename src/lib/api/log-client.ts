@@ -33,9 +33,7 @@ export function fetchEntries(
 }
 
 export function createEntry(input: EntryCreateInput): Promise<ApiResult<Entry>> {
-  return unwrap(
-    apiRequest("/api/v1/entries", entryEnvelope, { method: "POST", json: input }),
-  );
+  return unwrap(apiRequest("/api/v1/entries", entryEnvelope, { method: "POST", json: input }));
 }
 
 export function patchEntry(id: string, patch: EntryPatchInput): Promise<ApiResult<Entry>> {
