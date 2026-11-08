@@ -87,7 +87,16 @@ describe("rateLimit", () => {
 });
 
 describe("userBucketNeedle", () => {
-  const prefixes = ["account", "export", "meta", "resolve", "search", "sync-pull", "sync-push"];
+  const prefixes = [
+    "account",
+    "export",
+    "meta",
+    "resolve",
+    "search",
+    "sync-pull",
+    "sync-push",
+    "sync-signout",
+  ];
 
   it("is found in every stored bucket keyed by the user, whatever the window", () => {
     for (const prefix of prefixes) {

@@ -26,5 +26,6 @@ export async function requireUser(request: Request): Promise<AuthedUser> {
     userId: session.user.id,
     via: client === "dogear" || bearer ? "bearer" : "session",
     client,
+    sessionId: session.session.id,
   };
 }

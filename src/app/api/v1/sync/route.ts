@@ -9,7 +9,7 @@ import { pullChanges } from "@/services/sync/pull";
 /** Dogear pull: `?since&limit&kinds`, changes after the cursor, tombstones included. */
 export async function GET(request: Request) {
   try {
-    const userId = await requireBearerUser(request);
+    const { userId } = await requireBearerUser(request);
     await enforceRateLimit(`sync-pull:${userId}`, RATE_LIMITS.syncPull);
     const query = syncPullQuerySchema.safeParse(
       Object.fromEntries(new URL(request.url).searchParams),

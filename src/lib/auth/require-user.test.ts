@@ -16,37 +16,46 @@ describe("requireUser", () => {
   });
 
   it("returns the session user and marks cookie callers as session", async () => {
-    getSession.mockResolvedValueOnce({ user: { id: "u1" }, session: { client: "browser" } });
+    getSession.mockResolvedValueOnce({
+      user: { id: "u1" },
+      session: { id: "s1", client: "browser" },
+    });
     const req = request({ cookie: "__Secure-better-auth.session_token=signed" });
 
     await expect(requireUser(req)).resolves.toEqual({
       userId: "u1",
       via: "session",
       client: "browser",
+      sessionId: "s1",
     });
     expect(getSession).toHaveBeenCalledWith({ headers: req.headers });
   });
 
   it("marks Authorization callers as bearer, whatever the scheme's case", async () => {
-    getSession.mockResolvedValue({ user: { id: "u2" }, session: {} });
+    getSession.mockResolvedValue({ user: { id: "u2" }, session: { id: "s2" } });
 
     for (const authorization of ["Bearer abc.def", "bearer abc.def"]) {
       await expect(requireUser(request({ authorization }))).resolves.toEqual({
         userId: "u2",
         via: "bearer",
         client: "browser",
+        sessionId: "s2",
       });
     }
   });
 
-  it("classifies a Dogear session row as bearer even when its token arrives as a cookie", async () => {
-    getSession.mockResolvedValueOnce({ user: { id: "u3" }, session: { client: "dogear" } });
+  it("treats a Dogear row as bearer even when its token comes as a cookie", async () => {
+    getSession.mockResolvedValueOnce({
+      user: { id: "u3" },
+      session: { id: "s3", client: "dogear" },
+    });
     const req = request({ cookie: "__Secure-better-auth.session_token=dogear-token" });
 
     await expect(requireUser(req)).resolves.toEqual({
       userId: "u3",
       via: "bearer",
       client: "dogear",
+      sessionId: "s3",
     });
   });
 

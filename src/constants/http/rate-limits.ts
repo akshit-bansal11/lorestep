@@ -20,4 +20,6 @@ export const RATE_LIMITS = {
   /** Per user, Dogear sync (PLAN.md M13). */
   syncPull: { limit: 60, windowSec: 60 },
   syncPush: { limit: 60, windowSec: 60 },
+  /** Per user: Dogear signing its own session out. */
+  syncSignOut: { limit: 10, windowSec: 60 },
 };

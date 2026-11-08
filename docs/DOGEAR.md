@@ -52,3 +52,15 @@ sends no CORS headers (D-10). JSON bodies, `content-type: application/json`.
   server did not mint is 400 `invalid_cursor`: pull again without `since`.
 
 Both sync routes: 60 requests a minute per user, then 429 with `Retry-After`.
+
+## Who is signed in: `GET /api/auth/get-session` (bearer)
+
+Better-Auth's own endpoint, called with `Authorization: Bearer <access_token>`. 200
+`{ session, user }`; show `user.name` / `user.email` as "Signed in as". A body of `null` means the
+token no longer names a session: delete it. Rate-limited by Better-Auth per IP.
+
+## Sign out: `POST /api/v1/sync/sign-out` (bearer only; a cookie caller gets 403)
+
+No body. Deletes exactly the session the token belongs to (owner and id scoped), then 204. Safe
+to resend: once the row is gone the token answers 401, which already means signed out. Delete the
+stored token either way. 10 requests a minute per user (`sync-signout:<userId>`), then 429.

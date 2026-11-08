@@ -11,7 +11,7 @@ import { pushMarks } from "@/services/sync/push";
 /** Dogear push: up to 200 marks, applied in order, last write wins, safe to resend. */
 export async function POST(request: Request) {
   try {
-    const userId = await requireBearerUser(request);
+    const { userId } = await requireBearerUser(request);
     await enforceRateLimit(`sync-push:${userId}`, RATE_LIMITS.syncPush);
     const body = syncPushSchema.safeParse(await readJson(request, SYNC_LIMITS.pushBytes));
     if (!body.success) {

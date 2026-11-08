@@ -30,4 +30,6 @@ export interface AuthedUser {
   userId: string;
   via: "session" | "bearer";
   client: SessionClient;
+  /** The calling session row's id, so a route can act on exactly that session. */
+  sessionId: string;
 }
