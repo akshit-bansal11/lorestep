@@ -26,3 +26,16 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
   (erasable syntax only, no imports).
 - Consequence: the file must stay free of enums, namespaces, parameter properties and `@/` imports.
 - Revisit when: the script needs a non-erasable TypeScript feature.
+
+## 2026-11-08 Lockfile regenerated in CI and committed to the feature branch
+
+- Context: M3 adds `better-auth` and `zod`; `package-lock.json` must change, and npm cannot run on
+  the owner's machine. `workflow_dispatch` only works once a workflow exists on `main`.
+- Options: a lockfile PR into the feature branch (the portfolio pattern); commit straight to the
+  feature branch.
+- Choice: `.github/workflows/lockfile.yml` runs on any non-main push that changes `package.json`
+  (and manually once on `main`), runs `npm install --package-lock-only --ignore-scripts`, and
+  commits the lockfile to that branch. It refuses `main`.
+- Consequence: a bot commit lands on the branch after each `package.json` change; pull before the
+  next commit. GITHUB_TOKEN pushes do not trigger CI, so the next human push is the one CI checks.
+- Revisit when: dependency review needs its own PR, or Dependabot takes over lockfile updates.
