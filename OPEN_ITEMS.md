@@ -23,8 +23,6 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
   with casts), the `ON CONFLICT (user_id, game_id) WHERE ...` upsert on the partial index, and the
   `updated_at::text` cursor. Unit tests mock the database. Closes when a DB-backed test runs them
   on the CI branch (needs `DATABASE_URL_CI`).
-- `PUT /api/v1/entries/game/:gameId` does not count against the 5000-entry cap (the catalog bounds
-  it). Closes if game ids ever become user-supplied, by adding the cap to that insert.
 
 ## Accepted
 

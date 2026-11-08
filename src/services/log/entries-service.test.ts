@@ -8,35 +8,42 @@ import {
   deleteEntry,
   getEntry,
   listEntries,
+  setGameEntry,
   updateEntry,
 } from "@/services/log/entries-service";
 
 // A stand-in for the drizzle builder: every step returns another awaitable step, `where` records
-// its condition, and awaiting yields `state.rows`. `execute` answers `state.execute`.
+// its condition, and awaiting a `select` yields `state.selectRows`, anything else `state.rows`.
+// `execute` answers `state.execute`.
 const state = vi.hoisted(() => ({
   rows: new Array<unknown>(),
+  selectRows: new Array<unknown>(),
   where: new Array<unknown>(),
   execute: (): Promise<unknown> => Promise.resolve({ rows: [] }),
 }));
 
 vi.mock("@/lib/db/client", () => {
-  function chain(): unknown {
-    return Object.assign(Promise.resolve(state.rows), {
-      select: chain,
-      from: chain,
-      update: chain,
-      set: chain,
-      orderBy: chain,
-      limit: chain,
-      returning: chain,
-      execute: () => state.execute(),
+  function chain(rows: unknown): unknown {
+    const next = () => chain(rows);
+    return Object.assign(Promise.resolve(rows), {
+      from: next,
+      set: next,
+      orderBy: next,
+      limit: next,
+      returning: next,
       where: (condition: unknown) => {
         state.where.push(condition);
-        return chain();
+        return next();
       },
     });
   }
-  return { db: chain };
+  return {
+    db: () => ({
+      select: () => chain(state.selectRows),
+      update: () => chain(state.rows),
+      execute: () => state.execute(),
+    }),
+  };
 });
 
 const USER_B = "user-b";
@@ -51,6 +58,7 @@ function lastWhere() {
 describe("entries service", () => {
   beforeEach(() => {
     state.rows = [];
+    state.selectRows = [];
     state.where = [];
     state.execute = () => Promise.resolve({ rows: [] });
   });
@@ -99,5 +107,17 @@ describe("entries service", () => {
       status: 409,
       code: "limit",
     });
+  });
+
+  it("caps a new game entry like create: 409 limit at the cap", async () => {
+    state.selectRows = [{ title: "Hades" }];
+
+    await expect(setGameEntry(USER_B, "hades", { status: "playing" })).rejects.toMatchObject({
+      status: 409,
+      code: "limit",
+    });
+    const { sql, params } = lastWhere();
+    expect(sql).toContain('"entries"."game_id" = $');
+    expect(params).toEqual(expect.arrayContaining([USER_B, "hades"]));
   });
 });

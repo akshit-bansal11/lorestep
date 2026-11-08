@@ -161,11 +161,10 @@ export async function deleteEntry(userId: string, id: string): Promise<boolean> 
 }
 
 /**
- * The games table's status, device and storefront for one catalog game, replaced whole: upserted
- * on `(user_id, game_id)`, or soft-deleted (returns `null`) when all three are cleared. 404 when
- * the game is not in the catalog.
- * ponytail: skips the per-user cap; the catalog (under 1,000 games) bounds it. Add the cap if
- * game ids ever become user-supplied.
+ * The games table's status, device and storefront for one catalog game, replaced whole. An existing
+ * live row is updated (uncapped); otherwise the row is created through `createEntry`, so the
+ * per-user cap (DB-24) applies and answers 409 `limit`. All three cleared = soft delete (`null`).
+ * 404 when the game is not in the catalog.
  */
 export async function setGameEntry(
   userId: string,
@@ -194,27 +193,20 @@ export async function setGameEntry(
   }
 
   const state = input.status === null ? { status: null, shelf: null } : toCanonical(input.status);
-  const fields = { ...state, statusAt: now, device, storefront, updatedAt: now };
-  try {
-    const [row] = await db()
-      .insert(entries)
-      .values({
-        userId,
-        kind: "game",
-        gameId,
-        title: cleanTitle(game.title).slice(0, ENTRY_LIMITS.title) || gameId,
-        titleNorm: normTitle(game.title),
-        ...fields,
-      })
-      .onConflictDoUpdate({
-        target: [entries.userId, entries.gameId],
-        targetWhere: sql`game_id IS NOT NULL AND deleted_at IS NULL`,
-        set: fields,
-      })
-      .returning(ENTRY_COLUMNS);
-    if (row === undefined) throw new Error(`Upsert of game ${gameId} returned no row`);
-    return toEntry(row);
-  } catch (error) {
-    rethrowAsClientError(error);
-  }
+  const [row] = await db()
+    .update(entries)
+    .set({ ...state, statusAt: now, device, storefront, updatedAt: now })
+    .where(ownGame)
+    .returning(ENTRY_COLUMNS);
+  if (row !== undefined) return toEntry(row);
+
+  // A concurrent create of the same game loses on the unique index: 409 `duplicate`.
+  return createEntry(userId, {
+    kind: "game",
+    gameId,
+    title: cleanTitle(game.title).slice(0, ENTRY_LIMITS.title) || gameId,
+    ...state,
+    device,
+    storefront,
+  });
 }
