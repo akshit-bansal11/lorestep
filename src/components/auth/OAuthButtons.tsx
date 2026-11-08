@@ -8,6 +8,7 @@ import { callAuth } from "@/lib/auth/auth-call";
 import { authClient } from "@/lib/auth/auth-client";
 import type { AuthProviders, SocialProvider } from "@/types/auth/auth-form";
 import { failureMessage } from "@/utils/auth/auth-failure";
+import { nextPathFromLocation } from "@/utils/auth/safe-next-path";
 
 interface OAuthButtonsProps {
   /** Null while unknown or when the lookup failed; either way no button is shown. */
@@ -33,7 +34,7 @@ export default function OAuthButtons({ providers, busy }: OAuthButtonsProps) {
     setActive(provider);
     setError(null);
     const failure = await callAuth((options) =>
-      authClient.signIn.social({ provider, callbackURL: "/" }, options),
+      authClient.signIn.social({ provider, callbackURL: nextPathFromLocation() }, options),
     );
     if (failure !== null) {
       setActive(null);
