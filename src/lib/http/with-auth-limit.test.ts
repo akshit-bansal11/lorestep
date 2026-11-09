@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { HttpError } from "@/lib/http/http-error";
@@ -15,6 +17,11 @@ const IP = { "x-forwarded-for": "1.2.3.4" };
 // `path` is the forwarded `params.path`; the URL is deliberately unrelated, since it is not read.
 const call = (path: string[], headers: Record<string, string> = IP, method = "POST") =>
   limited(new Request("https://lorestep.test/api/auth/x", { method, headers }), {
+    params: Promise.resolve({ path }),
+  });
+
+const post = (path: string[], body: string) =>
+  limited(new Request("https://lorestep.test/api/auth/x", { method: "POST", headers: IP, body }), {
     params: Promise.resolve({ path }),
   });
 
@@ -115,6 +122,49 @@ describe("withAuthLimit", () => {
       expect((await call(path.split("/"))).status).toBe(200);
     }
     expect(handler).toHaveBeenCalledTimes(8);
+  });
+
+  it("also counts sign-in and reset requests per hashed email, never the raw address", async () => {
+    const hash = createHash("sha256").update("a@example.com").digest("hex");
+
+    await post(["sign-in", "email"], JSON.stringify({ email: "  A@Example.com ", password: "x" }));
+    await post(["request-password-reset"], JSON.stringify({ email: "a@example.com" }));
+
+    expect(buckets()).toEqual([
+      "auth:1.2.3.4",
+      "auth:sign-in/email:1.2.3.4",
+      `auth:email:sign-in/email:${hash}`,
+      "auth:1.2.3.4",
+      "auth:request-password-reset:1.2.3.4",
+      `auth:email:request-password-reset:${hash}`,
+    ]);
+    expect(rateLimit.mock.calls[2]).toEqual([`auth:email:sign-in/email:${hash}`, 10, 900]);
+    expect(buckets().join(" ")).not.toMatch(/example/i);
+    // The proxied request still carries its body.
+    const forwarded: unknown = handler.mock.calls[0]?.[0];
+    expect(forwarded instanceof Request && (await forwarded.json()).password).toBe("x");
+  });
+
+  it("skips the email bucket for other paths and for a body with no usable email", async () => {
+    await post(["sign-up", "email"], JSON.stringify({ email: "a@example.com" }));
+    await post(["sign-in", "email"], "not json");
+    await post(["sign-in", "email"], JSON.stringify({ email: "  " }));
+    await post(["sign-in", "email"], JSON.stringify({ email: 7 }));
+
+    expect(buckets().some((bucket) => String(bucket).startsWith("auth:email:"))).toBe(false);
+    expect(handler).toHaveBeenCalledTimes(4);
+  });
+
+  it("answers 429 past the email cap and never proxies", async () => {
+    rateLimit
+      .mockResolvedValueOnce({ allowed: true, retryAfterSec: 30 })
+      .mockResolvedValueOnce({ allowed: true, retryAfterSec: 30 })
+      .mockResolvedValueOnce({ allowed: false, retryAfterSec: 600 });
+    const response = await post(["sign-in", "email"], JSON.stringify({ email: "a@example.com" }));
+
+    expect(response.status).toBe(429);
+    expect(response.headers.get("retry-after")).toBe("600");
+    expect(handler).not.toHaveBeenCalled();
   });
 
   it("answers 400 for a malformed path, counting and proxying nothing", async () => {

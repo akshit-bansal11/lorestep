@@ -1,4 +1,7 @@
+import { createHash } from "node:crypto";
+
 import {
+  AUTH_EMAIL_LIMITED_PATHS,
   AUTH_NON_CREDENTIAL_PATHS,
   AUTH_PROXY_PATHS,
   AUTH_SEGMENT_FORBIDDEN,
@@ -36,11 +39,31 @@ export function canonicalAuthPath(path: readonly string[]): string {
 }
 
 /**
+ * The limiter key for a request body's `email`: sha256 hex of it trimmed and lowercased, so
+ * `rate_limits.bucket` never holds a raw address. Null when the body is not JSON or carries no
+ * non-blank string `email` (Neon rejects that request anyway). Reads a clone: the proxy still
+ * forwards the original body.
+ */
+export async function emailBucket(request: Request): Promise<string | null> {
+  let body: unknown;
+  try {
+    body = await request.clone().json();
+  } catch {
+    return null;
+  }
+  if (typeof body !== "object" || body === null || !("email" in body)) return null;
+  const { email } = body;
+  if (typeof email !== "string" || email.trim() === "") return null;
+  return createHash("sha256").update(email.trim().toLowerCase()).digest("hex");
+}
+
+/**
  * Fronts the Neon Auth proxy for every method (PLAN.md section 12, N-5, SEC-20). The forwarded
  * path must be in `AUTH_PROXY_PATHS[method]` exactly as forwarded (the SDK joins the raw
  * segments), else 404 `not_found` and nothing reaches Neon; 400 for a malformed path. POSTs then
  * count in `auth:<ip>`, and every POST not in `AUTH_NON_CREDENTIAL_PATHS` also in the strict
- * `auth:<path>:<ip>` bucket. 429 past either cap, 403 when the client IP cannot be resolved.
+ * `auth:<path>:<ip>` bucket, and `AUTH_EMAIL_LIMITED_PATHS` also in `auth:email:<path>:<sha256>`.
+ * 429 past any cap, 403 when the client IP cannot be resolved.
  */
 export function withAuthLimit(handler: AuthRouteHandler): AuthRouteHandler {
   return async (request, context) => {
@@ -59,6 +82,10 @@ export function withAuthLimit(handler: AuthRouteHandler): AuthRouteHandler {
         await enforceRateLimit(`auth:${ip}`, RATE_LIMITS.auth);
         if (!AUTH_NON_CREDENTIAL_PATHS.includes(path)) {
           await enforceRateLimit(`auth:${path}:${ip}`, RATE_LIMITS.authCredential);
+        }
+        const email = AUTH_EMAIL_LIMITED_PATHS.includes(path) ? await emailBucket(request) : null;
+        if (email !== null) {
+          await enforceRateLimit(`auth:email:${path}:${email}`, RATE_LIMITS.authEmail);
         }
       }
     } catch (error) {

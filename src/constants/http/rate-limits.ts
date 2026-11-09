@@ -7,6 +7,11 @@ export const RATE_LIMITS = {
   auth: { limit: 30, windowSec: 60 },
   /** Per client IP and path, on top of `auth`: every POST not in `AUTH_NON_CREDENTIAL_PATHS`. */
   authCredential: { limit: 10, windowSec: 60 },
+  /**
+   * Per sha256 of the trimmed, lowercased body `email`, on top of the per-IP buckets: POST
+   * `AUTH_EMAIL_LIMITED_PATHS`, so one account cannot be guessed at or mail-bombed from many IPs.
+   */
+  authEmail: { limit: 10, windowSec: 900 },
   /** Per client IP. */
   authProviders: { limit: 30, windowSec: 60 },
   /** Per user: each call fans out to paid or quota-limited third-party APIs. */

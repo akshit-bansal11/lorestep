@@ -33,6 +33,12 @@ export const AUTH_PROXY_PATHS: Readonly<Record<string, readonly string[]>> = {
   ],
 };
 
+/** POST paths whose body `email` also counts in its own hashed bucket (`RATE_LIMITS.authEmail`). */
+export const AUTH_EMAIL_LIMITED_PATHS: readonly string[] = [
+  "sign-in/email",
+  "request-password-reset",
+];
+
 /** Characters a decoded auth path segment may never contain (traversal and double encoding). */
 export const AUTH_SEGMENT_FORBIDDEN = /[/\\%]/;
 
