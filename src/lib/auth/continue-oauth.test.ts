@@ -30,7 +30,11 @@ describe("readOAuthQuery", () => {
   });
 
   it("rejects repeated keys other than ba_param, so the consent page shows what Neon signed", () => {
-    for (const extra of ["client_id=evil", "scope=openid", "redirect_uri=https%3A%2F%2Fx.test%2F"]) {
+    for (const extra of [
+      "client_id=evil",
+      "scope=openid",
+      "redirect_uri=https%3A%2F%2Fx.test%2F",
+    ]) {
       expect(readOAuthQuery(`${SIGNED}&${extra}`)).toBeNull();
     }
     expect(readOAuthQuery(`${SIGNED}&ba_param=resource`)).toBe(`${SIGNED}&ba_param=resource`);
