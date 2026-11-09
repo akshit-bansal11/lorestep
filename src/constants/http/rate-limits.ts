@@ -8,10 +8,12 @@ export const RATE_LIMITS = {
   /** Per client IP and path, on top of `auth`: every POST not in `AUTH_NON_CREDENTIAL_PATHS`. */
   authCredential: { limit: 10, windowSec: 60 },
   /**
-   * Per sha256 of the trimmed, lowercased body `email`, on top of the per-IP buckets: POST
-   * `AUTH_EMAIL_LIMITED_PATHS`, so one account cannot be guessed at or mail-bombed from many IPs.
+   * Per path, sha256 of the trimmed, lowercased body `email`, and client IP: POST
+   * `AUTH_EMAIL_LIMITED_PATHS`. Strict, but an attacker elsewhere cannot spend a victim's budget.
    */
-  authEmail: { limit: 10, windowSec: 900 },
+  authEmailIp: { limit: 10, windowSec: 900 },
+  /** Per path and email hash across every IP: the brute-force ceiling over `authEmailIp`. */
+  authEmail: { limit: 100, windowSec: 3600 },
   /** Per client IP. */
   authProviders: { limit: 30, windowSec: 60 },
   /** Per user: each call fans out to paid or quota-limited third-party APIs. */

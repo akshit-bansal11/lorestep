@@ -4,12 +4,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { HttpError } from "@/lib/http/http-error";
 import { canonicalAuthPath, withAuthLimit } from "@/lib/http/with-auth-limit";
+import type { AuthRouteHandler } from "@/types/auth/auth";
 
 const { rateLimit } = vi.hoisted(() => ({ rateLimit: vi.fn() }));
 
 vi.mock("@/lib/db/rate-limit", () => ({ rateLimit }));
 
-const handler = vi.fn(() => Promise.resolve(new Response("proxied")));
+const handler = vi.fn<AuthRouteHandler>(() => Promise.resolve(new Response("proxied")));
 const limited = withAuthLimit(handler);
 
 const IP = { "x-forwarded-for": "1.2.3.4" };
@@ -20,12 +21,32 @@ const call = (path: string[], headers: Record<string, string> = IP, method = "PO
     params: Promise.resolve({ path }),
   });
 
-const post = (path: string[], body: string) =>
-  limited(new Request("https://lorestep.test/api/auth/x", { method: "POST", headers: IP, body }), {
-    params: Promise.resolve({ path }),
-  });
+const JSON_TYPE = { "content-type": "application/json" };
+const EMAIL_BODY = JSON.stringify({ email: "  A@Example.com ", password: "x" });
+const HASH = createHash("sha256").update("a@example.com").digest("hex");
+
+const post = (
+  path: string[],
+  body: string,
+  headers: Record<string, string> = JSON_TYPE,
+  ip = "1.2.3.4",
+) =>
+  limited(
+    new Request("https://lorestep.test/api/auth/x", {
+      method: "POST",
+      headers: { ...headers, "x-forwarded-for": ip },
+      body,
+    }),
+    { params: Promise.resolve({ path }) },
+  );
 
 const buckets = () => rateLimit.mock.calls.map((args: unknown[]) => args[0]);
+
+/** The body of the request `handler` was called with the `index`-th time. */
+async function forwardedBody(index: number): Promise<string> {
+  const forwarded: unknown = handler.mock.calls[index]?.[0];
+  return forwarded instanceof Request ? forwarded.text() : "";
+}
 
 describe("canonicalAuthPath", () => {
   it("decodes and lowercases each forwarded segment", () => {
@@ -55,13 +76,17 @@ describe("withAuthLimit", () => {
     rateLimit.mockResolvedValue({ allowed: true, retryAfterSec: 30 });
   });
 
-  it("counts a credential POST in the default and its strict bucket, then proxies", async () => {
-    expect(await (await call(["sign-in", "email"])).text()).toBe("proxied");
+  it("counts a credential POST in the default and its strict buckets, then proxies", async () => {
+    expect(await (await post(["sign-in", "email"], EMAIL_BODY)).text()).toBe("proxied");
 
     expect(rateLimit.mock.calls).toEqual([
       ["auth:1.2.3.4", 30, 60],
       ["auth:sign-in/email:1.2.3.4", 10, 60],
+      [`auth:email:sign-in/email:${HASH}:1.2.3.4`, 10, 900],
+      [`auth:email:sign-in/email:${HASH}`, 100, 3600],
     ]);
+    expect(buckets().join(" ")).not.toMatch(/example/i);
+    expect(await forwardedBody(0)).toBe(EMAIL_BODY);
   });
 
   it("answers 404 off the allowlist, never counting or proxying", async () => {
@@ -119,52 +144,79 @@ describe("withAuthLimit", () => {
       "oauth2/continue",
       "oauth2/consent",
     ]) {
-      expect((await call(path.split("/"))).status).toBe(200);
+      expect((await post(path.split("/"), EMAIL_BODY)).status).toBe(200);
     }
     expect(handler).toHaveBeenCalledTimes(8);
   });
 
-  it("also counts sign-in and reset requests per hashed email, never the raw address", async () => {
-    const hash = createHash("sha256").update("a@example.com").digest("hex");
+  it("keys the strict email bucket per IP, so nobody elsewhere can lock a victim out", async () => {
+    await post(["sign-in", "email"], EMAIL_BODY, JSON_TYPE, "1.2.3.4");
+    await post(["sign-in", "email"], EMAIL_BODY, JSON_TYPE, "5.6.7.8");
 
-    await post(["sign-in", "email"], JSON.stringify({ email: "  A@Example.com ", password: "x" }));
-    await post(["request-password-reset"], JSON.stringify({ email: "a@example.com" }));
-
-    expect(buckets()).toEqual([
-      "auth:1.2.3.4",
-      "auth:sign-in/email:1.2.3.4",
-      `auth:email:sign-in/email:${hash}`,
-      "auth:1.2.3.4",
-      "auth:request-password-reset:1.2.3.4",
-      `auth:email:request-password-reset:${hash}`,
-    ]);
-    expect(rateLimit.mock.calls[2]).toEqual([`auth:email:sign-in/email:${hash}`, 10, 900]);
-    expect(buckets().join(" ")).not.toMatch(/example/i);
-    // The proxied request still carries its body.
-    const forwarded: unknown = handler.mock.calls[0]?.[0];
-    expect(forwarded instanceof Request && (await forwarded.json()).password).toBe("x");
+    const strict = buckets().filter((bucket) => String(bucket).endsWith(`${HASH}:5.6.7.8`));
+    expect(strict).toEqual([`auth:email:sign-in/email:${HASH}:5.6.7.8`]);
+    const global = buckets().filter((bucket) => bucket === `auth:email:sign-in/email:${HASH}`);
+    expect(global).toHaveLength(2);
   });
 
-  it("skips the email bucket for other paths and for a body with no usable email", async () => {
-    await post(["sign-up", "email"], JSON.stringify({ email: "a@example.com" }));
-    await post(["sign-in", "email"], "not json");
-    await post(["sign-in", "email"], JSON.stringify({ email: "  " }));
-    await post(["sign-in", "email"], JSON.stringify({ email: 7 }));
-
-    expect(buckets().some((bucket) => String(bucket).startsWith("auth:email:"))).toBe(false);
-    expect(handler).toHaveBeenCalledTimes(4);
-  });
-
-  it("answers 429 past the email cap and never proxies", async () => {
-    rateLimit
-      .mockResolvedValueOnce({ allowed: true, retryAfterSec: 30 })
-      .mockResolvedValueOnce({ allowed: true, retryAfterSec: 30 })
-      .mockResolvedValueOnce({ allowed: false, retryAfterSec: 600 });
-    const response = await post(["sign-in", "email"], JSON.stringify({ email: "a@example.com" }));
+  it("applies the global per-email cap across IPs and never proxies past it", async () => {
+    rateLimit.mockImplementation((bucket: string) =>
+      Promise.resolve(
+        bucket === `auth:email:sign-in/email:${HASH}`
+          ? { allowed: false, retryAfterSec: 600 }
+          : { allowed: true, retryAfterSec: 30 },
+      ),
+    );
+    const response = await post(["sign-in", "email"], EMAIL_BODY, JSON_TYPE, "9.9.9.9");
 
     expect(response.status).toBe(429);
     expect(response.headers.get("retry-after")).toBe("600");
     expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("gives password reset its own email buckets: a sign-in lockout never blocks it", async () => {
+    rateLimit.mockImplementation((bucket: string) =>
+      Promise.resolve(
+        String(bucket).startsWith("auth:email:sign-in/email:")
+          ? { allowed: false, retryAfterSec: 600 }
+          : { allowed: true, retryAfterSec: 30 },
+      ),
+    );
+    expect((await post(["sign-in", "email"], EMAIL_BODY)).status).toBe(429);
+    const reset = await post(["request-password-reset"], EMAIL_BODY);
+
+    expect(reset.status).toBe(200);
+    expect(buckets()).toContain(`auth:email:request-password-reset:${HASH}:1.2.3.4`);
+    expect(buckets()).toContain(`auth:email:request-password-reset:${HASH}`);
+  });
+
+  it("answers 415 or 400 for an email-limited POST without a JSON email", async () => {
+    const cases: [string, Record<string, string>, number][] = [
+      [EMAIL_BODY, {}, 415],
+      [EMAIL_BODY, { "content-type": "text/plain" }, 415],
+      [EMAIL_BODY, { "content-type": "application/x-www-form-urlencoded" }, 415],
+      ["not json", JSON_TYPE, 400],
+      ["[]", JSON_TYPE, 400],
+      ["null", JSON_TYPE, 400],
+      [JSON.stringify({ password: "x" }), JSON_TYPE, 400],
+      [JSON.stringify({ email: "  " }), JSON_TYPE, 400],
+      [JSON.stringify({ email: 7 }), JSON_TYPE, 400],
+    ];
+    for (const path of [["sign-in", "email"], ["request-password-reset"]]) {
+      for (const [body, headers, status] of cases) {
+        expect((await post(path, body, headers)).status).toBe(status);
+      }
+    }
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("accepts JSON with parameters and leaves other paths' bodies alone", async () => {
+    const charset = { "content-type": "Application/JSON; charset=utf-8" };
+    expect((await post(["sign-in", "email"], EMAIL_BODY, charset)).status).toBe(200);
+    expect((await post(["sign-up", "email"], "anything", {})).status).toBe(200);
+
+    expect(buckets().filter((bucket) => String(bucket).includes("sign-up/email:"))).toEqual([]);
+    expect(await forwardedBody(1)).toBe("anything");
   });
 
   it("answers 400 for a malformed path, counting and proxying nothing", async () => {

@@ -38,23 +38,31 @@ export function canonicalAuthPath(path: readonly string[]): string {
   return path.map(decodedSegment).join("/");
 }
 
+const badBody = () =>
+  new HttpError(400, "invalid_body", "Send a JSON object with a non-empty `email`.");
+
 /**
- * The limiter key for a request body's `email`: sha256 hex of it trimmed and lowercased, so
- * `rate_limits.bucket` never holds a raw address. Null when the body is not JSON or carries no
- * non-blank string `email` (Neon rejects that request anyway). Reads a clone: the proxy still
- * forwards the original body.
+ * The exact body of an email-limited POST and the limiter key of its `email`: sha256 hex of it
+ * trimmed and lowercased, so `rate_limits.bucket` never holds a raw address. Fails closed: 415
+ * unless `content-type` is `application/json`, 400 unless the body parses to an object with a
+ * non-blank string `email`, so no spelling of the request skips the email buckets.
  */
-export async function emailBucket(request: Request): Promise<string | null> {
-  let body: unknown;
-  try {
-    body = await request.clone().json();
-  } catch {
-    return null;
+export async function readEmailBody(request: Request): Promise<{ hash: string; body: string }> {
+  const mediaType = (request.headers.get("content-type") ?? "").split(";")[0]?.trim();
+  if (mediaType?.toLowerCase() !== "application/json") {
+    throw new HttpError(415, "unsupported_media_type", "Send the body as application/json.");
   }
-  if (typeof body !== "object" || body === null || !("email" in body)) return null;
-  const { email } = body;
-  if (typeof email !== "string" || email.trim() === "") return null;
-  return createHash("sha256").update(email.trim().toLowerCase()).digest("hex");
+  const body = await request.text();
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(body);
+  } catch {
+    throw badBody();
+  }
+  if (typeof parsed !== "object" || parsed === null || !("email" in parsed)) throw badBody();
+  const { email } = parsed;
+  if (typeof email !== "string" || email.trim() === "") throw badBody();
+  return { hash: createHash("sha256").update(email.trim().toLowerCase()).digest("hex"), body };
 }
 
 /**
@@ -62,11 +70,15 @@ export async function emailBucket(request: Request): Promise<string | null> {
  * path must be in `AUTH_PROXY_PATHS[method]` exactly as forwarded (the SDK joins the raw
  * segments), else 404 `not_found` and nothing reaches Neon; 400 for a malformed path. POSTs then
  * count in `auth:<ip>`, and every POST not in `AUTH_NON_CREDENTIAL_PATHS` also in the strict
- * `auth:<path>:<ip>` bucket, and `AUTH_EMAIL_LIMITED_PATHS` also in `auth:email:<path>:<sha256>`.
- * 429 past any cap, 403 when the client IP cannot be resolved.
+ * `auth:<path>:<ip>` bucket. `AUTH_EMAIL_LIMITED_PATHS` must carry a JSON `email` (`readEmailBody`)
+ * and also count per email and IP (`auth:email:<path>:<sha256>:<ip>`, the strict one, so nobody
+ * can lock a victim out from elsewhere) and per email across all IPs (`auth:email:<path>:<sha256>`,
+ * the brute-force ceiling). The path is in both keys, so a sign-in lockout never blocks a reset.
+ * The validated body is what is forwarded. 429 past any cap, 403 when the IP cannot be resolved.
  */
 export function withAuthLimit(handler: AuthRouteHandler): AuthRouteHandler {
   return async (request, context) => {
+    let forwarded = request;
     try {
       const segments = (await context.params).path;
       const path = canonicalAuthPath(segments);
@@ -83,14 +95,16 @@ export function withAuthLimit(handler: AuthRouteHandler): AuthRouteHandler {
         if (!AUTH_NON_CREDENTIAL_PATHS.includes(path)) {
           await enforceRateLimit(`auth:${path}:${ip}`, RATE_LIMITS.authCredential);
         }
-        const email = AUTH_EMAIL_LIMITED_PATHS.includes(path) ? await emailBucket(request) : null;
-        if (email !== null) {
-          await enforceRateLimit(`auth:email:${path}:${email}`, RATE_LIMITS.authEmail);
+        if (AUTH_EMAIL_LIMITED_PATHS.includes(path)) {
+          const { hash, body } = await readEmailBody(request);
+          await enforceRateLimit(`auth:email:${path}:${hash}:${ip}`, RATE_LIMITS.authEmailIp);
+          await enforceRateLimit(`auth:email:${path}:${hash}`, RATE_LIMITS.authEmail);
+          forwarded = new Request(request, { body });
         }
       }
     } catch (error) {
       return fail(error);
     }
-    return handler(request, context);
+    return handler(forwarded, context);
   };
 }
