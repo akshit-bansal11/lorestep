@@ -73,25 +73,32 @@ try {
     );
   }
 
-  // Account erase deletes the neon_auth."user" row directly and relies on the managed tables'
-  // foreign keys to take its sessions and accounts with it (DECISIONS.md). Read-only check.
-  const fks = await client.query(`
-    SELECT t.relname AS table_name, c.confdeltype AS on_delete
-    FROM pg_constraint c JOIN pg_class t ON t.oid = c.conrelid
-    WHERE c.contype = 'f' AND c.confrelid = 'neon_auth."user"'::regclass
-      AND c.connamespace = 'neon_auth'::regnamespace`);
-  console.log(
-    `neon_auth FKs to "user": ${fks.rows.map((row) => `${row.table_name}=${row.on_delete}`).join(", ")}`,
-  );
-  const cascading = new Set(
-    fks.rows.filter((row) => row.on_delete === "c").map((row) => row.table_name),
-  );
-  const missing = ["session", "account"].filter((name) => !cascading.has(name));
-  const notCascade = fks.rows.filter((row) => row.on_delete !== "c").map((row) => row.table_name);
-  if (missing.length > 0 || notCascade.length > 0) {
-    throw new Error(
-      `Account erase needs ON DELETE CASCADE from neon_auth.{session,account} to "user"; missing: ${missing.join(", ") || "none"}, not cascade: ${notCascade.join(", ") || "none"}.`,
-    );
+  // Account erase deletes the neon_auth."user" row directly. Every neon_auth table with a user-id
+  // column either cascades from it or is deleted by erase itself (src/services/account/erase.ts
+  // reads the same catalog at erase time), so nothing here fails; it prints each table and its
+  // FK delete rule (c = cascade, a = no action, r = restrict, n = set null, d = set default,
+  // none = no FK) for the deploy log. Read-only.
+  const userTables = await client.query(`
+    SELECT c.table_name, c.column_name,
+      (SELECT k.confdeltype::text FROM pg_constraint k
+       JOIN pg_attribute a ON a.attrelid = k.conrelid AND a.attnum = ANY (k.conkey)
+       WHERE k.contype = 'f' AND k.confrelid = 'neon_auth."user"'::regclass
+         AND k.conrelid = format('%I.%I', c.table_schema, c.table_name)::regclass
+         AND a.attname = c.column_name
+       LIMIT 1) AS on_delete
+    FROM information_schema.columns c
+    JOIN information_schema.tables t
+      ON t.table_schema = c.table_schema AND t.table_name = c.table_name
+    WHERE c.table_schema = 'neon_auth' AND t.table_type = 'BASE TABLE'
+      AND c.column_name IN ('userId', 'user_id')
+    ORDER BY c.table_name`);
+  const summary = userTables.rows
+    .map((row) => `${row.table_name}.${row.column_name}=${row.on_delete ?? "none"}`)
+    .join(", ");
+  console.log(`neon_auth user-id tables (FK delete rule to "user"): ${summary || "none"}`);
+  const erased = userTables.rows.filter((row) => row.on_delete !== "c");
+  if (erased.length > 0) {
+    console.log(`not cascading, erase deletes: ${erased.map((row) => row.table_name).join(", ")}`);
   }
 
   // Before 0000 has run there is no table, and so nothing applied.
