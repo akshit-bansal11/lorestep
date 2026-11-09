@@ -29,6 +29,40 @@ jobs:
       # rewriting the file instead of reporting it.
       - run: npm run check:ci
 
+  extension:
+    name: Lorestep for Chrome (extension/)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      # Biome from the root lockfile; extension/biome.json extends the root config
+      # (lineWidth 120, classic-script "use strict"). The check job's `biome ci .`
+      # also covers extension/; this keeps the extension's own result readable.
+      - run: npm ci --ignore-scripts
+
+      - run: npx biome ci extension
+
+      # Syntax, manifest/host consistency, pinned key, forbidden sinks, then the
+      # node:test unit tests. Plain Node: extension/package.json has no dependencies.
+      - run: npm run check
+        working-directory: extension
+
+      - name: Package the extension
+        working-directory: extension
+        run: zip -r ../lorestep-for-chrome.zip manifest.json background.js core adapters library offscreen icons
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lorestep-for-chrome-${{ github.sha }}
+          path: lorestep-for-chrome.zip
+          retention-days: 14
+
   build:
     name: Production build
     runs-on: ubuntu-latest
