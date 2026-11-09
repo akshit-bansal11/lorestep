@@ -405,3 +405,16 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
   and e2e/account.spec.ts are the tripwires. Other devices may read as signed in for up to
   `sessionDataTtl` (60 s).
 - Revisit when: Neon exposes delete-user or an admin delete API, or the migrate check fails.
+
+## 2026-11-09 Dogear becomes Lorestep for Chrome, inside this repo
+
+- Context: the owner wants one product under one name: story orders, the media log and the
+  browser extension.
+- Options: keep `dogear` as its own repo and name; rename it and keep two repos; move it into
+  `extension/` here as "Lorestep for Chrome".
+- Choice: moved and renamed. Code identifiers, messages and env vars say Lorestep/extension.
+  Persisted names are KEPT so existing installs lose nothing: every `chrome.storage` key, the
+  `dogear-sync` alarm, the `dogear` export format and `Downloads/Dogear/dogear-backup.json`. The
+  manifest key is unchanged, so the extension id and its OAuth redirect stay the same.
+- Consequence: a few internal strings still say "dogear" on purpose.
+- Revisit when: a breaking release can migrate storage and backup names.

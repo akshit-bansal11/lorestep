@@ -4,6 +4,9 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
 
 ## Unprovisioned
 
+- `EXTENSION_OAUTH_CLIENT_ID` in Vercel (value `QHsrHeWAKSsEaVpDisiAwJBAdMXtMNvX`, public). Closes when a
+  production sync call from the extension returns 200.
+- Archive or delete the old `akshit-bansal11/dogear` repo after this PR merges (owner).
 - First green e2e run against Neon. Provisioned 2026-11-09: secrets `DATABASE_URL_CI` and
   `NEON_AUTH_BASE_URL_CI`; the `ci` branch was created after Neon Auth was enabled on
   `production` (so it inherits Auth and holds no old migrations); environment
