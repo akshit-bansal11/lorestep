@@ -8,7 +8,7 @@ import {
   NEW_PASSWORD_FIELDS,
 } from "@/constants/auth/auth";
 import { mailCredentials } from "@/lib/auth/auth-env";
-import { sessionTokenFrom } from "@/lib/auth/session-token-from-headers";
+import { sessionTokensFrom } from "@/lib/auth/session-token-from-headers";
 import { signSessionToken } from "@/lib/auth/sign-session-token";
 import type { DeviceTokenContext } from "@/types/auth/auth";
 
@@ -54,14 +54,15 @@ export async function rejectDogearSession(
   findSession: (token: string) => Promise<{ session: object } | null>,
 ): Promise<void> {
   if (DOGEAR_AUTH_PATHS.includes(path)) return;
-  const token = sessionTokenFrom(headers);
-  if (token === null) return;
-  const found = await findSession(token);
-  if (found !== null && Reflect.get(found.session, "client") === "dogear") {
-    throw new APIError("FORBIDDEN", {
-      code: "dogear_forbidden",
-      message: "Do this from the Lorestep website.",
-    });
+  // Every credential the request carries is checked: if ANY names a Dogear row, refuse.
+  for (const token of sessionTokensFrom(headers)) {
+    const found = await findSession(token);
+    if (found !== null && Reflect.get(found.session, "client") === "dogear") {
+      throw new APIError("FORBIDDEN", {
+        code: "dogear_forbidden",
+        message: "Do this from the Lorestep website.",
+      });
+    }
   }
 }
 

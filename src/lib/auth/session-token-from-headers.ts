@@ -1,20 +1,40 @@
-import { getSessionCookie } from "better-auth/cookies";
-
 import { BEARER_SCHEME } from "@/constants/http/http";
 
-/**
- * The raw session token a request carries, bearer header first, then the session cookie; null
- * when it carries none. UNVERIFIED: the signature is stripped, not checked. Use it only to refuse
- * a request, never to authenticate one (a forged value can at most get its own request refused).
- */
-export function sessionTokenFrom(headers: Headers | undefined): string | null {
-  if (headers === undefined) return null;
-  const authorization = headers.get("authorization") ?? "";
-  const signed = BEARER_SCHEME.test(authorization)
-    ? authorization.replace(BEARER_SCHEME, "").trim()
-    : getSessionCookie(headers);
-  if (!signed) return null;
+/** Every cookie name Better-Auth may read a session from ends with this, prefixed or not. */
+const SESSION_COOKIE_SUFFIX = "session_token";
 
+/**
+ * Every raw session token a request carries: the bearer header AND every session-token cookie
+ * (any prefix, any count). Collecting all of them, not the first one found, is the point: a
+ * caller must not be able to pass a harmless credential to this check while Better-Auth resolves
+ * a different one (parser differential). UNVERIFIED: signatures are stripped, not checked. Use it
+ * only to refuse a request, never to authenticate one (a forged value can only get its own
+ * request refused).
+ */
+export function sessionTokensFrom(headers: Headers | undefined): string[] {
+  if (headers === undefined) return [];
+  const signed: string[] = [];
+
+  const authorization = headers.get("authorization") ?? "";
+  if (BEARER_SCHEME.test(authorization)) signed.push(authorization.replace(BEARER_SCHEME, ""));
+
+  for (const pair of (headers.get("cookie") ?? "").split(";")) {
+    const eq = pair.indexOf("=");
+    if (eq > 0 && pair.slice(0, eq).trim().endsWith(SESSION_COOKIE_SUFFIX)) {
+      signed.push(pair.slice(eq + 1));
+    }
+  }
+
+  const tokens: string[] = [];
+  for (const raw of signed) {
+    const token = unsignedToken(raw.trim());
+    if (token !== null && !tokens.includes(token)) tokens.push(token);
+  }
+  return tokens;
+}
+
+/** `token.signature` → `token`; null when the value is malformed. */
+function unsignedToken(signed: string): string | null {
   let value: string;
   try {
     value = decodeURIComponent(signed);

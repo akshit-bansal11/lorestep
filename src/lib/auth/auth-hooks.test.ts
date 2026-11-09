@@ -73,6 +73,28 @@ describe("rejectDogearSession", () => {
     }
   });
 
+  it("checks every credential, so a harmless bearer cannot hide a Dogear cookie", async () => {
+    const byToken = vi
+      .fn<(token: string) => Promise<{ session: object } | null>>()
+      .mockImplementation(async (token) => ({
+        session: { client: token === "dogeartoken" ? "dogear" : "browser" },
+      }));
+    const mixed = [
+      new Headers({
+        authorization: "Bearer browsertoken.c2ln",
+        cookie: "__Secure-better-auth.session_token=dogeartoken.c2ln",
+      }),
+      new Headers({
+        cookie: "better-auth.session_token=browsertoken.c2ln; __Secure-better-auth.session_token=dogeartoken.c2ln",
+      }),
+    ];
+    for (const headers of mixed) {
+      await expect(rejectDogearSession("/revoke-sessions", headers, byToken)).rejects.toMatchObject({
+        body: { code: "dogear_forbidden" },
+      });
+    }
+  });
+
   it("lets browser sessions and credential-free requests through", async () => {
     await expect(rejectDogearSession("/revoke-sessions", cookie, browser)).resolves.toBeUndefined();
     await expect(
