@@ -4,17 +4,12 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
 
 ## Unprovisioned
 
-- `DATABASE_URL_CI` GitHub secret (Neon CI branch, PLAN.md section 9 step 1). Until it exists the
-  CI e2e job skips every step with a notice: no browser tests run, and the migration runner has
-  never executed. Closes when a push to `main` shows the e2e job migrating, seeding and passing.
-- GitHub Environment `production-migrations` with a required reviewer (not Vercel's auto-created `Production`). `.github/workflows/migrate.yml` names it,
-  and that line enforces nothing until it exists. Closes when the environment is checked in the
-  repository settings, not the YAML.
-- Neon Auth enabled (Console > Auth) on the CI branch and on production. `scripts/migrate.mjs`
-  refuses any branch without `neon_auth."user"`, so until then the e2e job and Migrate production
-  fail with "Neon Auth is not enabled on this branch". Migrations 0001 and 0002 were rewritten in
-  place (PLAN.md section 12): a CI branch that already recorded the old 0001/0002 must be reset
-  from its parent first. Closes when the e2e job migrates the CI branch green.
+- First green e2e run against Neon. Provisioned 2026-11-09: secrets `DATABASE_URL_CI` and
+  `NEON_AUTH_BASE_URL_CI`; the `ci` branch was created after Neon Auth was enabled on
+  `production` (so it inherits Auth and holds no old migrations); environment
+  `production-migrations` has a required reviewer (checked via the GitHub API). Never yet run:
+  `scripts/migrate.mjs`, any SQL since M6, any Neon Auth call. Closes when the e2e job migrates,
+  seeds and passes on the `ci` branch.
 - Neon Auth env (`NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET`, `DOGEAR_OAUTH_CLIENT_ID`,
   `APP_ORIGIN`, `AUTH_PROVIDERS`, `AUTH_RESET`, optional `NEON_AUTH_ISSUER`) in the Vercel project;
   the old `BETTER_AUTH_*`, `GITHUB_*`, `GOOGLE_*`, `RESEND_API_KEY`, `MAIL_FROM` removed. Closes
