@@ -6,6 +6,11 @@ name: Migrate production
 # environment exists in the repository settings with a required reviewer.
 on:
   workflow_dispatch:
+    inputs:
+      seed:
+        description: Also (re)load the catalog with scripts/seed-db.mjs (needed on a new database)
+        type: boolean
+        default: false
 
 # Two migration runs must never overlap; a second dispatch waits for the first.
 concurrency:
@@ -31,5 +36,12 @@ jobs:
       - run: npm ci
 
       - run: npm run db:migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      # Full replacement of the catalog tables only (franchises, games, screen_franchises);
+      # it never touches the migrated user tables.
+      - if: ${{ inputs.seed }}
+        run: node scripts/seed-db.mjs
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
