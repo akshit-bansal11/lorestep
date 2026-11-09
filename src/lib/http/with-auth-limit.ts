@@ -52,7 +52,9 @@ export async function readEmailBody(request: Request): Promise<{ hash: string; b
   if (mediaType?.toLowerCase() !== "application/json") {
     throw new HttpError(415, "unsupported_media_type", "Send the body as application/json.");
   }
-  const body = await request.text();
+  // A clone: the original request (its body unread, byte-identical to this one) is what is
+  // forwarded, because Neon's Next handler needs the NextRequest itself, not a rebuilt Request.
+  const body = await request.clone().text();
   let parsed: unknown;
   try {
     parsed = JSON.parse(body);
@@ -75,11 +77,11 @@ export async function readEmailBody(request: Request): Promise<{ hash: string; b
  * can lock a victim out from elsewhere) and per email across all IPs (`auth:email:<path>:<sha256>`,
  * the brute-force ceiling: 40/h for sign-in, 5/h for reset, which sends mail). The path is in
  * both keys, so a sign-in lockout never blocks a reset.
- * The validated body is what is forwarded. 429 past any cap, 403 when the IP cannot be resolved.
+ * The original request is forwarded unchanged (its body is the one validated, read from a
+ * clone). 429 past any cap, 403 when the IP cannot be resolved.
  */
 export function withAuthLimit(handler: AuthRouteHandler): AuthRouteHandler {
   return async (request, context) => {
-    let forwarded = request;
     try {
       const segments = (await context.params).path;
       const path = canonicalAuthPath(segments);
@@ -97,17 +99,16 @@ export function withAuthLimit(handler: AuthRouteHandler): AuthRouteHandler {
           await enforceRateLimit(`auth:${path}:${ip}`, RATE_LIMITS.authCredential);
         }
         if (AUTH_EMAIL_LIMITED_PATHS.includes(path)) {
-          const { hash, body } = await readEmailBody(request);
+          const { hash } = await readEmailBody(request);
           await enforceRateLimit(`auth:email:${path}:${hash}:${ip}`, RATE_LIMITS.authEmailIp);
           const reset = path === "request-password-reset";
           const ceiling = reset ? RATE_LIMITS.authEmailReset : RATE_LIMITS.authEmailSignIn;
           await enforceRateLimit(`auth:email:${path}:${hash}`, ceiling);
-          forwarded = new Request(request, { body });
         }
       }
     } catch (error) {
       return fail(error);
     }
-    return handler(forwarded, context);
+    return handler(request, context);
   };
 }

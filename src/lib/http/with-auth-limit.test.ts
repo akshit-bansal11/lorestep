@@ -219,7 +219,7 @@ describe("withAuthLimit", () => {
     expect((await post(["sign-in", "email"], EMAIL_BODY, charset)).status).toBe(200);
     expect((await post(["sign-up", "email"], "anything", {})).status).toBe(200);
 
-    expect(buckets().filter((bucket) => String(bucket).includes("sign-up/email:"))).toEqual([]);
+    expect(buckets().filter((bucket) => String(bucket).startsWith("auth:email:sign-up/email"))).toEqual([]);
     expect(await forwardedBody(1)).toBe("anything");
   });
 

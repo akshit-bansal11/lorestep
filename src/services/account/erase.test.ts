@@ -46,8 +46,9 @@ describe("eraseStatement", () => {
     const { sql, params } = render(eraseStatement(ACCOUNT.userId, []));
 
     for (const table of USER_TABLES) {
-      // `\$\d+` is the regex `\$\d+`: a template literal would otherwise drop the backslashes.
-      expect(sql).toMatch(new RegExp(`DELETE FROM "${table}" WHERE user_id = \$\d+::uuid`));
+      // Doubled backslashes: inside a template literal `\$` and `\d` lose theirs, so `\\$\\d+`
+      // is what reaches RegExp as `\$\d+`.
+      expect(sql).toMatch(new RegExp(`DELETE FROM "${table}" WHERE user_id = \\$\\d+::uuid`));
     }
     expect(sql).toMatch(/DELETE FROM rate_limits WHERE strpos\(bucket, \$\d+\) > 0\)/);
     expect(sql).toMatch(/DELETE FROM neon_auth\."user" WHERE id = \$\d+::uuid$/);
