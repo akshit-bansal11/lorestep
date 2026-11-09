@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 
 import { neonAuth } from "@/lib/auth/neon-auth";
 
@@ -8,6 +9,9 @@ import { neonAuth } from "@/lib/auth/neon-auth";
  * boundary (fail closed, BE-06), never reads as signed out.
  */
 export async function pageSession(next: string) {
+  // Opt into per-request rendering BEFORE asking Neon: getSession() swallows Next's dynamic-usage
+  // bailout into `error`, which would otherwise read as an outage during prerender.
+  await connection();
   const { data, error } = await neonAuth().getSession();
   if (error !== null && error !== undefined) throw new Error("Neon Auth is unavailable.");
   const user = data?.user;
