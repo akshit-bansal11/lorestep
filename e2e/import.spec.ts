@@ -30,13 +30,19 @@ test.describe("importing this browser's marks", () => {
     await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
 
     await page.goto("/games");
-    await expect(
-      page.getByText("Import 1 mark from this browser into your account?"),
-    ).toBeVisible();
+    const question = page.getByText("Import 1 mark from this browser into your account?");
+    await expect(question).toBeVisible();
+    // Diagnostic: React never touches an attribute it did not set, so the mark survives a
+    // re-render and is gone only if the banner was remounted while the import was in flight.
+    await question.evaluate((node) => node.setAttribute("data-e2e-before-import", ""));
     const imported = page.waitForResponse("**/api/v1/import/local");
     await page.getByRole("button", { name: "Import", exact: true }).click();
     expect((await imported).status()).toBe(200);
-    await expect(page.getByRole("button", { name: "Never" })).toHaveCount(0);
+    const sameNode = (await page.locator("[data-e2e-before-import]").count()) === 1;
+    await expect(
+      page.getByRole("button", { name: "Never" }),
+      `import banner still open (${sameNode ? "same node" : "remounted during import"})`,
+    ).toHaveCount(0);
 
     // Nothing left in this browser: whatever shows now was read back from the account.
     await page.evaluate(() => localStorage.clear());

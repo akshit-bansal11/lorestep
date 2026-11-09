@@ -48,10 +48,22 @@ function updateRecord(change: (record: SyncRecord) => void): SyncRecord {
   return record;
 }
 
+function emit(): void {
+  for (const listener of listeners) listener();
+}
+
 function setFailed(next: boolean): void {
   if (failed === next) return;
   failed = next;
-  for (const listener of listeners) listener();
+  emit();
+}
+
+/**
+ * True once this user answered the import question, read from storage so every mounted banner
+ * (including one remounted while the import was in flight) closes when the answer lands.
+ */
+export function hasDecided(userId: string): boolean {
+  return readRecord().decisions[userId] !== undefined;
 }
 
 export function subscribeSync(listener: () => void): () => void {
@@ -151,14 +163,9 @@ export async function startSession(userId: string): Promise<SessionStart> {
 
 /**
  * Records the answer; "imported" only after the server confirmed the copy. False on failure.
- * `onDecided` runs the moment the answer is stored, before the (slow) account sync, so the caller
- * can close the question without waiting for the pull.
+ * Subscribers hear the moment the answer is stored (`hasDecided`), before the slow account sync.
  */
-export async function decideImport(
-  userId: string,
-  decision: ImportDecision,
-  onDecided?: () => void,
-): Promise<boolean> {
+export async function decideImport(userId: string, decision: ImportDecision): Promise<boolean> {
   if (decision === "imported" && (await postLocalImport(getEntriesSnapshot())) === null) {
     setFailed(true);
     return false;
@@ -166,7 +173,7 @@ export async function decideImport(
   updateRecord((record) => {
     record.decisions[userId] = decision;
   });
-  onDecided?.();
+  emit();
   await startSession(userId);
   return true;
 }
