@@ -9,6 +9,30 @@ export const AUTH_PROVIDER_IDS = ["github", "google"] as const;
  */
 export const AUTH_NON_CREDENTIAL_PATHS: readonly string[] = ["sign-out", "oauth2/consent"];
 
+/**
+ * The only `/api/auth/*` paths the proxy forwards, per method, in canonical spelling (the
+ * forwarded segments must already be canonical). Everything else is 404 before any upstream
+ * call: the SDK's upstream `fetch` follows redirects server-side, so an open path list (for
+ * example `verify-email`, which 302s to a caller-chosen `callbackURL`) is a server-side fetch on
+ * our origin. Derived from every `authClient` call in `src/**` plus what `@neon/auth@0.8.2`'s
+ * client fires on its own (`useSession` = GET `get-session`). Server-side calls (`getSession`,
+ * `oauth2.publicClient`, `listSessions`, `signOut`) go to `NEON_AUTH_BASE_URL` directly, and
+ * provider callbacks, reset links and the extension's authorize/token never touch this proxy.
+ */
+export const AUTH_PROXY_PATHS: Readonly<Record<string, readonly string[]>> = {
+  GET: ["get-session"],
+  POST: [
+    "sign-in/email",
+    "sign-up/email",
+    "sign-out",
+    "sign-in/social",
+    "request-password-reset",
+    "reset-password",
+    "oauth2/continue",
+    "oauth2/consent",
+  ],
+};
+
 /** Characters a decoded auth path segment may never contain (traversal and double encoding). */
 export const AUTH_SEGMENT_FORBIDDEN = /[/\\%]/;
 

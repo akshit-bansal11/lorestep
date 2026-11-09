@@ -1,4 +1,8 @@
-import { AUTH_NON_CREDENTIAL_PATHS, AUTH_SEGMENT_FORBIDDEN } from "@/constants/auth/auth";
+import {
+  AUTH_NON_CREDENTIAL_PATHS,
+  AUTH_PROXY_PATHS,
+  AUTH_SEGMENT_FORBIDDEN,
+} from "@/constants/auth/auth";
 import { RATE_LIMITS } from "@/constants/http/rate-limits";
 import { clientIp } from "@/lib/http/client-ip";
 import { enforceRateLimit } from "@/lib/http/enforce-rate-limit";
@@ -32,24 +36,30 @@ export function canonicalAuthPath(path: readonly string[]): string {
 }
 
 /**
- * Fronts the Neon Auth proxy with our own per-IP limiter (PLAN.md section 12, N-5, SEC-20). Every
- * POST counts in `auth:<ip>`; every POST whose path is not in `AUTH_NON_CREDENTIAL_PATHS`, so any
- * credential or unknown path, also counts in the strict `auth:<path>:<ip>` bucket. 429 past either
- * cap, 403 when the client IP cannot be resolved, 400 for a malformed path. Other methods go
- * straight to `handler`.
+ * Fronts the Neon Auth proxy for every method (PLAN.md section 12, N-5, SEC-20). The forwarded
+ * path must be in `AUTH_PROXY_PATHS[method]` exactly as forwarded (the SDK joins the raw
+ * segments), else 404 `not_found` and nothing reaches Neon; 400 for a malformed path. POSTs then
+ * count in `auth:<ip>`, and every POST not in `AUTH_NON_CREDENTIAL_PATHS` also in the strict
+ * `auth:<path>:<ip>` bucket. 429 past either cap, 403 when the client IP cannot be resolved.
  */
 export function withAuthLimit(handler: AuthRouteHandler): AuthRouteHandler {
   return async (request, context) => {
-    if (request.method !== "POST") return handler(request, context);
     try {
-      const path = canonicalAuthPath((await context.params).path);
-      const ip = clientIp(request.headers);
-      if (ip === null) {
-        throw new HttpError(403, "ip_unresolved", "This request could not be attributed.");
+      const segments = (await context.params).path;
+      const path = canonicalAuthPath(segments);
+      const allowed = AUTH_PROXY_PATHS[request.method] ?? [];
+      if (!allowed.includes(path) || segments.join("/") !== path) {
+        throw new HttpError(404, "not_found", "Not found.");
       }
-      await enforceRateLimit(`auth:${ip}`, RATE_LIMITS.auth);
-      if (!AUTH_NON_CREDENTIAL_PATHS.includes(path)) {
-        await enforceRateLimit(`auth:${path}:${ip}`, RATE_LIMITS.authCredential);
+      if (request.method === "POST") {
+        const ip = clientIp(request.headers);
+        if (ip === null) {
+          throw new HttpError(403, "ip_unresolved", "This request could not be attributed.");
+        }
+        await enforceRateLimit(`auth:${ip}`, RATE_LIMITS.auth);
+        if (!AUTH_NON_CREDENTIAL_PATHS.includes(path)) {
+          await enforceRateLimit(`auth:${path}:${ip}`, RATE_LIMITS.authCredential);
+        }
       }
     } catch (error) {
       return fail(error);
