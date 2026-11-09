@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { newPasswordIn, rejectPwnedPassword } from "@/lib/auth/auth-hooks";
+import { newPasswordIn, rejectDogearSession, rejectPwnedPassword } from "@/lib/auth/auth-hooks";
 
 const { isPasswordCompromised } = vi.hoisted(() => ({ isPasswordCompromised: vi.fn() }));
 
@@ -43,5 +43,41 @@ describe("rejectPwnedPassword", () => {
 
     await expect(rejectPwnedPassword("a fresh long passphrase")).resolves.toBeUndefined();
     expect(warn).toHaveBeenCalledOnce();
+  });
+});
+
+describe("rejectDogearSession", () => {
+  const lookup = (client: string) =>
+    vi
+      .fn<(token: string) => Promise<{ session: object }>>()
+      .mockResolvedValue({ session: { client } });
+  const dogear = lookup("dogear");
+  const browser = lookup("browser");
+  const bearer = new Headers({ authorization: "Bearer rawtoken.c2lnbmF0dXJl" });
+  const cookie = new Headers({ cookie: "__Secure-better-auth.session_token=rawtoken.c2ln%3D" });
+
+  it("refuses a Dogear session on account-changing paths, by bearer or by cookie", async () => {
+    for (const path of ["/revoke-sessions", "/list-sessions", "/update-user", "/device/approve"]) {
+      for (const headers of [bearer, cookie]) {
+        await expect(rejectDogearSession(path, headers, dogear)).rejects.toMatchObject({
+          body: { code: "dogear_forbidden" },
+        });
+      }
+    }
+    expect(dogear).toHaveBeenCalledWith("rawtoken");
+  });
+
+  it("lets a Dogear session read itself, sign out and pair", async () => {
+    for (const path of ["/get-session", "/sign-out", "/device/code", "/device/token"]) {
+      await expect(rejectDogearSession(path, bearer, dogear)).resolves.toBeUndefined();
+    }
+  });
+
+  it("lets browser sessions and credential-free requests through", async () => {
+    await expect(rejectDogearSession("/revoke-sessions", cookie, browser)).resolves.toBeUndefined();
+    await expect(
+      rejectDogearSession("/sign-in/email", new Headers(), dogear),
+    ).resolves.toBeUndefined();
+    await expect(rejectDogearSession("/update-user", undefined, dogear)).resolves.toBeUndefined();
   });
 });

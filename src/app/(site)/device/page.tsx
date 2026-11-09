@@ -33,7 +33,8 @@ export default async function Page({ searchParams }: PageProps) {
   const requestHeaders = await headers();
 
   const session = await getAuth().api.getSession({ headers: requestHeaders });
-  if (session === null) {
+  // A Dogear session is not a website sign-in (DECISIONS.md, sessions carry a client column).
+  if (session === null || session.session.client === "dogear") {
     const back = userCode === "" ? "/device" : `/device?user_code=${encodeURIComponent(userCode)}`;
     redirect(`/sign-in?next=${encodeURIComponent(back)}`);
   }

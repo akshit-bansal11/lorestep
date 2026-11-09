@@ -22,6 +22,17 @@ export const DEVICE_USER_CODE_MAX = 32;
 /** The Better-Auth endpoint that hands a paired device its token. */
 export const DEVICE_TOKEN_PATH = "/device/token";
 
+/**
+ * The only Better-Auth endpoints a Dogear session may call: "Signed in as", sign-out, and the
+ * pairing pair (which carry no session yet). Every other `/api/auth/*` path refuses it with 403.
+ */
+export const DOGEAR_AUTH_PATHS: readonly string[] = [
+  "/get-session",
+  "/sign-out",
+  "/device/code",
+  DEVICE_TOKEN_PATH,
+];
+
 /** Better-Auth endpoints whose body carries a new password, mapped to that body field. */
 export const NEW_PASSWORD_FIELDS: Readonly<Record<string, string>> = {
   "/sign-up/email": "password",

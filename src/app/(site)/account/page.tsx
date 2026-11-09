@@ -22,7 +22,8 @@ export const metadata: Metadata = {
  */
 export default async function Page() {
   const session = await getAuth().api.getSession({ headers: await headers() });
-  if (session === null) redirect("/sign-in?next=/account");
+  // A Dogear session is not a website sign-in (DECISIONS.md, sessions carry a client column).
+  if (session === null || session.session.client === "dogear") redirect("/sign-in?next=/account");
 
   const { user } = session;
   const devices = await listDeviceSessions(user.id);

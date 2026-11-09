@@ -3,10 +3,12 @@ import { isPasswordCompromised } from "better-auth/plugins/haveibeenpwned";
 
 import {
   DEVICE_TOKEN_PATH,
+  DOGEAR_AUTH_PATHS,
   DOGEAR_SESSION_LABEL,
   NEW_PASSWORD_FIELDS,
 } from "@/constants/auth/auth";
 import { mailCredentials } from "@/lib/auth/auth-env";
+import { sessionTokenFrom } from "@/lib/auth/session-token-from-headers";
 import { signSessionToken } from "@/lib/auth/sign-session-token";
 
 /** The new password a Better-Auth request carries, or null when the path sets none. */
@@ -38,8 +40,36 @@ export async function rejectPwnedPassword(password: string) {
   }
 }
 
+/**
+ * A Dogear session may only read who it is and sign itself out (DECISIONS.md, sessions carry a
+ * client column). On any other path, a request whose credential names a `client = 'dogear'` row
+ * gets 403, whether the token came as a bearer header or as the session cookie. Better-Auth runs
+ * this user hook before the bearer plugin's, so the token is read from the headers here.
+ * ponytail: one session lookup per auth request that carries a credential; fine at this traffic.
+ */
+export async function rejectDogearSession(
+  path: string,
+  headers: Headers | undefined,
+  findSession: (token: string) => Promise<{ session: object } | null>,
+): Promise<void> {
+  if (DOGEAR_AUTH_PATHS.includes(path)) return;
+  const token = sessionTokenFrom(headers);
+  if (token === null) return;
+  const found = await findSession(token);
+  if (found !== null && Reflect.get(found.session, "client") === "dogear") {
+    throw new APIError("FORBIDDEN", {
+      code: "dogear_forbidden",
+      message: "Do this from the Lorestep website.",
+    });
+  }
+}
+
 /** Runs before every Better-Auth endpoint. */
 export const beforeAuthHook = createAuthMiddleware(async (ctx) => {
+  await rejectDogearSession(ctx.path, ctx.headers, (token) =>
+    ctx.context.internalAdapter.findSession(token),
+  );
+
   if (ctx.path === "/request-password-reset" && mailCredentials() === null) {
     throw new APIError("SERVICE_UNAVAILABLE", {
       code: "reset_unavailable",
