@@ -24,7 +24,11 @@ function sign(payload: JWTPayload, edit: (jwt: SignJWT) => SignJWT = (jwt) => jw
   return edit(jwt).sign(keys.privateKey);
 }
 
-async function expectStatus(token: string, status: number, override: Partial<DogearTokenDeps> = {}) {
+async function expectStatus(
+  token: string,
+  status: number,
+  override: Partial<DogearTokenDeps> = {},
+) {
   const result = verifyDogearToken(token, { ...deps, ...override });
   await expect(result).rejects.toMatchObject({ status });
 }
@@ -32,7 +36,12 @@ async function expectStatus(token: string, status: number, override: Partial<Dog
 describe("verifyDogearToken", () => {
   beforeAll(async () => {
     keys = await generateKeyPair("EdDSA");
-    deps = { getKey: () => keys.publicKey, issuer: ISSUER, audience: AUDIENCE, clientId: CLIENT_ID };
+    deps = {
+      getKey: () => keys.publicKey,
+      issuer: ISSUER,
+      audience: AUDIENCE,
+      clientId: CLIENT_ID,
+    };
   });
 
   it("returns the sub of a valid token", async () => {
@@ -44,7 +53,10 @@ describe("verifyDogearToken", () => {
   });
 
   it("rejects a wrong audience", async () => {
-    await expectStatus(await sign(claims(), (jwt) => jwt.setAudience("https://lorestep.test")), 401);
+    await expectStatus(
+      await sign(claims(), (jwt) => jwt.setAudience("https://lorestep.test")),
+      401,
+    );
   });
 
   it("rejects a token for another client", async () => {
