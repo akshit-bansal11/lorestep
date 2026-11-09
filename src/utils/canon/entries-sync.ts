@@ -149,8 +149,16 @@ export async function startSession(userId: string): Promise<SessionStart> {
   return "synced";
 }
 
-/** Records the answer; "imported" only after the server confirmed the copy. False on failure. */
-export async function decideImport(userId: string, decision: ImportDecision): Promise<boolean> {
+/**
+ * Records the answer; "imported" only after the server confirmed the copy. False on failure.
+ * `onDecided` runs the moment the answer is stored, before the (slow) account sync, so the caller
+ * can close the question without waiting for the pull.
+ */
+export async function decideImport(
+  userId: string,
+  decision: ImportDecision,
+  onDecided?: () => void,
+): Promise<boolean> {
   if (decision === "imported" && (await postLocalImport(getEntriesSnapshot())) === null) {
     setFailed(true);
     return false;
@@ -158,6 +166,7 @@ export async function decideImport(userId: string, decision: ImportDecision): Pr
   updateRecord((record) => {
     record.decisions[userId] = decision;
   });
+  onDecided?.();
   await startSession(userId);
   return true;
 }

@@ -51,10 +51,7 @@ export function useEntriesSync(): UseEntriesSync {
     (decision: ImportDecision) => {
       if (userId === null) return;
       setBusy(true);
-      void decideImport(userId, decision).then((done) => {
-        setBusy(false);
-        if (done) setPromptFor(null);
-      });
+      void decideImport(userId, decision, () => setPromptFor(null)).then(() => setBusy(false));
     },
     [userId],
   );

@@ -75,6 +75,26 @@ describe("entries-sync", () => {
     expect(record().decisions).toEqual({ a: "imported" });
   });
 
+  it("closes the question before the account pull finishes", async () => {
+    const { decideImport } = await fresh();
+    const pull = Promise.withResolvers<(typeof SERVER_HL2)[]>();
+    api.fetchGameEntries.mockReturnValueOnce(pull.promise);
+    const onDecided = vi.fn();
+    const done = decideImport("a", "imported", onDecided);
+    await vi.waitFor(() => expect(api.fetchGameEntries).toHaveBeenCalled());
+    expect(onDecided).toHaveBeenCalledTimes(1);
+    pull.resolve([SERVER_HL2]);
+    expect(await done).toBe(true);
+  });
+
+  it("does not close the question when the import fails", async () => {
+    const { decideImport } = await fresh();
+    api.postLocalImport.mockResolvedValueOnce(null);
+    const onDecided = vi.fn();
+    expect(await decideImport("a", "imported", onDecided)).toBe(false);
+    expect(onDecided).not.toHaveBeenCalled();
+  });
+
   it("shows the account's marks signed in and puts the browser's back on sign-out", async () => {
     const { decideImport, leaveAccount, getEntriesSnapshot } = await fresh();
     await decideImport("a", "imported");
