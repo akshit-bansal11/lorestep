@@ -11,14 +11,14 @@ Snapshot, rewritten in place (`.claude/CLAUDE.md` section 19).
   `/api/auth/[...path]` Neon proxy behind a fail-closed per-IP limiter, account sessions, export
   and erase on Neon Auth, purge without auth tables, `/device` and `POST /api/v1/sync/sign-out`
   deleted. DECISIONS.md "Neon Auth replaces Better-Auth"; ledger in OPEN_ITEMS.md Accepted.
-- Not functional between N2 and N3: the sign-in UI (`auth-client.ts`, auth forms, `DevicesList`,
-  `AccountMenu`, `use-entries-sync.ts`) still uses the `better-auth` client; `better-auth` stays
-  installed until N3. Nothing is deployed from this branch.
-- Next: push and read CI for N2; then N3 (UI on the `@neon/auth` client, remove `better-auth`),
+- N3 done: `auth-client.ts` is `createAuthClient()` from `@neon/auth/next` (a Better Auth React
+  client underneath, same method names, so forms and hooks are unchanged); `better-auth` removed
+  from `package.json` (lock by the bot). Nothing is deployed from this branch.
+- Next: push and read CI for N2 and N3; then
   N5 (CI env, `migrate.yml`, PR #8 mirror of `db/migrations/0001*`, `0002*`, `scripts/migrate.mjs`
   byte-identical), N6, then N4 (OAuth pages and authorize spike), N7 (Dogear), N8 (review).
 - Dogear client contract: `docs/DOGEAR.md`. Routes: `docs/ROUTE-REGISTER.md`.
-- CI status: green at `ca2c987` (N1). N2 commits not yet run in CI.
+- CI status: green at `9646ee6` (N2). N3 not yet run in CI.
 - Never executed: all migrations, every SQL statement since M6, Neon Auth calls, every browser
   test. The e2e job skips until `DATABASE_URL_CI` exists, and then needs Neon Auth enabled on the
   CI branch (OPEN_ITEMS.md).
