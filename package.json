@@ -8,7 +8,6 @@
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
-    "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
     "format": "biome format --write .",
     "imports": "biome check --write --linter-enabled=false .",
     "lint:js": "biome lint . && eslint . --max-warnings=0",
@@ -26,6 +25,7 @@
     "data:check": "node scripts/check-data.mjs",
     "check:ci": "biome ci . && eslint . --max-warnings=0 && npm run lint:css && npm run typecheck && npm run data:check && npm run test",
     "data:seed": "node --env-file=.env.local scripts/seed-db.mjs",
+    "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
     "check:static": "node scripts/check-static.mjs"
   },
   "dependencies": {
