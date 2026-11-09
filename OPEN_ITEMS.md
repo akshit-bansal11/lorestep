@@ -41,15 +41,12 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
 
 ## Deferred (M3 follow-ups)
 
-- `src/lib/auth/auth-client.ts` (PLAN.md M3 file list) is not written: it has no consumer until
-  M4's forms. Closes in M4.
 - Unverified until CI e2e runs with `DATABASE_URL_CI`: the auth server against Neon (Pool,
   `transaction: true`, model mapping), whether `next start` sets `x-forwarded-for` (if not,
   `/api/v1/auth-providers` answers 403 `ip_unresolved` locally), and the Resend call.
 
 ## Deferred (M4, M9 follow-ups)
 
-- Header menu link `/lists` 404s until M11 ships. Closes when that page exists.
 - `/games` renders `AppHeader`, not `SiteHeader`, so it has no sign-in control. Closes when the
   library UI (M10) settles one header for signed-in pages.
 - Metadata and search caches are per serverless instance (best effort, 5 min). Accepted: Neon is
@@ -75,7 +72,7 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
 - `CRON_SECRET` is unprovisioned: until it is set in the Vercel project, `/api/cron/purge` answers
   401 to Vercel Cron and nothing is purged. Closes when a Vercel cron log shows a 200.
 - M12 erase and purge SQL is UNVERIFIED against Postgres: data-modifying CTEs over every user
-  table, `right(bucket, n)` on `rate_limits`, the `verifications.value = user id` match for reset
+  table, `strpos(bucket, ':<userId>:')` on `rate_limits`, the `verifications.value = user id` match for reset
   tokens, and the counts row. Unit tests mock the database and assert the statement's shape. The
   SEC-22 end-to-end check (zero rows left for the user, other users untouched) is
   `e2e/account.spec.ts` plus a DB-backed row count, neither run yet. Closes when both pass on the
@@ -92,7 +89,7 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
 ## Deferred (M13 follow-ups)
 
 - Dogear pairing is UNVERIFIED end to end: the `/device/token` after hook (signed `access_token`,
-  session relabelled "Dogear (Chrome)") relies on Better-Auth 1.7.18 keeping the endpoint's JSON in
+  session row marked `client = 'dogear'`) relies on Better-Auth 1.7.18 keeping the endpoint's JSON in
   `context.returned`; only the signature format is unit-tested. The M13 e2e (approve a code in the
   browser, exchange it over `request`, push and pull a mark) is not written. Closes when that e2e
   passes on the CI branch (needs `DATABASE_URL_CI`) or D2's live pairing calls `/api/v1/sync`.

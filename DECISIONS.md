@@ -304,3 +304,22 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
 - Consequence: the website cannot call sync (it has `/api/v1/entries`). An entry Dogear created
   has no external id, so it is never a list member until the user links one.
 - Revisit when: `list_items` gains an entry id, or a browser client needs the change feed.
+
+## 2026-11-09 Sessions carry a client column; authorization classifies by row
+
+- Context: `requireUser` decided `via` from the presence of an `Authorization` header. The signed
+  Dogear token is byte-identical to a session cookie value, so a Dogear token replayed as the
+  session cookie (with a forged Origin and a matching `__Host-csrf`) passed as `session` and could
+  export or erase the account, breaking "the Dogear token cannot export or erase".
+- Options: keep classifying by transport; tell clients apart by the `user_agent` label; a
+  server-owned column on the session row.
+- Choice: `sessions.client text NOT NULL DEFAULT 'browser' CHECK (client IN ('browser','dogear'))`
+  (edited into `0001_auth_tables.sql`, never applied anywhere), registered as a Better-Auth
+  session `additionalFields` entry with `input: false`. The `/device/token` after hook sets
+  `client = 'dogear'`. `requireUser` returns `via: "bearer"` for a Dogear row however its token
+  arrives; `requireSessionUser` also refuses `client === 'dogear'`. The user-agent label is
+  display only.
+- Consequence: a session's authority is fixed when it is created and cannot be changed by how a
+  request is sent. A Better-Auth upgrade that drops `additionalFields` from `getSession` would
+  make every session `browser`; the row tests mock `getSession`, so only a DB-backed run proves it.
+- Revisit when: Better-Auth ships per-session scopes, or a third client type is added.
