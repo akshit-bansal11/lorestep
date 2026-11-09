@@ -1,7 +1,8 @@
 name: Migrate production
 
 # Applies db/migrations to the production database. Manual only, and gated by the
-# `production` environment: the `environment:` line enforces nothing until that
+# `production-migrations` environment (not Vercel's own `Production`, which GitHub would
+# match case-insensitively): the `environment:` line enforces nothing until that
 # environment exists in the repository settings with a required reviewer.
 on:
   workflow_dispatch:
@@ -18,7 +19,7 @@ jobs:
   migrate:
     name: Apply pending migrations
     runs-on: ubuntu-latest
-    environment: production
+    environment: production-migrations
     steps:
       - uses: actions/checkout@v5
 

@@ -7,7 +7,7 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
 - `DATABASE_URL_CI` GitHub secret (Neon CI branch, PLAN.md section 9 step 1). Until it exists the
   CI e2e job skips every step with a notice: no browser tests run, and the migration runner has
   never executed. Closes when a push to `main` shows the e2e job migrating, seeding and passing.
-- GitHub Environment `production` with a required reviewer. `.github/workflows/migrate.yml` names it,
+- GitHub Environment `production-migrations` with a required reviewer (not Vercel's auto-created `Production`). `.github/workflows/migrate.yml` names it,
   and that line enforces nothing until it exists. Closes when the environment is checked in the
   repository settings, not the YAML.
 
