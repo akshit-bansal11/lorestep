@@ -1,3 +1,5 @@
+import type { JWTVerifyGetKey } from "jose";
+
 import type { SESSION_CLIENTS } from "@/constants/auth/auth";
 
 export interface Argon2Cost {
@@ -53,4 +55,12 @@ export interface DeviceTokenContext {
 export interface CredentialScan {
   tokens: string[];
   refuse: boolean;
+}
+
+/** What `verifyDogearToken` checks a Dogear access token against; `getKey` is the JWKS resolver. */
+export interface DogearTokenDeps {
+  getKey: JWTVerifyGetKey;
+  issuer: string;
+  audience: string;
+  clientId: string;
 }

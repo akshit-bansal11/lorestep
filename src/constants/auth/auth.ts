@@ -55,3 +55,16 @@ export const RESEND_EMAILS_URL = "https://api.resend.com/emails";
 export const RESET_EMAIL_SUBJECT = "Reset your Lorestep password";
 export const RESET_EMAIL_TEXT =
   "Reset your password with this link. It expires in one hour.\n\n{url}\n\nIf you did not ask for this, ignore this email.";
+
+/** The Dogear access token's audience is `APP_ORIGIN` + this path: sync only (PLAN.md N-4). */
+export const DOGEAR_AUDIENCE_PATH = "/api/v1/sync";
+
+/** A canonical uuid. A token `sub` must match before it reaches a `::uuid` query. */
+export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** jose codes for an unreachable or broken JWKS: the caller answers 503, never 401. */
+export const JWKS_UNAVAILABLE_CODES: readonly string[] = [
+  "ERR_JOSE_GENERIC",
+  "ERR_JWKS_INVALID",
+  "ERR_JWKS_TIMEOUT",
+];
