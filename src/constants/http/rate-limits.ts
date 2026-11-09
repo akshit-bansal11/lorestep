@@ -3,8 +3,10 @@
  * own endpoint limits are undocumented; `auth` is our layer in front of them (PLAN.md N-5).
  */
 export const RATE_LIMITS = {
-  /** Per client IP: sign-in, sign-up and reset-request POSTs (`AUTH_LIMITED_PATHS`). */
-  auth: { limit: 10, windowSec: 60 },
+  /** Per client IP: every POST to `/api/auth/*`. */
+  auth: { limit: 30, windowSec: 60 },
+  /** Per client IP and path, on top of `auth`: each of `AUTH_CREDENTIAL_PATHS`. */
+  authCredential: { limit: 10, windowSec: 60 },
   /** Per client IP. */
   authProviders: { limit: 30, windowSec: 60 },
   /** Per user: each call fans out to paid or quota-limited third-party APIs. */
