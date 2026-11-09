@@ -33,3 +33,18 @@ export interface AuthedUser {
   /** The calling session row's id, so a route can act on exactly that session. */
   sessionId: string;
 }
+
+/** The slice of Better-Auth's after-hook context that `markDeviceToken` reads and writes. */
+export interface DeviceTokenContext {
+  path: string;
+  context: {
+    returned?: unknown;
+    secret: string;
+    internalAdapter: {
+      updateSession(
+        token: string,
+        data: { client: SessionClient; userAgent: string },
+      ): Promise<object | null>;
+    };
+  };
+}

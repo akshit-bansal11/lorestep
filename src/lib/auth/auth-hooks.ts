@@ -10,6 +10,7 @@ import {
 import { mailCredentials } from "@/lib/auth/auth-env";
 import { sessionTokenFrom } from "@/lib/auth/session-token-from-headers";
 import { signSessionToken } from "@/lib/auth/sign-session-token";
+import type { DeviceTokenContext } from "@/types/auth/auth";
 
 /** The new password a Better-Auth request carries, or null when the path sets none. */
 export function newPasswordIn(path: string, body: unknown): string | null {
@@ -86,6 +87,14 @@ export const beforeAuthHook = createAuthMiddleware(async (ctx) => {
   }
 });
 
+/** 500 for a device-token exchange whose session could not be marked: no token leaves. */
+function deviceTokenFailed() {
+  return new APIError("INTERNAL_SERVER_ERROR", {
+    code: "device_token_failed",
+    message: "Pairing failed. Start again from Dogear.",
+  });
+}
+
 /**
  * Runs after every Better-Auth endpoint. On `/device/token` (Dogear's code exchange) it swaps the
  * raw `access_token` for its signed form, which is what `bearer({ requireSignature: true })`
@@ -93,16 +102,22 @@ export const beforeAuthHook = createAuthMiddleware(async (ctx) => {
  * authorization reads (require-user.ts). The user-agent label is for `/account` display only.
  * Errors (pending, slow_down, denied) arrive as APIError and pass through untouched.
  */
-export const afterAuthHook = createAuthMiddleware(async (ctx) => {
+export async function markDeviceToken(ctx: DeviceTokenContext): Promise<void> {
   if (ctx.path !== DEVICE_TOKEN_PATH) return;
   const returned = ctx.context.returned;
   if (typeof returned !== "object" || returned === null || returned instanceof Error) return;
-  const token: unknown = Reflect.get(returned, "access_token");
-  if (typeof token !== "string" || token.includes(".")) return;
 
-  await ctx.context.internalAdapter.updateSession(token, {
+  // Fails CLOSED: never hand out a signed token for a row not marked `dogear`, or that row would
+  // be a browser session in Dogear's hands (export, erase).
+  const token: unknown = Reflect.get(returned, "access_token");
+  if (typeof token !== "string" || token.includes(".")) throw deviceTokenFailed();
+  const updated = await ctx.context.internalAdapter.updateSession(token, {
     client: "dogear",
     userAgent: DOGEAR_SESSION_LABEL,
   });
+  if (updated === null || Reflect.get(updated, "client") !== "dogear") throw deviceTokenFailed();
+
   ctx.context.returned = { ...returned, access_token: signSessionToken(token, ctx.context.secret) };
-});
+}
+
+export const afterAuthHook = createAuthMiddleware(markDeviceToken);
