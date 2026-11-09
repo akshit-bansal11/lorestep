@@ -439,3 +439,16 @@ test("a legacy token in chrome.storage.local moves to the vault and the key is d
   assert.equal((await w.auth.call("/api/v1/sync")).status, 200);
   assert.equal(w.calls[0].init.headers.authorization, "Bearer at0");
 });
+
+test("every token, userinfo and sync fetch refuses redirects", async () => {
+  const w = world({
+    [TOKEN]: [tokens(1), tokens(2)],
+    [USERINFO]: me(),
+    [SYNC]: [reply(401, null), reply(200, {})],
+  });
+  await w.auth.signIn();
+  assert.equal((await w.auth.call("/api/v1/sync")).status, 200);
+  const urls = w.calls.map((c) => c.url);
+  assert.deepEqual(urls, [TOKEN, USERINFO, SYNC, TOKEN, SYNC]);
+  for (const c of w.calls) assert.equal(c.init.redirect, "error", c.url);
+});

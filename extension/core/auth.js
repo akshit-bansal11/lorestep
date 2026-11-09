@@ -5,7 +5,8 @@
    content scripts on the streaming sites read chrome.storage.local wholesale, but they run in the
    page's origin, so the extension-origin IndexedDB is out of their reach. Tokens leave the worker only
    as an Authorization header to Lorestep or Neon userinfo, or a form body to the token endpoint; they
-   are never logged and never put in a message.
+   are never logged and never put in a message. Every fetch here refuses redirects (redirect: "error"),
+   so a token or code never follows a 3xx to another URL.
    chrome.storage.local holds only "auth:status" (state, email, message); the library reads it, never a token.
    While signed out nothing here touches the network, except the sign-in the user starts. */
 (() => {
@@ -170,6 +171,7 @@
         method: "POST",
         credentials: "omit",
         cache: "no-store",
+        redirect: "error",
         headers: { "content-type": "application/x-www-form-urlencoded" },
         body: String(new URLSearchParams({ ...fields, client_id: clientId, resource: RESOURCE })),
       });
@@ -181,6 +183,7 @@
         method: body ? "POST" : "GET",
         credentials: "omit",
         cache: "no-store",
+        redirect: "error",
         headers,
         body: body ? JSON.stringify(body) : undefined,
       });
@@ -193,6 +196,7 @@
         const res = await fetch(D.authEndpoint("userinfo"), {
           credentials: "omit",
           cache: "no-store",
+          redirect: "error",
           headers: { authorization: `Bearer ${accessToken}` },
         });
         return res.ok ? cleanEmail((await readJson(res))?.email) : "";
