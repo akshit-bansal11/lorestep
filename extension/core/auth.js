@@ -1,9 +1,12 @@
 /* Lorestep for Chrome auth: sign in to Lorestep with OAuth 2.1 authorization code + PKCE, Neon Auth as the
    provider (lorestep docs/EXTENSION.md, PLAN.md section 12, N-12). Only background.js calls makeAuth.
    Loads after core/store.js, which names the storage keys.
-   Tokens live in chrome.storage.local "auth" and leave the worker only as an Authorization header to
-   Lorestep or Neon userinfo, or a form body to the token endpoint; they are never logged and never put in a message.
-   The library reads "auth:status" (state, email, message), never a token.
+   Tokens live in the worker's IndexedDB ("lorestep-auth", D.idbVault), never in chrome.storage.local:
+   content scripts on the streaming sites read chrome.storage.local wholesale, but they run in the
+   page's origin, so the extension-origin IndexedDB is out of their reach. Tokens leave the worker only
+   as an Authorization header to Lorestep or Neon userinfo, or a form body to the token endpoint; they
+   are never logged and never put in a message.
+   chrome.storage.local holds only "auth:status" (state, email, message); the library reads it, never a token.
    While signed out nothing here touches the network, except the sign-in the user starts. */
 (() => {
   "use strict";
@@ -84,15 +87,80 @@
 
   const readJson = (res) => res.json().catch(() => null);
 
-  /** deps: fetch, storage (chrome.storage.local-like), launchFlow(url) -> redirect URL (resolves
-      with what chrome.identity.launchWebAuthFlow returns), redirectUri; tests add clientId, now. */
+  /** A chrome.storage.local-shaped get/set/remove over one IndexedDB object store. `idb` is
+      globalThis.indexedDB in the worker; tests pass an in-memory stand-in. */
+  D.idbVault = (idb) => {
+    let opening = null;
+    const open = () => {
+      if (opening) return opening;
+      opening = new Promise((ok, no) => {
+        const r = idb.open("lorestep-auth", 1);
+        r.onupgradeneeded = () => r.result.createObjectStore("kv");
+        r.onsuccess = () => ok(r.result);
+        r.onerror = () => no(r.error);
+      });
+      opening.catch(() => {
+        opening = null; // a failed open is tried again on the next call
+      });
+      return opening;
+    };
+    const tx = async (mode, fn) => {
+      const db = await open();
+      return new Promise((ok, no) => {
+        const t = db.transaction("kv", mode);
+        const req = fn(t.objectStore("kv"));
+        t.oncomplete = () => ok(req?.result);
+        t.onerror = () => no(t.error);
+        t.onabort = () => no(t.error);
+      });
+    };
+    return {
+      async get(k) {
+        const v = await tx("readonly", (s) => s.get(k));
+        return v === undefined ? {} : { [k]: v };
+      },
+      set(o) {
+        return tx("readwrite", (s) => {
+          for (const [k, v] of Object.entries(o)) s.put(v, k);
+        });
+      },
+      remove(keys) {
+        return tx("readwrite", (s) => {
+          for (const k of keys) s.delete(k);
+        });
+      },
+    };
+  };
+
+  /** deps: fetch, storage (chrome.storage.local: the status only), vault (D.idbVault: the tokens),
+      launchFlow(url) -> redirect URL (resolves with what chrome.identity.launchWebAuthFlow returns),
+      redirectUri; tests add clientId, now. */
   D.makeAuth = (deps) => {
-    const { fetch, storage, launchFlow, redirectUri } = deps;
+    const { fetch, storage, vault, launchFlow, redirectUri } = deps;
     const clientId = deps.clientId ?? CLIENT_ID;
     const now = deps.now || Date.now;
     let flow = null; // the sign-in in progress, at most one
     let run = 0; // bumped by signOut: a sign-in or refresh still running writes nothing after it
     let refreshing = null; // the refresh in flight, at most one
+
+    /** One-time move: earlier versions kept the tokens in chrome.storage.local "auth". They go to
+        the vault and the key is deleted even if the vault write fails (then the user signs in
+        again). Every token read waits for this. */
+    const migrate = async () => {
+      const old = (await storage.get(AUTH_KEY))[AUTH_KEY];
+      if (old === undefined) return;
+      try {
+        await vault.set({ [AUTH_KEY]: old });
+      } finally {
+        await storage.remove([AUTH_KEY]);
+      }
+    };
+    // The error's name only: its message could quote the value being written.
+    const migrated = migrate().catch((err) => console.warn("Lorestep for Chrome: token move failed", err?.name));
+    const stored = async () => {
+      await migrated;
+      return (await vault.get(AUTH_KEY))[AUTH_KEY];
+    };
 
     const setStatus = (status) => storage.set({ [STATUS_KEY]: status });
 
@@ -134,16 +202,16 @@
     };
 
     const end = async (message) => {
-      await storage.remove([AUTH_KEY]);
+      await vault.remove([AUTH_KEY]);
       await setStatus({ state: "signed-out", message });
     };
 
     /** The stored tokens, or null. A shape this version doesn't know (the old device-flow token)
         is deleted. No network. */
     const read = async () => {
-      const a = (await storage.get(AUTH_KEY))[AUTH_KEY];
+      const a = await stored();
       if (token(a?.accessToken) && token(a.refreshToken) && Number.isFinite(a.expiresAt)) return a;
-      if (a !== undefined) await storage.remove([AUTH_KEY]);
+      if (a !== undefined) await vault.remove([AUTH_KEY]);
       return null;
     };
 
@@ -170,7 +238,7 @@
       const t = res.ok ? D.readTokens(body, now(), a.refreshToken) : null;
       if (!t) throw new Error(`Lorestep's sign-in service answered ${res.status}`);
       t.email = a.email || "";
-      await storage.set({ [AUTH_KEY]: t });
+      await vault.set({ [AUTH_KEY]: t });
       return t;
     };
 
@@ -234,7 +302,7 @@
         if (!live()) return;
         t.email = await userinfoEmail(t.accessToken);
         if (!live()) return;
-        await storage.set({ [AUTH_KEY]: t });
+        await vault.set({ [AUTH_KEY]: t });
         await setStatus({ state: "signed-in", email: t.email });
       } catch (err) {
         const message = `Couldn't sign in to Lorestep (${err?.message || err}). Try again.`;
@@ -259,8 +327,8 @@
     const signOut = async () => {
       run++;
       flow = null;
-      const had = (await storage.get(AUTH_KEY))[AUTH_KEY] !== undefined;
-      await storage.remove([AUTH_KEY]);
+      const had = (await stored()) !== undefined;
+      await vault.remove([AUTH_KEY]);
       await setStatus({ state: "signed-out" });
       return { ok: true, signedOut: had };
     };

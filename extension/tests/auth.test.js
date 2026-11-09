@@ -32,20 +32,67 @@ const stateOf = (url) => new URL(url).searchParams.get("state");
 const approve = (url) => `${REDIRECT}?code=c0de&state=${stateOf(url)}`;
 const EVIL = "https://hemmdilibbhbbgionnnfloeilhkiijop.chromiumapp.org.evil.example/";
 
-/** A fake world: storage, a scripted fetch (one reply per call, by URL), a sign-in window, a clock. */
+/** An in-memory stand-in for the IndexedDB calls D.idbVault makes, over `map`. Requests and
+    transactions complete on a later microtask, as in the browser. opts.hold = { n, until }: the n-th
+    get answers with what was stored when it was asked, but only once `until` settles (a slow read
+    racing a refresh). */
+function fakeIdb(map, opts) {
+  let gets = 0;
+  let created = false;
+  const database = {
+    createObjectStore() {
+      created = true;
+    },
+    transaction() {
+      const pending = [];
+      /** Runs `fn` now (a get snapshots at once); its result lands on the request. */
+      const op = (fn) => {
+        const req = {};
+        const done = fn().then((r) => {
+          req.result = r;
+        });
+        pending.push(done);
+        return req;
+      };
+      const store = {
+        get(k) {
+          return op(async () => {
+            const snap = structuredClone(map.get(k));
+            if (opts.hold?.n === ++gets) await opts.hold.until;
+            return snap;
+          });
+        },
+        put: (v, k) => op(async () => map.set(k, structuredClone(v))),
+        delete: (k) => op(async () => map.delete(k)),
+      };
+      const t = { objectStore: () => store };
+      queueMicrotask(() => Promise.all(pending).then(() => t.oncomplete()));
+      return t;
+    },
+  };
+  return {
+    open() {
+      const req = { result: database };
+      queueMicrotask(() => {
+        if (!created) req.onupgradeneeded();
+        req.onsuccess();
+      });
+      return req;
+    },
+  };
+}
+
+/** A fake world: storage (chrome.storage.local), the token vault (IndexedDB), a scripted fetch (one
+    reply per call, by URL), a sign-in window, a clock. */
 function world(script = {}, opts = {}) {
   const db = new Map();
+  const vault = new Map();
   const calls = [];
   const opened = [];
   const clock = { t: T0 };
-  let gets = 0;
   const storage = {
-    /** opts.hold = { n, until }: the n-th get answers with what was stored when it was asked, but
-        only once `until` settles (a slow read racing a refresh). */
     async get(k) {
-      const snap = db.has(k) ? { [k]: structuredClone(db.get(k)) } : {};
-      if (opts.hold?.n === ++gets) await opts.hold.until;
-      return snap;
+      return db.has(k) ? { [k]: structuredClone(db.get(k)) } : {};
     },
     async set(o) {
       for (const [k, v] of Object.entries(o)) db.set(k, structuredClone(v));
@@ -63,9 +110,11 @@ function world(script = {}, opts = {}) {
     if (!next) throw new Error(`unexpected fetch ${url}`);
     return next;
   };
+  for (const [k, v] of Object.entries(opts.legacy ?? {})) db.set(k, v);
   const auth = D.makeAuth({
     fetch,
     storage,
+    vault: D.idbVault(fakeIdb(vault, opts)),
     redirectUri: REDIRECT,
     clientId: "clientId" in opts ? opts.clientId : CLIENT,
     launchFlow: async (url) => {
@@ -74,11 +123,11 @@ function world(script = {}, opts = {}) {
     },
     now: () => clock.t,
   });
-  return { auth, db, calls, opened, clock };
+  return { auth, db, vault, calls, opened, clock };
 }
 const form = (call) => Object.fromEntries(new URLSearchParams(call.init.body));
 const signedIn = (w, expiresAt = T0 + 3600000) =>
-  w.db.set("auth", { accessToken: "at0", refreshToken: "rt0", expiresAt, email: "ana@example.com" });
+  w.vault.set("auth", { accessToken: "at0", refreshToken: "rt0", expiresAt, email: "ana@example.com" });
 
 test("PKCE S256 matches the RFC 7636 appendix B vector", async () => {
   assert.equal(
@@ -125,7 +174,7 @@ test("sign-in: code + PKCE exchange stores the tokens and shows the userinfo ema
   assert.equal(w.calls[1].url, USERINFO);
   assert.equal(w.calls[1].init.headers.authorization, "Bearer at1");
   assert.equal(w.calls[1].init.credentials, "omit");
-  assert.deepEqual(w.db.get("auth"), {
+  assert.deepEqual(w.vault.get("auth"), {
     accessToken: "at1",
     refreshToken: "rt1",
     expiresAt: T0 + 3600000,
@@ -156,7 +205,7 @@ test("sign-in: a wrong state or a foreign redirect is refused before any token r
     const w = world({}, { flow });
     await w.auth.signIn();
     assert.equal(w.calls.length, 0);
-    assert.equal(w.db.has("auth"), false);
+    assert.equal(w.vault.has("auth"), false);
     assert.equal(w.db.get("auth:status").state, "error");
   }
 });
@@ -175,7 +224,7 @@ test("sign-in: a closed window changes nothing", async () => {
   const w = world({}, { flow: closed });
   await w.auth.signIn();
   assert.equal(w.db.get("auth:status").state, "signed-out");
-  assert.equal(w.db.has("auth"), false);
+  assert.equal(w.vault.has("auth"), false);
 });
 
 test("sign-in: an unusable token reply stores nothing", async () => {
@@ -187,7 +236,7 @@ test("sign-in: an unusable token reply stores nothing", async () => {
   ]) {
     const w = world({ [TOKEN]: bad });
     await w.auth.signIn();
-    assert.equal(w.db.has("auth"), false);
+    assert.equal(w.vault.has("auth"), false);
     assert.equal(w.db.get("auth:status").state, "error");
   }
 });
@@ -197,7 +246,7 @@ test("sign-in: an unusable or unreachable userinfo email is dropped, the sign-in
     const w = world({ [TOKEN]: tokens(1), [USERINFO]: info });
     await w.auth.signIn();
     assert.deepEqual(w.db.get("auth:status"), { state: "signed-in", email: "" });
-    assert.equal(w.db.get("auth").refreshToken, "rt1");
+    assert.equal(w.vault.get("auth").refreshToken, "rt1");
   }
 });
 
@@ -214,7 +263,7 @@ test("refresh before expiry: the new pair is stored before the request that uses
   const w = world({
     [TOKEN]: tokens(1),
     [SYNC]: () => {
-      seen = w.db.get("auth");
+      seen = w.vault.get("auth");
       return reply(200, {});
     },
   });
@@ -234,8 +283,8 @@ test("a refresh reply without refresh_token keeps the old one", async () => {
   const w = world({ [TOKEN]: tokens(1, { refresh_token: undefined }), [SYNC]: reply(200, {}) });
   signedIn(w, T0);
   await w.auth.call("/api/v1/sync");
-  assert.equal(w.db.get("auth").refreshToken, "rt0");
-  assert.equal(w.db.get("auth").email, "ana@example.com");
+  assert.equal(w.vault.get("auth").refreshToken, "rt0");
+  assert.equal(w.vault.get("auth").email, "ana@example.com");
 });
 
 test("concurrent calls share one refresh", async () => {
@@ -259,12 +308,12 @@ test("single flight: three concurrent 401s present the refresh token once", asyn
     [200, 200, 200],
   );
   assert.deepEqual(presented(w), ["rt0"]);
-  assert.equal(w.db.get("auth").refreshToken, "rt1");
+  assert.equal(w.vault.get("auth").refreshToken, "rt1");
 });
 
 test("single flight: a caller that read the old pair never re-presents the rotated refresh token", async () => {
   let release;
-  // The second storage read (caller B's) answers with the old pair only after A's refresh is done.
+  // The second token read (caller B's) answers with the old pair only after A's refresh is done.
   const hold = {
     n: 2,
     until: new Promise((r) => {
@@ -298,7 +347,7 @@ test("a 401 after the refresh deletes the tokens and shows signed out", async ()
   signedIn(w);
   w.db.set("auth:status", { state: "signed-in", email: "" });
   assert.equal((await w.auth.call("/api/v1/sync")).status, 401);
-  assert.equal(w.db.has("auth"), false);
+  assert.equal(w.vault.has("auth"), false);
   assert.equal(w.db.get("auth:status").state, "signed-out");
   assert.equal(await w.auth.signedIn(), false);
 });
@@ -307,7 +356,7 @@ test("invalid_grant on refresh signs out and sends nothing to Lorestep", async (
   const w = world({ [TOKEN]: reply(400, { error: "invalid_grant" }) });
   signedIn(w, T0);
   assert.equal(await w.auth.call("/api/v1/sync"), null);
-  assert.equal(w.db.has("auth"), false);
+  assert.equal(w.vault.has("auth"), false);
   assert.equal(w.db.get("auth:status").state, "signed-out");
   assert.deepEqual(
     w.calls.map((c) => c.url),
@@ -320,7 +369,7 @@ test("offline refresh keeps the tokens and throws so sync backs off", async () =
   signedIn(w, T0);
   await assert.rejects(w.auth.call("/api/v1/sync"));
   await assert.rejects(w.auth.call("/api/v1/sync"));
-  assert.equal(w.db.get("auth").refreshToken, "rt0");
+  assert.equal(w.vault.get("auth").refreshToken, "rt0");
   assert.equal(await w.auth.signedIn(), true);
 });
 
@@ -336,7 +385,7 @@ test("sign-out deletes the tokens and makes no request", async () => {
   const w = world();
   signedIn(w);
   assert.deepEqual(await w.auth.signOut(), { ok: true, signedOut: true });
-  assert.equal(w.db.has("auth"), false);
+  assert.equal(w.vault.has("auth"), false);
   assert.equal(w.db.get("auth:status").state, "signed-out");
   assert.deepEqual(await w.auth.signOut(), { ok: true, signedOut: false });
   assert.equal(w.calls.length, 0);
@@ -353,17 +402,17 @@ test("sign-out during a sign-in discards the result", async () => {
   await w.auth.signOut();
   release();
   await running;
-  assert.equal(w.db.has("auth"), false);
+  assert.equal(w.vault.has("auth"), false);
   assert.equal(w.db.get("auth:status").state, "signed-out");
   assert.equal(w.calls.length, 0);
 });
 
 test("an old device-flow token reads as signed out and is deleted", async () => {
   const w = world();
-  w.db.set("auth", { token: "tok.sig", email: "", at: 1, expiresAt: Number.MAX_SAFE_INTEGER });
+  w.vault.set("auth", { token: "tok.sig", email: "", at: 1, expiresAt: Number.MAX_SAFE_INTEGER });
   w.db.set("auth:status", { state: "signed-in", email: "" });
   assert.equal((await w.auth.status()).state, "signed-out");
-  assert.equal(w.db.has("auth"), false);
+  assert.equal(w.vault.has("auth"), false);
   assert.equal(w.calls.length, 0);
 });
 
@@ -371,4 +420,22 @@ test("a waiting status with no sign-in running reads as interrupted", async () =
   const w = world();
   w.db.set("auth:status", { state: "waiting" });
   assert.equal((await w.auth.status()).state, "error");
+});
+
+test("tokens live in the vault: chrome.storage.local only ever holds the status", async () => {
+  const w = world({ [TOKEN]: tokens(1), [USERINFO]: me() });
+  await w.auth.signIn();
+  assert.equal(w.vault.get("auth").accessToken, "at1");
+  assert.deepEqual([...w.db.keys()], ["auth:status"]);
+  assert.doesNotMatch(JSON.stringify([...w.db.values()]), /at1|rt1/);
+});
+
+test("a legacy token in chrome.storage.local moves to the vault and the key is deleted", async () => {
+  const legacy = { accessToken: "at0", refreshToken: "rt0", expiresAt: T0 + 3600000, email: "ana@example.com" };
+  const w = world({ [SYNC]: reply(200, {}) }, { legacy: { auth: legacy } });
+  assert.equal(await w.auth.signedIn(), true);
+  assert.equal(w.db.has("auth"), false);
+  assert.deepEqual(w.vault.get("auth"), legacy);
+  assert.equal((await w.auth.call("/api/v1/sync")).status, 200);
+  assert.equal(w.calls[0].init.headers.authorization, "Bearer at0");
 });

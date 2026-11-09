@@ -20,7 +20,8 @@ const CONTEXTS = ["page", "link", "image", "video", "frame"];
 const DOWNLOAD_TIMEOUT_MS = 15000;
 const auth = D.makeAuth({
   fetch: (url, init) => fetch(url, init),
-  storage: chrome.storage.local,
+  storage: chrome.storage.local, // auth:status only
+  vault: D.idbVault(indexedDB), // the tokens: content scripts can read chrome.storage.local, not this
   launchFlow: (url) => chrome.identity.launchWebAuthFlow({ url, interactive: true }),
   redirectUri: chrome.identity.getRedirectURL(), // https://<extension id>.chromiumapp.org/
 });
