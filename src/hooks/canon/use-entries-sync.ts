@@ -7,7 +7,6 @@ import {
   decideImport,
   getServerSyncFailed,
   getSyncFailed,
-  hasDecided,
   leaveAccount,
   startSession,
   subscribeSync,
@@ -29,13 +28,7 @@ export function useEntriesSync(): UseEntriesSync {
   const { data, isPending } = authClient.useSession();
   const userId = data?.user.id ?? null;
   const [promptFor, setPromptFor] = useState<string | null>(null);
-  const decided = useSyncExternalStore(
-    subscribeSync,
-    () => userId !== null && hasDecided(userId),
-    () => false,
-  );
-  // The stored answer closes the question too: a banner remounted mid-import never saw `decide`.
-  const prompt = userId !== null && promptFor === userId && !decided;
+  const prompt = userId !== null && promptFor === userId;
   const [busy, setBusy] = useState(false);
   const failed = useSyncExternalStore(subscribeSync, getSyncFailed, getServerSyncFailed);
 
@@ -58,7 +51,10 @@ export function useEntriesSync(): UseEntriesSync {
     (decision: ImportDecision) => {
       if (userId === null) return;
       setBusy(true);
-      void decideImport(userId, decision).then(() => setBusy(false));
+      void decideImport(userId, decision).then((done) => {
+        setBusy(false);
+        if (done) setPromptFor(null);
+      });
     },
     [userId],
   );

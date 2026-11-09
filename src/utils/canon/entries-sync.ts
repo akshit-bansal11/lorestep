@@ -48,22 +48,10 @@ function updateRecord(change: (record: SyncRecord) => void): SyncRecord {
   return record;
 }
 
-function emit(): void {
-  for (const listener of listeners) listener();
-}
-
 function setFailed(next: boolean): void {
   if (failed === next) return;
   failed = next;
-  emit();
-}
-
-/**
- * True once this user answered the import question, read from storage so every mounted banner
- * (including one remounted while the import was in flight) closes when the answer lands.
- */
-export function hasDecided(userId: string): boolean {
-  return readRecord().decisions[userId] !== undefined;
+  for (const listener of listeners) listener();
 }
 
 export function subscribeSync(listener: () => void): () => void {
@@ -161,27 +149,15 @@ export async function startSession(userId: string): Promise<SessionStart> {
   return "synced";
 }
 
-/**
- * Stores the answer before any request, so a banner mounted while the import is in flight (even in
- * a reloaded page) reads "decided" on its first render. A failed import takes the answer back, puts
- * the browser's marks back if another banner's session start already switched to the account, and
- * reports false.
- */
+/** Records the answer; "imported" only after the server confirmed the copy. False on failure. */
 export async function decideImport(userId: string, decision: ImportDecision): Promise<boolean> {
-  const local = getEntriesSnapshot();
+  if (decision === "imported" && (await postLocalImport(getEntriesSnapshot())) === null) {
+    setFailed(true);
+    return false;
+  }
   updateRecord((record) => {
     record.decisions[userId] = decision;
   });
-  emit();
-  if (decision === "imported" && (await postLocalImport(local)) === null) {
-    updateRecord((record) => {
-      delete record.decisions[userId];
-    });
-    leaveAccount();
-    setFailed(true);
-    emit();
-    return false;
-  }
   await startSession(userId);
   return true;
 }
