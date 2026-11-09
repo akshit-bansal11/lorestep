@@ -162,18 +162,26 @@ export async function startSession(userId: string): Promise<SessionStart> {
 }
 
 /**
- * Records the answer; "imported" only after the server confirmed the copy. False on failure.
- * Subscribers hear the moment the answer is stored (`hasDecided`), before the slow account sync.
+ * Stores the answer before any request, so a banner mounted while the import is in flight (even in
+ * a reloaded page) reads "decided" on its first render. A failed import takes the answer back, puts
+ * the browser's marks back if another banner's session start already switched to the account, and
+ * reports false.
  */
 export async function decideImport(userId: string, decision: ImportDecision): Promise<boolean> {
-  if (decision === "imported" && (await postLocalImport(getEntriesSnapshot())) === null) {
-    setFailed(true);
-    return false;
-  }
+  const local = getEntriesSnapshot();
   updateRecord((record) => {
     record.decisions[userId] = decision;
   });
   emit();
+  if (decision === "imported" && (await postLocalImport(local)) === null) {
+    updateRecord((record) => {
+      delete record.decisions[userId];
+    });
+    leaveAccount();
+    setFailed(true);
+    emit();
+    return false;
+  }
   await startSession(userId);
   return true;
 }
