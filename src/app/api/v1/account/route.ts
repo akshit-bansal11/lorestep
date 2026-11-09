@@ -13,8 +13,8 @@ import { eraseAccount } from "@/services/account/erase";
 
 /**
  * Erase the account (SEC-22). Browser session only, CSRF-checked, and `{confirm}` must be the
- * account's email. 204 once every user row and the Neon Auth user are gone; 502
- * `erase_incomplete` when the data is gone but Neon Auth refused (retry is safe, PLAN.md N-10).
+ * account's email. 204 once every user row and the `neon_auth."user"` row are gone, in one
+ * statement (nothing is half-erased), and the caller is signed out (PLAN.md N-10).
  */
 export async function DELETE(request: NextRequest) {
   try {

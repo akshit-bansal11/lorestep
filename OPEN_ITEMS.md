@@ -35,16 +35,17 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
 
 - N2 Neon Auth wiring is UNVERIFIED against a live instance: the `iss` of a Dogear token (hence
   the `NEON_AUTH_ISSUER` override), `getSession`/`listSessions`/`revokeSession({ token })`/
-  `deleteUser()` called server-side without a request argument (they read the cookie through
+  `signOut()` called server-side without a request argument (they read the cookie through
   `next/headers`), and Date fields arriving as strings over the proxy. Unit tests mock
   `neonAuth()`. Closes when the e2e (sign-up, sessions list, revoke, erase) passes on the CI
   branch and a real Dogear token passes `requireBearerUser`.
 
-- e2e/account.spec.ts fails: app data is erased but Neon `deleteUser()` errors (502 `erase_incomplete`).
-  Cause UNKNOWN. `deleteUser` is Better Auth `POST delete-user` (body `password`/`token`/`callbackURL`,
-  all optional; a fresh session suffices, which sign-up gives). Likeliest: `user.deleteUser.enabled`
-  is off, a setting only the Neon console/API can change. The route now logs the error status and
-  code (`neon deleteUser failed`) in the [WebServer] output. Closes when the e2e passes.
+- Erase deletes `neon_auth."user"` directly (DECISIONS.md), because Neon's `deleteUser()` answers
+  404 `user_not_found` (Better Auth's hidden endpoint while `user.deleteUser.enabled` is off).
+  UNVERIFIED: that the app's database role may DELETE in `neon_auth`, and that Neon Auth keeps no
+  user state outside its tables. `scripts/migrate.mjs` fails unless `neon_auth.session` and
+  `neon_auth.account` cascade from `"user"`. Closes when e2e/account.spec.ts passes on the CI
+  branch. Revisit (switch back to the API) when Neon exposes delete-user or an admin delete API.
 
 ## Accepted
 
@@ -79,10 +80,10 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
   - Availability: a Neon Auth outage means no sign-in and 503 `auth_unavailable` on session
     routes; signed-out tracking is unaffected. A revoked session can still read as signed in for
     up to 60 s (`sessionDataTtl`). Revisit if outages are seen.
-  - SEC-22 erasure is ours up to `deleteUser()`; the proof is the e2e (sign-in fails after
-    erase). Whether `deleteUser()` needs a fresh session or the password is UNVERIFIED; until
-    known, a refusal answers 502 `erase_incomplete` after the data is gone. Revisit when the e2e
-    runs.
+  - SEC-22 erasure is one statement of ours (app data and the `neon_auth."user"` row); the proof
+    is the e2e (sign-in fails after erase). Other devices of an erased user can still read as
+    signed in from the session-data cookie cache for up to `sessionDataTtl` (60 s); every write
+    then fails on the missing user. Accepted. Revisit if the TTL is raised.
 - `neon_auth."user".id` is uuid: VERIFIED by SQL on production (2026-11-09). Its other columns
   are camelCase and quoted (`"emailVerified"`, `"createdAt"`); the app never selects them.
   Revisit if a query ever reads `neon_auth`.
@@ -117,7 +118,7 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
   401 to Vercel Cron and nothing is purged. Closes when a Vercel cron log shows a 200.
 - M12 erase and purge SQL is UNVERIFIED against Postgres: data-modifying CTEs over every user
   table, `strpos(bucket, ':<userId>:')` on `rate_limits`, the `::uuid` user id casts, the
-  `deleteUser()` step after it, and the counts row. Unit tests mock the database and assert the statement's shape. The
+  `neon_auth."user"` delete in the same statement, and the counts row. Unit tests mock the database and assert the statement's shape. The
   SEC-22 end-to-end check (zero rows left for the user, other users untouched) is
   `e2e/account.spec.ts` plus a DB-backed row count, neither run yet. Closes when both pass on the
   CI branch (needs `DATABASE_URL_CI`).

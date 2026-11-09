@@ -6,11 +6,11 @@ import { HttpError } from "@/lib/http/http-error";
 import { eraseAccount } from "@/services/account/erase";
 import { USER_TABLES } from "@/services/account/user-tables";
 
-// `execute` and `deleteUser` append to `calls`, so the test sees the order of the two steps.
+// `execute` and `signOut` append to `calls`, so the test sees the order of the two steps.
 const state = vi.hoisted(() => {
   const calls: unknown[] = [];
-  const deleteUser = vi.fn();
-  return { calls, deleteUser };
+  const signOut = vi.fn();
+  return { calls, signOut };
 });
 
 vi.mock("@/lib/db/client", () => ({
@@ -21,7 +21,7 @@ vi.mock("@/lib/db/client", () => ({
     },
   }),
 }));
-vi.mock("@/lib/auth/neon-auth", () => ({ neonAuth: () => ({ deleteUser: state.deleteUser }) }));
+vi.mock("@/lib/auth/neon-auth", () => ({ neonAuth: () => ({ signOut: state.signOut }) }));
 
 const ACCOUNT = {
   userId: "0b7c2c0e-6c2f-4b8a-9d0e-1f2a3b4c5d6e",
@@ -43,23 +43,23 @@ async function statusOf(promise: Promise<unknown>) {
 describe("eraseAccount", () => {
   beforeEach(() => {
     state.calls.length = 0;
-    state.deleteUser.mockReset();
-    state.deleteUser.mockImplementation(() => {
-      state.calls.push("deleteUser");
+    state.signOut.mockReset();
+    state.signOut.mockImplementation(() => {
+      state.calls.push("signOut");
       return Promise.resolve({ data: { success: true }, error: null });
     });
   });
 
-  it("deletes every user table and the user's limiter rows, then the Neon Auth user", async () => {
+  it("deletes all user rows and the Neon Auth user in one statement, then signs out", async () => {
     await eraseAccount(ACCOUNT, "a@example.com");
     const { sql, params } = firstQuery();
 
-    expect(state.calls).toHaveLength(2);
-    expect(state.calls[1]).toBe("deleteUser");
+    expect(state.calls).toEqual([expect.any(SQL), "signOut"]);
     for (const table of USER_TABLES) {
-      expect(sql).toMatch(new RegExp(`DELETE FROM "${table}" WHERE user_id = \\$\\d+::uuid`));
+      expect(sql).toMatch(new RegExp(`DELETE FROM "${table}" WHERE user_id = \$\d+::uuid`));
     }
-    expect(sql).toMatch(/DELETE FROM rate_limits WHERE strpos\(bucket, \$\d+\) > 0$/);
+    expect(sql).toMatch(/DELETE FROM rate_limits WHERE strpos\(bucket, \$\d+\) > 0\)/);
+    expect(sql).toMatch(/DELETE FROM neon_auth\."user" WHERE id = \$\d+::uuid$/);
     // Every value is the caller's id or its bucket needle: never another user.
     expect(new Set(params)).toEqual(new Set([ACCOUNT.userId, `:${ACCOUNT.userId}:`]));
   });
@@ -67,18 +67,17 @@ describe("eraseAccount", () => {
   it("throws 400 confirm_mismatch on a wrong email and deletes nothing", async () => {
     expect(await statusOf(eraseAccount(ACCOUNT, "b@example.com"))).toBe("400 confirm_mismatch");
     expect(state.calls).toHaveLength(0);
-    expect(state.deleteUser).not.toHaveBeenCalled();
+    expect(state.signOut).not.toHaveBeenCalled();
   });
 
-  it("answers 502 erase_incomplete when deleteUser fails, after the rows are gone", async () => {
-    state.deleteUser.mockResolvedValueOnce({
+  it("still resolves when sign-out fails or throws, since the user row is already gone", async () => {
+    state.signOut.mockResolvedValueOnce({
       data: null,
-      error: { message: "fresh session required", status: 400, statusText: "", code: "X" },
+      error: { message: "no session", status: 400, statusText: "", code: "X" },
     });
-    expect(await statusOf(eraseAccount(ACCOUNT, "a@example.com"))).toBe("502 erase_incomplete");
-    expect(state.calls).toHaveLength(1);
+    expect(await statusOf(eraseAccount(ACCOUNT, "a@example.com"))).toBe("resolved");
 
-    state.deleteUser.mockRejectedValueOnce(new Error("network"));
-    expect(await statusOf(eraseAccount(ACCOUNT, "a@example.com"))).toBe("502 erase_incomplete");
+    state.signOut.mockRejectedValueOnce(new Error("network"));
+    expect(await statusOf(eraseAccount(ACCOUNT, "a@example.com"))).toBe("resolved");
   });
 });

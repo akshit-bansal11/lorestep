@@ -64,16 +64,12 @@ describe("DELETE /api/v1/account", () => {
     expect(eraseAccount).not.toHaveBeenCalled();
   });
 
-  it("passes the service's 400 confirm_mismatch and 502 erase_incomplete through", async () => {
+  it("passes the service's 400 confirm_mismatch through", async () => {
     eraseAccount.mockRejectedValueOnce(new HttpError(400, "confirm_mismatch", "Not your email."));
     const mismatch = await erase({ confirm: "b@example.com" });
     expect(mismatch.status).toBe(400);
     expect((await mismatch.json()).error.code).toBe("confirm_mismatch");
 
-    eraseAccount.mockRejectedValueOnce(new HttpError(502, "erase_incomplete", "Try again."));
-    const incomplete = await erase({ confirm: "a@example.com" });
-    expect(incomplete.status).toBe(502);
-    expect((await incomplete.json()).error.code).toBe("erase_incomplete");
   });
 
   it("answers 403 when the CSRF check fails", async () => {

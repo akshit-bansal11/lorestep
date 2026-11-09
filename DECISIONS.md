@@ -386,3 +386,22 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
   answers, never redirects).
 - Revisit when: the user spike (PLAN.md 12.4 step 11) fails at a hop, or `@neon/auth` changes
   the proxy to `redirect: "manual"`.
+
+## 2026-11-09 Erase deletes neon_auth."user" directly because Neon's deleteUser is disabled
+
+- Context: CI e2e on the Neon `ci` branch: `neonAuth().deleteUser({})` answers 404
+  `user_not_found` right after sign-up. Better Auth hides its delete-user endpoint (404) while
+  `user.deleteUser.enabled` is off, and Neon exposes no setting for it. Erase left the identity.
+- Options: (A) keep `deleteUser()` and wait for Neon; (B) delete the `neon_auth."user"` row in the
+  same statement as the app-data CTEs, letting the managed FKs cascade sessions and accounts;
+  (C) B plus explicit deletes from `neon_auth.session`/`account` by guessed column names.
+- Choice: B. Data and identity go in one atomic statement, so there is no half-erased state and
+  the 502 `erase_incomplete` path is gone. The cascade is not assumed: `scripts/migrate.mjs`
+  refuses to run unless `neon_auth.session` and `neon_auth.account` reference `"user"` with
+  `ON DELETE CASCADE` (`pg_constraint.confdeltype = 'c'`), and prints every such FK. C was
+  rejected while the column names are unverified. `signOut()` then clears the caller's cookies,
+  best-effort.
+- Consequence: erase writes into Neon's managed schema, which Neon may change; the migrate check
+  and e2e/account.spec.ts are the tripwires. Other devices may read as signed in for up to
+  `sessionDataTtl` (60 s).
+- Revisit when: Neon exposes delete-user or an admin delete API, or the migrate check fails.
