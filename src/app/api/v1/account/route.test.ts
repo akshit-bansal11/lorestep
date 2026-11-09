@@ -69,7 +69,6 @@ describe("DELETE /api/v1/account", () => {
     const mismatch = await erase({ confirm: "b@example.com" });
     expect(mismatch.status).toBe(400);
     expect((await mismatch.json()).error.code).toBe("confirm_mismatch");
-
   });
 
   it("answers 403 when the CSRF check fails", async () => {
