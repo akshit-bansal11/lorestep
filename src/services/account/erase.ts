@@ -8,6 +8,15 @@ import { HttpError } from "@/lib/http/http-error";
 import { USER_TABLES } from "@/services/account/user-tables";
 import type { SessionAccount } from "@/types/auth/auth";
 
+/** Status and code only: never the message, which can carry the email. */
+function errorFacts(error: unknown): { status?: unknown; code?: unknown } {
+  if (typeof error !== "object" || error === null) return {};
+  return {
+    status: "status" in error ? error.status : undefined,
+    code: "code" in error ? error.code : undefined,
+  };
+}
+
 /**
  * Hard-erases the account (SEC-22; a legal erasure skips the 30-day window, DB-13), in this order
  * (PLAN.md section 12, N-10):
@@ -39,8 +48,11 @@ export async function eraseAccount(account: SessionAccount, confirmEmail: string
     DELETE FROM rate_limits WHERE strpos(bucket, ${userBucketNeedle(account.userId)}) > 0`);
 
   try {
-    neonData(await neonAuth().deleteUser({}));
-  } catch {
+    const result = await neonAuth().deleteUser({});
+    if (result.error) console.error("neon deleteUser failed", errorFacts(result.error));
+    neonData(result);
+  } catch (error) {
+    console.error("neon deleteUser threw", errorFacts(error));
     throw new HttpError(
       502,
       "erase_incomplete",

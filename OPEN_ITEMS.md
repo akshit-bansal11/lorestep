@@ -35,6 +35,12 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
   `neonAuth()`. Closes when the e2e (sign-up, sessions list, revoke, erase) passes on the CI
   branch and a real Dogear token passes `requireBearerUser`.
 
+- e2e/account.spec.ts fails: app data is erased but Neon `deleteUser()` errors (502 `erase_incomplete`).
+  Cause UNKNOWN. `deleteUser` is Better Auth `POST delete-user` (body `password`/`token`/`callbackURL`,
+  all optional; a fresh session suffices, which sign-up gives). Likeliest: `user.deleteUser.enabled`
+  is off, a setting only the Neon console/API can change. The route now logs the error status and
+  code (`neon deleteUser failed`) in the [WebServer] output. Closes when the e2e passes.
+
 ## Accepted
 
 - Auth is Neon-managed (DECISIONS.md, "Neon Auth replaces Better-Auth"); these properties are
