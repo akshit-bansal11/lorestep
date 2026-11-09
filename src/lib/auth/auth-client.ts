@@ -1,10 +1,9 @@
 "use client";
 
-import { deviceAuthorizationClient } from "better-auth/client/plugins";
-import { createAuthClient } from "better-auth/react";
+import { createAuthClient } from "@neon/auth/next";
 
 /**
- * The browser's Better-Auth client. Same origin as the server, so it needs no base URL. The device
- * plugin adds `device.approve` / `device.deny` for the `/device` page.
+ * The browser's Neon Auth client. It talks to this origin's `/api/auth/*` proxy, so it needs no
+ * base URL; sign-in, sign-up, social, sign-out, password reset and `useSession` keep their names.
  */
-export const authClient = createAuthClient({ plugins: [deviceAuthorizationClient()] });
+export const authClient = createAuthClient();
