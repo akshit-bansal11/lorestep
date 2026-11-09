@@ -60,21 +60,25 @@ jobs:
     # Playwright builds and starts the app itself (see playwright.config.ts), and
     # the content pages read the database at build time. The auth tests will sign
     # users up, so they run against a Neon CI branch (DATABASE_URL_CI), never production:
-    # the job migrates and seeds that branch first. Without the secret every step
-    # below is skipped with a notice, never faked.
-    if: ${{ github.event_name == 'push' }}
+    # the job migrates and seeds that branch first. Without both secrets every step
+    # below is skipped with a notice, never faked. Runs on pushes and on this
+    # repository's own pull requests; a fork's pull request gets no secrets and
+    # is not run at all.
+    if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository }}
     env:
-      BETTER_AUTH_URL: http://localhost:3001
+      APP_ORIGIN: http://localhost:3001
+      DOGEAR_OAUTH_CLIENT_ID: ci
+      NEON_AUTH_BASE_URL: ${{ secrets.NEON_AUTH_BASE_URL_CI }}
     steps:
       - name: Check for the CI database
         id: db
         env:
           DATABASE_URL_CI: ${{ secrets.DATABASE_URL_CI }}
         run: |
-          if [ -n "$DATABASE_URL_CI" ]; then
+          if [ -n "$DATABASE_URL_CI" ] && [ -n "$NEON_AUTH_BASE_URL" ]; then
             echo "ready=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::notice title=Browser tests skipped::DATABASE_URL_CI is not set, so nothing below ran. Create the Neon CI branch and add the secret (PLAN.md section 9, step 1)."
+            echo "::notice title=Browser tests skipped::DATABASE_URL_CI or NEON_AUTH_BASE_URL_CI is not set, so nothing below ran. Create the Neon CI branch with Neon Auth enabled and add both secrets (PLAN.md section 12.4, steps 5 and 9)."
             echo "ready=false" >> "$GITHUB_OUTPUT"
           fi
 
@@ -91,12 +95,12 @@ jobs:
         if: steps.db.outputs.ready == 'true'
 
       # A fresh secret per run: nothing outside this job ever holds it.
-      - name: Generate BETTER_AUTH_SECRET
+      - name: Generate NEON_AUTH_COOKIE_SECRET
         if: steps.db.outputs.ready == 'true'
         run: |
-          secret="$(openssl rand -base64 32)"
+          secret="$(openssl rand -base64 48)"
           echo "::add-mask::$secret"
-          echo "BETTER_AUTH_SECRET=$secret" >> "$GITHUB_ENV"
+          echo "NEON_AUTH_COOKIE_SECRET=$secret" >> "$GITHUB_ENV"
 
       - run: npm run db:migrate
         if: steps.db.outputs.ready == 'true'

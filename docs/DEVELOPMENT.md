@@ -165,7 +165,7 @@ Uptime monitoring and a deploy heartbeat live in Better Stack rather than in thi
 
 ## CI
 
-`.github/workflows/ci.yml`. The `check` job runs lint, types, data validation and unit tests with no secrets. The `build` job runs on pushes only, using the `DATABASE_URL` secret, because the content pages read the database at build time. It asserts that `/`, `/games` and `/screen` are still statically generated. The `e2e` job runs the Playwright suite in Chromium on pushes too, for the same reason, and uploads traces when it fails.
+`.github/workflows/ci.yml`. The `check` job runs lint, types, data validation and unit tests with no secrets. The `build` job runs on pushes only, using the `DATABASE_URL` secret, because the content pages read the database at build time. It asserts that `/`, `/games` and `/screen` are still statically generated. The `e2e` job runs the Playwright suite in Chromium on pushes and on this repository's own pull requests (never forks), against a Neon `ci` branch with Neon Auth enabled. It needs the secrets `DATABASE_URL_CI` and `NEON_AUTH_BASE_URL_CI`, generates a throwaway `NEON_AUTH_COOKIE_SECRET` per run, and skips with a notice when either is missing. Traces are uploaded when it fails.
 
 `.github/workflows/release.yml` runs on a `v*` tag. It fails unless the tag matches the `package.json` version, takes that version's section of `CHANGELOG.md` as the notes, and publishes a GitHub Release. Nothing is built or attached: Vercel deploys the site from `main`, so a release only names and dates a point in that history.
 
