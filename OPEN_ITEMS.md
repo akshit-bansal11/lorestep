@@ -13,10 +13,10 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
   `production-migrations` has a required reviewer (checked via the GitHub API). Never yet run:
   `scripts/migrate.mjs`, any SQL since M6, any Neon Auth call. Closes when the e2e job migrates,
   seeds and passes on the `ci` branch.
-- Neon Auth env (`NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET`, `DOGEAR_OAUTH_CLIENT_ID`,
-  `APP_ORIGIN`, `AUTH_PROVIDERS`, `AUTH_RESET`, optional `NEON_AUTH_ISSUER`) in the Vercel project;
-  the old `BETTER_AUTH_*`, `GITHUB_*`, `GOOGLE_*`, `RESEND_API_KEY`, `MAIL_FROM` removed. Closes
-  when a deploy signs a user in.
+- Neon Auth env (`NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET`, `APP_ORIGIN`, `AUTH_PROVIDERS`,
+  `AUTH_RESET`) in the Vercel project; `NEON_AUTH_ISSUER` stays unset (issuer verified equal to
+  the base URL, Accepted below). The old `BETTER_AUTH_*`, `GITHUB_*`, `GOOGLE_*`, `RESEND_API_KEY`,
+  `MAIL_FROM` removed. Closes when a deploy signs a user in.
 - N4 authorize round trip (PLAN.md 12.4 step 11): Neon authorize -> `/oauth/login` -> `/oauth/consent`
   -> `chromiumapp.org/?code=` never observed; the choice of the Neon URL over the proxy rests on
   reading `@neon/auth` 0.8.2's proxy (`redirect: "follow"`). Also UNVERIFIED: that the server
@@ -36,12 +36,18 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
   `updated_at::text` cursor. Unit tests mock the database. Closes when a DB-backed test runs them
   on the CI branch (needs `DATABASE_URL_CI`).
 
-- N2 Neon Auth wiring is UNVERIFIED against a live instance: the `iss` of a Dogear token (hence
-  the `NEON_AUTH_ISSUER` override), `getSession`/`listSessions`/`revokeSession({ token })`/
-  `signOut()` called server-side without a request argument (they read the cookie through
-  `next/headers`), and Date fields arriving as strings over the proxy. Unit tests mock
-  `neonAuth()`. Closes when the e2e (sign-up, sessions list, revoke, erase) passes on the CI
-  branch and a real Dogear token passes `requireBearerUser`.
+- N2 Neon Auth wiring is UNVERIFIED against a live instance: `getSession`/`listSessions`/
+  `revokeSession({ token })`/`signOut()` called server-side without a request argument (they
+  read the cookie through `next/headers`), and Date fields arriving as strings over the proxy.
+  Unit tests mock `neonAuth()`. Closes when the e2e (sign-up, sessions list, revoke, erase)
+  passes on the CI branch and a real extension token passes `requireBearerUser`.
+
+- The `/api/auth/*` path allowlist (`AUTH_PROXY_PATHS`, docs/ROUTE-REGISTER.md) was derived by
+  reading `@neon/auth` 0.8.2's client and every `authClient` call in `src/`. UNVERIFIED live:
+  that social sign-in callbacks and password-reset links land on the Neon Auth URL and never on
+  the proxy, and that `useSession` needs only GET `get-session`. A blocked path answers 404
+  `not_found`. Closes when the e2e passes on the CI branch and a manual GitHub or Google sign-in
+  and a reset link work on production.
 
 - Erase deletes `neon_auth."user"` directly (DECISIONS.md), because Neon's `deleteUser()` answers
   404 `user_not_found` (Better Auth's hidden endpoint while `user.deleteUser.enabled` is off),
@@ -72,7 +78,8 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
     Production origin only; previews cannot sign in (PLAN.md 12.4 step 2). Revisit if previews
     need auth.
   - SEC-20 auth endpoint rate limits are undocumented on Neon's side; compensated (not proven)
-    by our `withAuthLimit` in front of the proxy. Revisit when Neon documents its limits.
+    by our `withAuthLimit` in front of the proxy (per IP, IPv6 by /64; per path; per hashed
+    email and IP plus per hashed email). Revisit when Neon documents its limits.
   - DB-15 credential storage: tokens and hashes live in Neon-managed tables we never read
     (closes the old R1 as "not ours"). Revisit if the app ever reads `neon_auth`.
   - Auth event audit log: Neon Console only. Revisit if an incident review needs it.
@@ -85,10 +92,14 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
   - Availability: a Neon Auth outage means no sign-in and 503 `auth_unavailable` on session
     routes; signed-out tracking is unaffected. A revoked session can still read as signed in for
     up to 60 s (`sessionDataTtl`). Revisit if outages are seen.
-  - SEC-22 erasure is one statement of ours (app data and the `neon_auth."user"` row); the proof
+  - SEC-22 erasure is one statement of ours (app data, the user's rows in every non-cascading
+    `neon_auth` user-id table, and the `neon_auth."user"` row); the proof
     is the e2e (sign-in fails after erase). Other devices of an erased user can still read as
     signed in from the session-data cookie cache for up to `sessionDataTtl` (60 s); every write
     then fails on the missing user. Accepted. Revisit if the TTL is raised.
+- Extension token issuer: VERIFIED 2026-11-09, the production `openid-configuration` `issuer`
+  equals `NEON_AUTH_BASE_URL` exactly, so `NEON_AUTH_ISSUER` is not needed (`authIssuer()` keeps
+  the override for a future mismatch). Revisit if Neon changes its issuer format.
 - `neon_auth."user".id` is uuid: VERIFIED by SQL on production (2026-11-09). Its other columns
   are camelCase and quoted (`"emailVerified"`, `"createdAt"`); the app never selects them.
   Revisit if a query ever reads `neon_auth`.
