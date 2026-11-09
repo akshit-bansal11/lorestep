@@ -1,0 +1,13 @@
+{
+  "name": "lorestep-for-chrome",
+  "version": "0.8.0",
+  "private": true,
+  "description": "Lorestep for Chrome: mark titles on streaming sites as Watching, Plan to Watch, Completed, On Hold or Dropped.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "check": "node scripts/check.mjs && node --test"
+  }
+}

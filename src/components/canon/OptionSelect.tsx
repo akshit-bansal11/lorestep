@@ -11,6 +11,8 @@ interface OptionSelectProps {
   options: readonly Option[];
   onChange: (value: string) => void;
   className?: string;
+  /** Extra classes for the `<select>` itself, such as a taller touch height. */
+  selectClassName?: string;
 }
 
 export default function OptionSelect({
@@ -20,6 +22,7 @@ export default function OptionSelect({
   options,
   onChange,
   className,
+  selectClassName,
 }: OptionSelectProps) {
   return (
     <span className={cn("relative inline-flex", className)}>
@@ -29,6 +32,7 @@ export default function OptionSelect({
           CONTROL_CLASS,
           "w-full appearance-none pr-5",
           value === "" ? "text-faint" : "text-ink",
+          selectClassName,
         )}
         onChange={(event) => onChange(event.target.value)}
         value={value}

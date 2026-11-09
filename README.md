@@ -34,6 +34,16 @@ Lorestep does it once, per franchise: every entry sits where it falls in the sto
 - **Keyboard first.** `Cmd/Ctrl K` jumps to any franchise or game; every view has a shareable URL (`/games#/witcher`, `/games#/ac/desmond`).
 - **Light and dark themes**, usable at phone width, and checked against WCAG AA.
 
+## One product, three parts
+
+- **Story orders**: the franchise tables below, free and without an account.
+- **Media log**: your own library, with status, rating and notes, kept in a Lorestep account.
+- **Lorestep for Chrome** ([`extension/`](extension)): marks posters on Netflix, Prime Video, JioHotstar, ZEE5, HBO Max and Crunchyroll as Watching, Plan to Watch, Completed, On Hold or Dropped, and syncs them to the same media log once you sign in. It works signed out too, on this browser only. Formerly a separate extension called Dogear.
+
+The account, the media log and the extension's sign-in are on the `feat/merge-plotline-dogear` branch and not deployed yet.
+
+To try the extension: Chrome, `chrome://extensions`, turn on Developer mode, **Load unpacked**, pick the `extension/` folder. The pinned manifest key keeps its id (`hemmdilibbhbbgionnnfloeilhkiijop`), which the sign-in redirect depends on.
+
 ## What's covered
 
 | Section | Route | Holds |
@@ -104,6 +114,7 @@ npm run dev                  # http://localhost:3001
 | Doc | Covers |
 | --- | --- |
 | [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Every script, the source layout, routes and rendering, the data model, deployment, observability, CI, motion and prices |
+| [docs/EXTENSION.md](docs/EXTENSION.md) | How Lorestep for Chrome signs in (OAuth with Neon Auth) and syncs marks |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Setting up a fork, the data format, and how a change gets reviewed |
 | [CHANGELOG.md](CHANGELOG.md) | What changed in each release |
 | [SECURITY.md](SECURITY.md) | Reporting a vulnerability privately |

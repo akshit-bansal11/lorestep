@@ -1,0 +1,54 @@
+name: lockfile
+
+# Regenerates package-lock.json after a package.json change (npm cannot run on the
+# owner's machine) and commits it to the same feature branch. Refuses main, which
+# deploys production. Runs on any non-main push that changes package.json, or manually
+# once this file is on main: gh workflow run lockfile.yml -f branch=<branch>
+on:
+  push:
+    branches-ignore: [main]
+    paths: [package.json]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Feature branch whose package.json changed
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  lockfile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Refuse the production branch
+        if: ${{ (inputs.branch || github.ref_name) == 'main' }}
+        run: |
+          echo "::error::lockfile.yml never commits to main"
+          exit 1
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch || github.ref_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Regenerate lockfile without running install scripts
+        run: npm install --package-lock-only --ignore-scripts
+      - name: Commit the lockfile to the branch
+        shell: bash
+        env:
+          BRANCH: ${{ inputs.branch || github.ref_name }}
+        run: |
+          if git diff --quiet -- package-lock.json; then
+            echo "Lockfile already in sync."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "up/regenerate-package-lock"
+          git pull --rebase origin "${BRANCH}"
+          git push origin "HEAD:${BRANCH}"

@@ -1,0 +1,44 @@
+name: format-fix
+
+# Applies Biome formatting and import ordering on feature branches and commits the result,
+# because Biome cannot run on the owner's machine. Lint fixes are never applied here; the CI
+# gate still decides. Never touches main, which deploys production.
+on:
+  push:
+    branches-ignore: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: format-fix-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  format:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Format and organise imports
+        run: npx biome check --write --linter-enabled=false .
+      - name: Commit formatting to the branch
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "Already formatted."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "sm/apply-biome-format"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

@@ -1,6 +1,6 @@
 {
   "extends": ["stylelint-config-standard", "stylelint-config-tailwindcss"],
-  "ignoreFiles": ["node_modules/**", ".next/**"],
+  "ignoreFiles": ["node_modules/**", ".next/**", "extension/**"],
   "rules": {
     "at-rule-no-unknown": [
       true,

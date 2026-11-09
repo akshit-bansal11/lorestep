@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AccountMenu from "@/components/auth/AccountMenu";
 import ThemeToggle from "@/components/canon/ThemeToggle";
 import Logo from "@/components/site/Logo";
 import SiteNav from "@/components/site/SiteNav";
@@ -17,7 +18,8 @@ export default function SiteHeader() {
         <div className="order-last w-full sm:order-none sm:w-auto sm:flex-1">
           <SiteNav />
         </div>
-        <div className="ml-auto sm:ml-0">
+        <div className="ml-auto flex items-center gap-1.5 sm:ml-0">
+          <AccountMenu />
           <ThemeToggle />
         </div>
       </div>

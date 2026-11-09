@@ -19,18 +19,21 @@ function sanitise(value: unknown): UserEntry | null {
   return entry.status === undefined ? null : entry;
 }
 
+/** Untrusted JSON -> only the valid marks, each with a status. */
+export function sanitiseEntries(parsed: unknown): UserEntries {
+  if (parsed === null || typeof parsed !== "object") return EMPTY;
+  const entries: UserEntries = {};
+  for (const [id, value] of Object.entries(parsed)) {
+    const entry = sanitise(value);
+    if (entry !== null) entries[id] = entry;
+  }
+  return entries;
+}
+
 function read(): UserEntries {
   try {
     const raw = localStorage.getItem(ENTRIES_STORAGE_KEY);
-    if (raw === null) return EMPTY;
-    const parsed: unknown = JSON.parse(raw);
-    if (parsed === null || typeof parsed !== "object") return EMPTY;
-    const entries: UserEntries = {};
-    for (const [id, value] of Object.entries(parsed)) {
-      const entry = sanitise(value);
-      if (entry !== null) entries[id] = entry;
-    }
-    return entries;
+    return raw === null ? EMPTY : sanitiseEntries(JSON.parse(raw));
   } catch (error) {
     console.warn("entries read failed", error);
     return EMPTY;
@@ -88,8 +91,13 @@ export function setEntryField(gameId: string, field: UserField, value: string): 
   emit();
 }
 
-export function clearAllEntries(): void {
-  cache = EMPTY;
-  write(EMPTY);
+/** Swaps the whole cache, as when an account's marks replace the browser's or back again. */
+export function replaceAllEntries(next: UserEntries): void {
+  cache = next;
+  write(next);
   emit();
+}
+
+export function clearAllEntries(): void {
+  replaceAllEntries(EMPTY);
 }

@@ -29,6 +29,40 @@ jobs:
       # rewriting the file instead of reporting it.
       - run: npm run check:ci
 
+  extension:
+    name: Lorestep for Chrome (extension/)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      # Biome from the root lockfile; extension/biome.json extends the root config
+      # (lineWidth 120, classic-script "use strict"). The check job's `biome ci .`
+      # also covers extension/; this keeps the extension's own result readable.
+      - run: npm ci --ignore-scripts
+
+      - run: npx biome ci extension
+
+      # Syntax, manifest/host consistency, pinned key, forbidden sinks, then the
+      # node:test unit tests. Plain Node: extension/package.json has no dependencies.
+      - run: npm run check
+        working-directory: extension
+
+      - name: Package the extension
+        working-directory: extension
+        run: zip -r ../lorestep-for-chrome.zip manifest.json background.js core adapters library offscreen icons
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lorestep-for-chrome-${{ github.sha }}
+          path: lorestep-for-chrome.zip
+          retention-days: 14
+
   build:
     name: Production build
     runs-on: ubuntu-latest
@@ -58,19 +92,61 @@ jobs:
     name: Browser tests
     runs-on: ubuntu-latest
     # Playwright builds and starts the app itself (see playwright.config.ts), and
-    # the content pages read the database at build time, so this job needs the
-    # same connection string the build job does. Gated identically: skipped
-    # rather than faked when the secret is absent.
-    if: ${{ github.event_name == 'push' }}
+    # the content pages read the database at build time. The auth tests will sign
+    # users up, so they run against a Neon CI branch (DATABASE_URL_CI), never production:
+    # the job migrates and seeds that branch first. Without both secrets every step
+    # below is skipped with a notice, never faked. Runs on pushes and on this
+    # repository's own pull requests; a fork's pull request gets no secrets and
+    # is not run at all.
+    if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository }}
+    env:
+      APP_ORIGIN: http://localhost:3001
+      EXTENSION_OAUTH_CLIENT_ID: ci
+      NEON_AUTH_BASE_URL: ${{ secrets.NEON_AUTH_BASE_URL_CI }}
     steps:
+      - name: Check for the CI database
+        id: db
+        env:
+          DATABASE_URL_CI: ${{ secrets.DATABASE_URL_CI }}
+        run: |
+          if [ -n "$DATABASE_URL_CI" ] && [ -n "$NEON_AUTH_BASE_URL" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice title=Browser tests skipped::DATABASE_URL_CI or NEON_AUTH_BASE_URL_CI is not set, so nothing below ran. Create the Neon CI branch with Neon Auth enabled and add both secrets (PLAN.md section 12.4, steps 5 and 9)."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/checkout@v5
+        if: steps.db.outputs.ready == 'true'
 
       - uses: actions/setup-node@v5
+        if: steps.db.outputs.ready == 'true'
         with:
           node-version: 24
           cache: npm
 
       - run: npm ci
+        if: steps.db.outputs.ready == 'true'
+
+      # A fresh secret per run: nothing outside this job ever holds it.
+      - name: Generate NEON_AUTH_COOKIE_SECRET
+        if: steps.db.outputs.ready == 'true'
+        run: |
+          secret="$(openssl rand -base64 48)"
+          echo "::add-mask::$secret"
+          echo "NEON_AUTH_COOKIE_SECRET=$secret" >> "$GITHUB_ENV"
+
+      - run: npm run db:migrate
+        if: steps.db.outputs.ready == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_CI }}
+
+      # The script directly, not `npm run data:seed`: that passes
+      # --env-file=.env.local, and Node exits when the file is missing.
+      - run: node scripts/seed-db.mjs
+        if: steps.db.outputs.ready == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_CI }}
 
       # Chromium only: playwright.config.ts declares one project, so the other
       # two engines would be ~300 MB nothing runs.
@@ -81,10 +157,12 @@ jobs:
       # critical path of every build. The image already carries Chrome and Edge,
       # so the shared libraries Chromium needs are present without it.
       - run: npx playwright install chromium
+        if: steps.db.outputs.ready == 'true'
 
       - run: npm run test:e2e
+        if: steps.db.outputs.ready == 'true'
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL_CI }}
 
       # `reporter: "list"` prints one line per failure and nothing else, which is
       # not enough to diagnose a failure that only reproduces on the runner. The

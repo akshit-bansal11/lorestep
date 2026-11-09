@@ -48,10 +48,12 @@ src/
 │   │   ├── about/       # what it is, how order is decided, sources
 │   │   ├── books/       # honest empty state
 │   │   ├── docs/        # usage, shortcuts, data, reporting, developers
+│   │   ├── reset-password/  # request a reset link, or set a new password from one
+│   │   ├── sign-in/ sign-up/  # email and password, plus the providers the server reports
 │   │   ├── screen/      # chronology index and one page per chronology
 │   │   ├── layout.tsx   # adds the header and footer; the games shell sits outside it
 │   │   └── page.tsx     # landing page
-│   ├── api/prices/      # ITAD price lookup route handler
+│   ├── api/             # route handlers: prices, auth (Better-Auth), v1 (docs/ROUTE-REGISTER.md)
 │   ├── games/           # the canon tracker, a fixed full-height shell
 │   ├── globals.css      # warm token spine with one accent, motion scale, both themes
 │   ├── icon.svg         # favicon
@@ -61,28 +63,37 @@ src/
 │   └── sitemap.ts       # static routes plus one entry per chronology
 ├── components/
 │   ├── canon/           # shell, sidebar, grid, table, drawer, palette, cells
+│   ├── auth/            # sign-in, sign-up and reset forms, OAuth buttons, account menu, avatar
 │   ├── screen/          # chronology timeline
 │   └── site/            # logo, header and nav, footer, section cards, prose sections, analytics
 ├── constants/
 │   ├── site.ts          # canonical URL, name, description, routes, site links
 │   ├── docs/            # the docs page's table of contents
 │   ├── home/            # the landing page's "how it works" steps
+│   ├── auth/            # session TTL, password policy, limiter rules, reset email, auth screen copy and classes
+│   ├── http/            # client-IP and CSRF names, app rate limits
 │   └── canon/           # columns, statuses, devices, storefronts, tiers, filters, motion
 ├── data/
 │   ├── franchises.json  # games snapshot; seeds Neon, not read at runtime
 │   └── screen.json      # movies and series snapshot, same role
 ├── hooks/
+│   ├── auth/            # session, providers lookup, shared form submit flow
 │   └── canon/           # tracked entries, theme, prices, hotkeys, chunked rendering
 ├── lib/
-│   ├── db/              # Neon client, Drizzle schema, and the app's three reads
+│   ├── auth/            # Better-Auth server (lazy), Argon2id, hooks, guards, auth env; browser client, call wrapper, providers lookup
+│   ├── db/              # Neon clients (HTTP + auth Pool), Drizzle schema, reads, rate limiter
+│   ├── http/            # client IP, CSRF/origin check, JSON responses, HttpError
 │   └── observability/   # Better Stack token presence
 ├── types/
+│   ├── auth/            # auth, password and auth-form types
+│   ├── http/            # limiter result
 │   └── canon/           # franchise, game, arc, table, user, price, theme, view types
 └── utils/
+    ├── auth/            # form validation, failure messages, initials
     └── canon/           # pure helpers + the localStorage stores
 assets/                  # logo (light and dark), README screenshots, the GitHub social preview
 docs/                    # this file
-e2e/                     # Playwright specs (table, tracking, filters, editions, screen, a11y, site, responsive)
+e2e/                     # Playwright specs (table, tracking, filters, editions, screen, a11y, site, responsive, auth)
 scripts/                 # seed, enrich, audit and check scripts, plus their cache and reports
 ```
 
@@ -97,7 +108,11 @@ scripts/                 # seed, enrich, audit and check scripts, plus their cac
 | `/books` | static |
 | `/about` | static |
 | `/docs` | static |
-| `/api/prices` | dynamic — the only route rendered on demand, by design |
+| `/sign-in`, `/sign-up`, `/reset-password` | static — forms are client components; the session is read in the browser, so the header stays static |
+| `/api/prices` | dynamic |
+| `/api/auth/*`, `/api/v1/*` | dynamic — every route in `docs/ROUTE-REGISTER.md` |
+
+Only API routes render on demand, by design.
 
 `npm run build` prints this table. It is worth reading rather than skimming: a content route showing as `ƒ` means it has silently started hitting the database per visitor. CI asserts against exactly that.
 
@@ -150,7 +165,7 @@ Uptime monitoring and a deploy heartbeat live in Better Stack rather than in thi
 
 ## CI
 
-`.github/workflows/ci.yml`. The `check` job runs lint, types, data validation and unit tests with no secrets. The `build` job runs on pushes only, using the `DATABASE_URL` secret, because the content pages read the database at build time. It asserts that `/`, `/games` and `/screen` are still statically generated. The `e2e` job runs the Playwright suite in Chromium on pushes too, for the same reason, and uploads traces when it fails.
+`.github/workflows/ci.yml`. The `check` job runs lint, types, data validation and unit tests with no secrets. The `build` job runs on pushes only, using the `DATABASE_URL` secret, because the content pages read the database at build time. It asserts that `/`, `/games` and `/screen` are still statically generated. The `e2e` job runs the Playwright suite in Chromium on pushes and on this repository's own pull requests (never forks), against a Neon `ci` branch with Neon Auth enabled. It needs the secrets `DATABASE_URL_CI` and `NEON_AUTH_BASE_URL_CI`, generates a throwaway `NEON_AUTH_COOKIE_SECRET` per run, and skips with a notice when either is missing. Traces are uploaded when it fails.
 
 `.github/workflows/release.yml` runs on a `v*` tag. It fails unless the tag matches the `package.json` version, takes that version's section of `CHANGELOG.md` as the notes, and publishes a GitHub Release. Nothing is built or attached: Vercel deploys the site from `main`, so a release only names and dates a point in that history.
 

@@ -7,5 +7,6 @@
       "destination": "https://lorestep.akshitbansal.dev/:path*",
       "permanent": true
     }
-  ]
+  ],
+  "crons": [{ "path": "/api/cron/purge", "schedule": "0 4 * * *" }]
 }
