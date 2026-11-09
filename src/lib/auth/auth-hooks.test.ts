@@ -94,9 +94,11 @@ describe("rejectDogearSession", () => {
       }),
     ];
     for (const headers of mixed) {
-      await expect(rejectDogearSession("/revoke-sessions", headers, byToken)).rejects.toMatchObject({
-        body: { code: "dogear_forbidden" },
-      });
+      await expect(rejectDogearSession("/revoke-sessions", headers, byToken)).rejects.toMatchObject(
+        {
+          body: { code: "dogear_forbidden" },
+        },
+      );
     }
   });
 
