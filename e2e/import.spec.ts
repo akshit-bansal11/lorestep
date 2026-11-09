@@ -32,32 +32,11 @@ test.describe("importing this browser's marks", () => {
     await page.goto("/games");
     const question = page.getByText("Import 1 mark from this browser into your account?");
     await expect(question).toBeVisible();
-    // Diagnostic: React never touches an attribute it did not set, so the mark survives a
-    // re-render and is gone only if the banner was remounted while the import was in flight.
-    await question.evaluate((node) => node.setAttribute("data-e2e-before-import", ""));
     const imported = page.waitForResponse("**/api/v1/import/local");
     await page.getByRole("button", { name: "Import", exact: true }).click();
     expect((await imported).status()).toBe(200);
-    const sameNode = (await page.locator("[data-e2e-before-import]").count()) === 1;
-    // Diagnostic timeline: the stored sync record and the banner text every 250 ms, printed only
-    // when the banner fails to close, so one CI run shows which state reopened the question.
-    const timeline: string[] = [];
-    for (let tick = 0; tick < 12; tick += 1) {
-      timeline.push(
-        await page.evaluate(
-          (t) =>
-            `${t * 250}ms record=${localStorage.getItem("isitcanon/import/v1")} banner=${
-              document.querySelector('[role="status"][aria-live="polite"]')?.textContent ?? "-"
-            }`,
-          tick,
-        ),
-      );
-      await page.waitForTimeout(250);
-    }
-    await expect(
-      page.getByRole("button", { name: "Never" }),
-      `import banner still open (${sameNode ? "same node" : "remounted during import"})\n${timeline.join("\n")}`,
-    ).toHaveCount(0);
+    // exact: a franchise card mentions "has never been released", which a substring match finds.
+    await expect(page.getByRole("button", { name: "Never", exact: true })).toHaveCount(0);
 
     // Nothing left in this browser: whatever shows now was read back from the account.
     await page.evaluate(() => localStorage.clear());
