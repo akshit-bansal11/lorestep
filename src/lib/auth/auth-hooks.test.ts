@@ -85,13 +85,16 @@ describe("rejectDogearSession", () => {
         cookie: "__Secure-better-auth.session_token=dogeartoken.c2ln",
       }),
       new Headers({
-        cookie: "better-auth.session_token=browsertoken.c2ln; __Secure-better-auth.session_token=dogeartoken.c2ln",
+        cookie:
+          "better-auth.session_token=browsertoken.c2ln; __Secure-better-auth.session_token=dogeartoken.c2ln",
       }),
     ];
     for (const headers of mixed) {
-      await expect(rejectDogearSession("/revoke-sessions", headers, byToken)).rejects.toMatchObject({
-        body: { code: "dogear_forbidden" },
-      });
+      await expect(rejectDogearSession("/revoke-sessions", headers, byToken)).rejects.toMatchObject(
+        {
+          body: { code: "dogear_forbidden" },
+        },
+      );
     }
   });
 
