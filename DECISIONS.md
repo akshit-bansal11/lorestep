@@ -323,3 +323,38 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
   request is sent. A Better-Auth upgrade that drops `additionalFields` from `getSession` would
   make every session `browser`; the row tests mock `getSession`, so only a DB-backed run proves it.
 - Revisit when: Better-Auth ships per-session scopes, or a third client type is added.
+
+## 2026-11-09 Neon Auth replaces Better-Auth
+
+- Context: the owner decided Neon is the only backend and auth is Neon Auth (managed Better Auth)
+  on the new Neon project (PLAN.md section 12). Nothing was ever deployed or migrated, so
+  migrations 0001 and 0002 were rewritten in place.
+- Options: keep self-hosted Better-Auth (our password hashing, sessions, device flow, signed
+  tokens); Neon Auth through `@neon/auth` 0.8.2.
+- Choice: Neon Auth. `neonAuth()` (`src/lib/auth/neon-auth.ts`) is built per call. Browser routes
+  are session-cookie only (`requireUser`: 401 signed out or with a bearer header, 503
+  `auth_unavailable` when Neon Auth errors, never treated as signed out). Sync is bearer only:
+  Dogear's EdDSA JWT verified with `jose` against Neon's JWKS (`iss`, `aud` =
+  `APP_ORIGIN/api/v1/sync`, `client_id`, uuid `sub`). Our tables keep only `rate_limits` plus the
+  user tables, whose `user_id` is a uuid FK to `neon_auth."user"` (ON DELETE CASCADE); the
+  migration runner refuses a branch without Neon Auth. `/api/auth/*` is Neon's proxy behind our
+  per-IP limiter (every POST, strict bucket for every path but sign-out and consent, fail closed).
+  Erase: email check, one delete statement, then `deleteUser()` (502 `erase_incomplete` if it
+  fails). Sessions on `/account` come from `listSessions()`; revoke looks the id up there and
+  calls `revokeSession({ token })` (the 0.8.2 types revoke by token, not by id).
+- Consequence: no password, session or token code of ours. Security properties Neon owns
+  (hashing, breached-password check, session lifetime, enumeration copy, auth audit log, grant
+  revocation) are recorded as Accepted rows in OPEN_ITEMS.md, each with a revisit trigger. A
+  Neon Auth outage means no sign-in and 503 on session routes. A plain local Postgres no longer
+  migrates (accepted: nothing runs locally).
+- Supersedes (old entries stay as history): "Argon2id from node:crypto, stored as a PHC string";
+  "Sessions: 30 days absolute, Better-Auth's __Secure- cookie"; "Signed bearer tokens only; raw
+  session tokens accepted in the database"; "Enumeration: uniform login and reset, sign-up says the
+  email is taken"; "Password reset: 1 hour token, Resend REST, 503 without mail"; "Breached-password
+  check in a hook, failing open, instead of the HIBP plugin"; "Auth runs on a Neon WebSocket Pool";
+  "Account erase, device sign-out and export bypass Better-Auth's endpoints"; "Dogear's device
+  token is signed by an after hook on /device/token"; "Sessions carry a client column;
+  authorization classifies by row". Still in force: the CSRF double-submit, the app limiter, sync
+  bearer only (now a JWT), erase confirms with the email.
+- Revisit when: Neon Auth documents grant revocation, `__Host-` cookies or its rate limits, or
+  `@neon/auth` reaches 1.0.

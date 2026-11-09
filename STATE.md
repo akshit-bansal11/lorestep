@@ -2,27 +2,23 @@
 
 Snapshot, rewritten in place (`.claude/CLAUDE.md` section 19).
 
-- Branch: `feat/merge-plotline-dogear`, draft PR #7. Plan: `PLAN.md` (section 11 overrides the rest).
-- Done: M1-M13. M1 migration runner; M2 `0001_auth_tables`; M3 Better-Auth server and guards; M4
-  auth pages; M5 `0002_log_tables`; M6 entries API; M7 local import and signed-in sync; M8 lists
-  API; M9 metadata, search, resolve-link; M10 `/library`; M11 lists UI; M12 `/account`, export,
-  erase, `/api/cron/purge`; M13 `/device`, signed Dogear device token, bearer-only
-  `/api/v1/sync*`.
-- Final security review fixes applied (local commits, unpushed): sessions carry a `client` column
-  and authorization classifies by row, so a Dogear token sent as a cookie cannot export or erase
-  (DECISIONS.md); erase now matches the stored `rate_limits` bucket format; resolve-link body is
-  capped (413); a well-shaped but unreal cursor date is 400; OAuth keeps `?next=`; new
-  `POST /api/v1/sync/sign-out`. Re-review: a Dogear session is refused (403) on every
-  `/api/auth/*` path but get-session, sign-out and pairing, and treated as signed out by
-  `/account` and `/device`; the device-token hook fails closed if the row is not marked; local
-  import is browser-session only.
+- Branch: `feat/merge-plotline-dogear`, draft PR #7. Plan: `PLAN.md` (section 12, Neon Auth,
+  overrides the rest).
+- Done: M1-M13 (Better-Auth era); N1 (`@neon/auth` 0.8.2, `jose`, `neon-auth.ts`,
+  `verify-dogear-token.ts`); N2 server cutover: migrations 0001 (`rate_limits` only) and 0002
+  (uuid `user_id`, FK to `neon_auth."user"`), migrate runner refuses a branch without Neon Auth,
+  schema `neonAuthUser`, cookie-only `requireUser` (503 on Neon errors), bearer-JWT-only sync,
+  `/api/auth/[...path]` Neon proxy behind a fail-closed per-IP limiter, account sessions, export
+  and erase on Neon Auth, purge without auth tables, `/device` and `POST /api/v1/sync/sign-out`
+  deleted. DECISIONS.md "Neon Auth replaces Better-Auth"; ledger in OPEN_ITEMS.md Accepted.
+- Not functional between N2 and N3: the sign-in UI (`auth-client.ts`, auth forms, `DevicesList`,
+  `AccountMenu`, `use-entries-sync.ts`) still uses the `better-auth` client; `better-auth` stays
+  installed until N3. Nothing is deployed from this branch.
+- Next: push and read CI for N2; then N3 (UI on the `@neon/auth` client, remove `better-auth`),
+  N5 (CI env, `migrate.yml`, PR #8 mirror of `db/migrations/0001*`, `0002*`, `scripts/migrate.mjs`
+  byte-identical), N6, then N4 (OAuth pages and authorize spike), N7 (Dogear), N8 (review).
 - Dogear client contract: `docs/DOGEAR.md`. Routes: `docs/ROUTE-REGISTER.md`.
-- CI status: green at `286aedf` (lint, types, data, unit tests) after both security reviews and
-  their fixes. Vercel preview of this branch builds.
-- Never executed: all migrations, the auth server against Neon, every SQL statement since M6,
-  device pairing, every browser test. Nothing DB-backed has run. The e2e job skips until
-  `DATABASE_URL_CI` exists (OPEN_ITEMS.md).
-- Code complete: M1-M13 here, D1-D3 in Dogear (PR dogear#1), P1 in Plotline (PR plotline#9).
-- Deploy order (owner): provision secrets and env vars; merge PR #8 (migration runner only, so
-  `migrate.yml` exists on `main`); run Migrate production; merge this PR (#7); verify sign-up live;
-  then dogear#1, then plotline#9.
+- CI status: green at `ca2c987` (N1). N2 commits not yet run in CI.
+- Never executed: all migrations, every SQL statement since M6, Neon Auth calls, every browser
+  test. The e2e job skips until `DATABASE_URL_CI` exists, and then needs Neon Auth enabled on the
+  CI branch (OPEN_ITEMS.md).

@@ -10,6 +10,15 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
 - GitHub Environment `production-migrations` with a required reviewer (not Vercel's auto-created `Production`). `.github/workflows/migrate.yml` names it,
   and that line enforces nothing until it exists. Closes when the environment is checked in the
   repository settings, not the YAML.
+- Neon Auth enabled (Console > Auth) on the CI branch and on production. `scripts/migrate.mjs`
+  refuses any branch without `neon_auth."user"`, so until then the e2e job and Migrate production
+  fail with "Neon Auth is not enabled on this branch". Migrations 0001 and 0002 were rewritten in
+  place (PLAN.md section 12): a CI branch that already recorded the old 0001/0002 must be reset
+  from its parent first. Closes when the e2e job migrates the CI branch green.
+- Neon Auth env (`NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET`, `DOGEAR_OAUTH_CLIENT_ID`,
+  `APP_ORIGIN`, `AUTH_PROVIDERS`, `AUTH_RESET`, optional `NEON_AUTH_ISSUER`) in the Vercel project;
+  the old `BETTER_AUTH_*`, `GITHUB_*`, `GOOGLE_*`, `RESEND_API_KEY`, `MAIL_FROM` removed. Closes
+  when a deploy signs a user in.
 
 ## Deferred
 
@@ -24,26 +33,55 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
   `updated_at::text` cursor. Unit tests mock the database. Closes when a DB-backed test runs them
   on the CI branch (needs `DATABASE_URL_CI`).
 
+- N2 Neon Auth wiring is UNVERIFIED against a live instance: the `iss` of a Dogear token (hence
+  the `NEON_AUTH_ISSUER` override), `getSession`/`listSessions`/`revokeSession({ token })`/
+  `deleteUser()` called server-side without a request argument (they read the cookie through
+  `next/headers`), and Date fields arriving as strings over the proxy. Unit tests mock
+  `neonAuth()`. Closes when the e2e (sign-up, sessions list, revoke, erase) passes on the CI
+  branch and a real Dogear token passes `requireBearerUser`.
+
 ## Accepted
 
-- R1: `sessions.token` is stored raw, against DB-15. The Better-Auth 1.7.18 docs offer no hashed
-  session-token storage. Mitigation (DECISIONS.md, signed bearer tokens): only HMAC-signed tokens
-  authenticate (`bearer({ requireSignature: true })` and the signed cookie), so a database read
-  alone cannot. Closes when Better-Auth ships session-token hashing and it is enabled.
-- SEC-07 `__Host-` prefix: the session cookie is `__Secure-better-auth.session_token`, because
-  Better-Auth forces the `__Secure-` prefix on secure cookies (DECISIONS.md). Closes when
-  Better-Auth supports `__Host-`.
-- SEC-19 on `/api/auth/*`: Better-Auth's endpoints rely on its own Origin and Fetch-Metadata checks,
-  not Lorestep's double-submit token (PLAN.md section 11 Q3). Closes never by design; revisit if
-  Better-Auth's checks are weakened.
+- Auth is Neon-managed (DECISIONS.md, "Neon Auth replaces Better-Auth"); these properties are
+  Neon's and cannot be verified here (PLAN.md section 12.2):
+  - SEC-05 password hashing algorithm and cost: undocumented. Revisit when Neon documents it or a
+    security review needs it.
+  - SEC-06 breached-password check and password length policy: undocumented; the app form keeps
+    min 15 / max 128 as client-side advice only. Revisit as SEC-05.
+  - SEC-07 cookie is `__Secure-neon-auth.session_token`, not `__Host-`; `SameSite=Lax` is ours
+    (`neon-auth.ts`), `HttpOnly`/`Secure` are Neon's, to be checked in browser dev tools after
+    N3 (PLAN.md 12.4 step 12). Revisit when Neon supports `__Host-`.
+  - SEC-08 session lifetime, idle timeout, rotation and revocation on password change: not
+    configurable or documented. Revisit when documented.
+  - SEC-10/11 enumeration responses and sign-up copy are Neon-defined; the e2e asserts only the
+    observable part (same message for wrong password and unknown email). Revisit if Neon
+    changes them.
+  - SEC-19 on `/api/auth/*`: Neon's trusted-domains Origin allowlist replaces our checks.
+    Production origin only; previews cannot sign in (PLAN.md 12.4 step 2). Revisit if previews
+    need auth.
+  - SEC-20 auth endpoint rate limits are undocumented on Neon's side; compensated (not proven)
+    by our `withAuthLimit` in front of the proxy. Revisit when Neon documents its limits.
+  - DB-15 credential storage: tokens and hashes live in Neon-managed tables we never read
+    (closes the old R1 as "not ours"). Revisit if the app ever reads `neon_auth`.
+  - Auth event audit log: Neon Console only. Revisit if an incident review needs it.
+  - Dogear token revocation: no revocation endpoint is documented and deleting the OAuth client
+    does not revoke issued tokens; a stolen refresh token lives up to 30 days (access JWT about
+    1 h). Mitigation: tokens only in `chrome.storage.local`, never logged, refresh rotates.
+    UNVERIFIED whether a password change or `revokeOtherSessions` invalidates grants. Revisit
+    when Neon documents grant revocation or a per-user grant list; then add "Connected apps"
+    to `/account`.
+  - Availability: a Neon Auth outage means no sign-in and 503 `auth_unavailable` on session
+    routes; signed-out tracking is unaffected. A revoked session can still read as signed in for
+    up to 60 s (`sessionDataTtl`). Revisit if outages are seen.
+  - SEC-22 erasure is ours up to `deleteUser()`; the proof is the e2e (sign-in fails after
+    erase). Whether `deleteUser()` needs a fresh session or the password is UNVERIFIED; until
+    known, a refusal answers 502 `erase_incomplete` after the data is gone. Revisit when the e2e
+    runs.
+- `neon_auth."user".id` is uuid: VERIFIED by SQL on production (2026-11-09). Its other columns
+  are camelCase and quoted (`"emailVerified"`, `"createdAt"`); the app never selects them.
+  Revisit if a query ever reads `neon_auth`.
 - BE-10 wants a token bucket; the app limiter is a fixed window by user decision (PLAN.md D-11).
   Closes if the double burst at a window edge is ever seen in logs.
-
-## Deferred (M3 follow-ups)
-
-- Unverified until CI e2e runs with `DATABASE_URL_CI`: the auth server against Neon (Pool,
-  `transaction: true`, model mapping), whether `next start` sets `x-forwarded-for` (if not,
-  `/api/v1/auth-providers` answers 403 `ip_unresolved` locally), and the Resend call.
 
 ## Deferred (M4, M9 follow-ups)
 
@@ -72,8 +110,8 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
 - `CRON_SECRET` is unprovisioned: until it is set in the Vercel project, `/api/cron/purge` answers
   401 to Vercel Cron and nothing is purged. Closes when a Vercel cron log shows a 200.
 - M12 erase and purge SQL is UNVERIFIED against Postgres: data-modifying CTEs over every user
-  table, `strpos(bucket, ':<userId>:')` on `rate_limits`, the `verifications.value = user id` match for reset
-  tokens, and the counts row. Unit tests mock the database and assert the statement's shape. The
+  table, `strpos(bucket, ':<userId>:')` on `rate_limits`, the `::uuid` user id casts, the
+  `deleteUser()` step after it, and the counts row. Unit tests mock the database and assert the statement's shape. The
   SEC-22 end-to-end check (zero rows left for the user, other users untouched) is
   `e2e/account.spec.ts` plus a DB-backed row count, neither run yet. Closes when both pass on the
   CI branch (needs `DATABASE_URL_CI`).
@@ -88,15 +126,10 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
 
 ## Deferred (M13 follow-ups)
 
-- Dogear pairing is UNVERIFIED end to end: the `/device/token` after hook (signed `access_token`,
-  session row marked `client = 'dogear'`) relies on Better-Auth 1.7.18 keeping the endpoint's JSON in
-  `context.returned`; the hook and the signature format are unit-tested with a mocked adapter. The M13 e2e (approve a code in the
-  browser, exchange it over `request`, push and pull a mark) is not written. Closes when that e2e
-  passes on the CI branch (needs `DATABASE_URL_CI`) or D2's live pairing calls `/api/v1/sync`.
 - M13 sync SQL is UNVERIFIED against Postgres: the D-15 keep expression (`EXISTS` over
   `list_items` join `lists`), the `(updated_at, id) >` keyset, `coalesce(excluded.url, ...)` in the
-  link upsert, and the batch as one transaction. Unit tests mock the database. Closes with the e2e
-  above.
+  link upsert, and the batch as one transaction. Unit tests mock the database. Closes when a
+  DB-backed sync test runs on the CI branch (needs `DATABASE_URL_CI`).
 - Sync pull can miss a write whose transaction commits with an `updated_at` earlier than a cursor
   already handed out (keyset on a commit-order-free clock). Closes if Dogear shows stale marks, by
   adding an overlap window to the cursor.
