@@ -9,6 +9,7 @@ import { appOrigin } from "@/lib/auth/auth-env";
 import {
   describeOAuthQuery,
   grantLines,
+  isExtensionClient,
   readOAuthQuery,
   searchFromRecord,
 } from "@/lib/auth/continue-oauth";
@@ -29,7 +30,7 @@ export const metadata: Metadata = {
  */
 export default async function Page({ searchParams }: { searchParams: Promise<SearchRecord> }) {
   const oauthQuery = readOAuthQuery(searchFromRecord(await searchParams));
-  if (oauthQuery === null) return <OAuthInvalid />;
+  if (oauthQuery === null || !isExtensionClient(oauthQuery)) return <OAuthInvalid />;
   const signedIn = await optionalSession();
   if (signedIn === null) redirect(`/oauth/login?${oauthQuery}`);
 

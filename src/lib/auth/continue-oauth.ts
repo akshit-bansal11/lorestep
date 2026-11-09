@@ -4,6 +4,7 @@ import {
   REPEATABLE_OAUTH_KEY,
   SCOPE_LABELS,
 } from "@/constants/auth/oauth";
+import { requiredEnv } from "@/lib/auth/auth-env";
 import type { OAuthRequest, SearchRecord } from "@/types/auth/oauth";
 
 /**
@@ -69,3 +70,12 @@ export function grantLines(request: OAuthRequest, syncResource: string): string[
   if (resource === null) return scopes;
   return [...scopes, resource === syncResource ? OAUTH_COPY.syncResource : resource];
 }
+
+/**
+ * Whether a query `readOAuthQuery` accepted names the extension's own client. Both OAuth pages
+ * serve only that client: any other one gets the invalid-request page before Neon is called, so
+ * a third-party client cannot title our consent screen with a name of its choosing (consent
+ * phishing for the account email via userinfo). Throws when EXTENSION_OAUTH_CLIENT_ID is unset.
+ */
+export const isExtensionClient = (oauthQuery: string) =>
+  new URLSearchParams(oauthQuery).get("client_id") === requiredEnv("EXTENSION_OAUTH_CLIENT_ID");

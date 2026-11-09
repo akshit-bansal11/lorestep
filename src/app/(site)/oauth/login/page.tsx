@@ -7,7 +7,7 @@ import SignInForm from "@/components/auth/SignInForm";
 import { AUTH_COPY } from "@/constants/auth/copy";
 import { OAUTH_COPY } from "@/constants/auth/oauth";
 import { TEXT_LINK_CLASS } from "@/constants/canon/ui";
-import { readOAuthQuery, searchFromRecord } from "@/lib/auth/continue-oauth";
+import { isExtensionClient, readOAuthQuery, searchFromRecord } from "@/lib/auth/continue-oauth";
 import { optionalSession } from "@/lib/auth/page-session";
 import type { SearchRecord } from "@/types/auth/oauth";
 
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
  */
 export default async function Page({ searchParams }: { searchParams: Promise<SearchRecord> }) {
   const oauthQuery = readOAuthQuery(searchFromRecord(await searchParams));
-  if (oauthQuery === null) return <OAuthInvalid />;
+  if (oauthQuery === null || !isExtensionClient(oauthQuery)) return <OAuthInvalid />;
   const signedIn = await optionalSession();
   const signUpNext = encodeURIComponent(`/oauth/login?${oauthQuery}`);
 

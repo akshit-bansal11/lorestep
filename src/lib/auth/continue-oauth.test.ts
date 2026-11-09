@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { OAUTH_COPY, OAUTH_QUERY_MAX, SCOPE_LABELS } from "@/constants/auth/oauth";
 import {
@@ -6,6 +6,7 @@ import {
   continueBody,
   describeOAuthQuery,
   grantLines,
+  isExtensionClient,
   readOAuthQuery,
   searchFromRecord,
 } from "@/lib/auth/continue-oauth";
@@ -103,5 +104,23 @@ describe("describeOAuthQuery and grantLines", () => {
     expect(request.redirectHost).toBeNull();
     expect(grantLines(request, SYNC)).toEqual(["weird", "https://x.test"]);
     expect(grantLines({ ...request, resource: null }, SYNC)).toEqual(["weird"]);
+  });
+});
+
+describe("isExtensionClient", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("accepts only the configured extension client id", () => {
+    vi.stubEnv("EXTENSION_OAUTH_CLIENT_ID", "QHsrHeWAKSsEaVpDisiAwJBAdMXtMNvX");
+    expect(isExtensionClient(SIGNED)).toBe(true);
+    expect(isExtensionClient("client_id=evil-app&sig=x")).toBe(false);
+    expect(isExtensionClient("client_id=qhsrhewakssseavpdisiawjbadmxtmnvx&sig=x")).toBe(false);
+  });
+
+  it("throws when the extension client id is not configured", () => {
+    vi.stubEnv("EXTENSION_OAUTH_CLIENT_ID", "");
+    expect(() => isExtensionClient(SIGNED)).toThrow();
   });
 });

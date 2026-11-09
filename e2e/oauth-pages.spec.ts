@@ -3,10 +3,17 @@ import { expect, test } from "@playwright/test";
 
 // Neon signs the real query; these pages only check its shape, so a fake one reaches them. The
 // full round trip (Neon authorize to the extension redirect) is the user spike, PLAN.md 12.4 step 11.
-const QUERY = "client_id=e2e-client&scope=openid+email&sig=e2e-signature";
+const QUERY = "client_id=ci&scope=openid+email&sig=e2e-signature";
 
-test("the OAuth pages without a signed request say the link expired", async ({ page }) => {
-  for (const path of ["/oauth/login", "/oauth/consent", "/oauth/login?next=%2Flibrary"]) {
+test("the OAuth pages say the link expired without a signed request for us", async ({ page }) => {
+  const foreign = "client_id=other-app&scope=openid+email&sig=e2e-signature";
+  for (const path of [
+    "/oauth/login",
+    "/oauth/consent",
+    "/oauth/login?next=%2Flibrary",
+    `/oauth/login?${foreign}`,
+    `/oauth/consent?${foreign}`,
+  ]) {
     await page.goto(path);
     await expect(
       page.getByRole("heading", { level: 1, name: "This link has expired" }),
