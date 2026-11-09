@@ -47,14 +47,19 @@ describe("rejectPwnedPassword", () => {
 });
 
 describe("rejectDogearSession", () => {
+  // A correctly shaped signature: 43 base64 characters and one `=` (URL-encoded in cookies).
+  const SIG = `${"A".repeat(43)}=`;
+  const cookieSig = encodeURIComponent(SIG);
   const lookup = (client: string) =>
     vi
       .fn<(token: string) => Promise<{ session: object }>>()
       .mockResolvedValue({ session: { client } });
   const dogear = lookup("dogear");
   const browser = lookup("browser");
-  const bearer = new Headers({ authorization: "Bearer rawtoken.c2lnbmF0dXJl" });
-  const cookie = new Headers({ cookie: "__Secure-better-auth.session_token=rawtoken.c2ln%3D" });
+  const bearer = new Headers({ authorization: `Bearer rawtoken.${SIG}` });
+  const cookie = new Headers({
+    cookie: `__Secure-better-auth.session_token=rawtoken.${cookieSig}`,
+  });
 
   it("refuses a Dogear session on account-changing paths, by bearer or by cookie", async () => {
     for (const path of ["/revoke-sessions", "/list-sessions", "/update-user", "/device/approve"]) {
@@ -73,7 +78,7 @@ describe("rejectDogearSession", () => {
     }
   });
 
-  it("checks every credential, so a harmless bearer cannot hide a Dogear cookie", async () => {
+  it("checks every credential, so a harmless one cannot hide a Dogear cookie", async () => {
     const byToken = vi
       .fn<(token: string) => Promise<{ session: object } | null>>()
       .mockImplementation(async (token) => ({
@@ -81,21 +86,37 @@ describe("rejectDogearSession", () => {
       }));
     const mixed = [
       new Headers({
-        authorization: "Bearer browsertoken.c2ln",
-        cookie: "__Secure-better-auth.session_token=dogeartoken.c2ln",
+        authorization: `Bearer browsertoken.${SIG}`,
+        cookie: `__Secure-better-auth.session_token=dogeartoken.${cookieSig}`,
       }),
       new Headers({
-        cookie:
-          "better-auth.session_token=browsertoken.c2ln; __Secure-better-auth.session_token=dogeartoken.c2ln",
+        cookie: `better-auth.session_token=browsertoken.${cookieSig}; __Secure-better-auth.session_token="dogeartoken.${cookieSig}"`,
       }),
     ];
     for (const headers of mixed) {
-      await expect(rejectDogearSession("/revoke-sessions", headers, byToken)).rejects.toMatchObject(
-        {
-          body: { code: "dogear_forbidden" },
-        },
-      );
+      await expect(rejectDogearSession("/revoke-sessions", headers, byToken)).rejects.toMatchObject({
+        body: { code: "dogear_forbidden" },
+      });
     }
+  });
+
+  it("refuses malformed or excess session credentials without a lookup", async () => {
+    const find = vi.fn<(token: string) => Promise<{ session: object } | null>>();
+    const bad = [
+      new Headers({ cookie: "__Secure-better-auth.session_token=nosignature" }),
+      new Headers({ cookie: "better-auth.session_token=%E0%A4%A" }),
+      new Headers({
+        cookie: Array.from({ length: 4 }, (_, i) => `s${i}.session_token=t${i}.${cookieSig}`).join(
+          "; ",
+        ),
+      }),
+    ];
+    for (const headers of bad) {
+      await expect(rejectDogearSession("/update-user", headers, find)).rejects.toMatchObject({
+        body: { code: "invalid_credentials" },
+      });
+    }
+    expect(find).not.toHaveBeenCalled();
   });
 
   it("lets browser sessions and credential-free requests through", async () => {

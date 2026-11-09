@@ -54,8 +54,15 @@ export async function rejectDogearSession(
   findSession: (token: string) => Promise<{ session: object } | null>,
 ): Promise<void> {
   if (DOGEAR_AUTH_PATHS.includes(path)) return;
+  const scan = sessionTokensFrom(headers);
+  if (scan.refuse) {
+    throw new APIError("BAD_REQUEST", {
+      code: "invalid_credentials",
+      message: "Sign in again.",
+    });
+  }
   // Every credential the request carries is checked: if ANY names a Dogear row, refuse.
-  for (const token of sessionTokensFrom(headers)) {
+  for (const token of scan.tokens) {
     const found = await findSession(token);
     if (found !== null && Reflect.get(found.session, "client") === "dogear") {
       throw new APIError("FORBIDDEN", {

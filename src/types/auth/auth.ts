@@ -48,3 +48,9 @@ export interface DeviceTokenContext {
     };
   };
 }
+
+/** Session credentials a request carries, unverified; `refuse` when any is malformed or excess. */
+export interface CredentialScan {
+  tokens: string[];
+  refuse: boolean;
+}
