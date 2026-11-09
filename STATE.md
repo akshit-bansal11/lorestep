@@ -14,11 +14,17 @@ Snapshot, rewritten in place (`.claude/CLAUDE.md` section 19).
 - N3 done: `auth-client.ts` is `createAuthClient()` from `@neon/auth/next` (a Better Auth React
   client underneath, same method names, so forms and hooks are unchanged); `better-auth` removed
   from `package.json` (lock by the bot). Nothing is deployed from this branch.
-- Next: push and read CI for N2 and N3; then
-  N5 (CI env, `migrate.yml`, PR #8 mirror of `db/migrations/0001*`, `0002*`, `scripts/migrate.mjs`
-  byte-identical), N6, then N4 (OAuth pages and authorize spike), N7 (Dogear), N8 (review).
+- N5 done (see git log). N4 done, not yet in CI: `/oauth/login` (sign-in form whose POST carries
+  Neon's `oauth_query`, or Continue = `oauth2.continue` when signed in) and `/oauth/consent`
+  (client name from `oauth2.publicClient`, scopes in plain words, Allow/Deny =
+  `oauth2.consent`), `continue-oauth.ts` (+test), `e2e/oauth-pages.spec.ts`. Spike decided by
+  reading `@neon/auth`: Dogear authorizes and exchanges tokens at the Neon Auth URL, not the
+  proxy (DECISIONS.md 2026-11-09). OAuth provider and the Dogear public client are provisioned on
+  production (PLAN.md 12.4 steps 6, 7).
+- Next: push and read CI for N4; user spike (PLAN.md 12.4 step 11) after N4 reaches production;
+  N7 (Dogear, against `docs/DOGEAR.md` "Sign-in"), N8 (review).
 - Dogear client contract: `docs/DOGEAR.md`. Routes: `docs/ROUTE-REGISTER.md`.
-- CI status: green at `9646ee6` (N2). N3 not yet run in CI.
+- CI status: green at `9646ee6` (N2); later commits per the latest Actions run.
 - Never executed: all migrations, every SQL statement since M6, Neon Auth calls, every browser
   test. The e2e job skips until `DATABASE_URL_CI` exists, and then needs Neon Auth enabled on the
   CI branch (OPEN_ITEMS.md).

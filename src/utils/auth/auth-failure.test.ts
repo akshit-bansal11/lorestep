@@ -54,10 +54,12 @@ describe("failureMessage", () => {
     expect(failureMessage(failure(0), "sign-in")).toContain("connection");
   });
 
-  it("reads a 400 on the device page as a dead code, not a credential error", () => {
-    expect(failureMessage(failure(400, "INVALID_REQUEST"), "device")).toBe(
-      AUTH_COPY.errors.deviceCode,
+  it("reads a 400 or 401 on an OAuth page as an expired request, not a credential error", () => {
+    expect(failureMessage(failure(400, "INVALID_REQUEST"), "oauth")).toBe(
+      AUTH_COPY.errors.oauthExpired,
     );
+    expect(failureMessage(failure(401), "oauth")).toBe(AUTH_COPY.errors.oauthExpired);
+    expect(failureMessage(failure(500), "oauth")).toBe(AUTH_COPY.errors.server);
   });
 
   it("never returns an empty message", () => {
@@ -67,7 +69,7 @@ describe("failureMessage", () => {
       "reset-request",
       "reset",
       "social",
-      "device",
+      "oauth",
     ];
     for (const context of contexts) {
       expect(failureMessage(failure(418, "TEAPOT"), context)).not.toBe("");

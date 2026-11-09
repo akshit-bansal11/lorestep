@@ -35,7 +35,7 @@ export function failureMessage(failure: AuthFailure, context: AuthContext): stri
     return errors.resetUnavailable;
   }
   if (code === "INVALID_TOKEN") return errors.badToken;
-  if (context === "device" && status === 400) return errors.deviceCode;
+  if (context === "oauth" && (status === 400 || status === 401)) return errors.oauthExpired;
   if (context === "sign-in" && (status === 401 || status === 400)) return errors.credentials;
   if (context === "sign-up" && (status === 422 || code.includes("EXISTS"))) {
     return errors.signUpFailed;

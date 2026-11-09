@@ -14,6 +14,11 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
   `APP_ORIGIN`, `AUTH_PROVIDERS`, `AUTH_RESET`, optional `NEON_AUTH_ISSUER`) in the Vercel project;
   the old `BETTER_AUTH_*`, `GITHUB_*`, `GOOGLE_*`, `RESEND_API_KEY`, `MAIL_FROM` removed. Closes
   when a deploy signs a user in.
+- N4 authorize round trip (PLAN.md 12.4 step 11): Neon authorize -> `/oauth/login` -> `/oauth/consent`
+  -> `chromiumapp.org/?code=` never observed; the choice of the Neon URL over the proxy rests on
+  reading `@neon/auth` 0.8.2's proxy (`redirect: "follow"`). Also UNVERIFIED: that the server
+  `neonAuth().oauth2.publicClient` forwards the session cookie. Closes when the user spike lands on
+  the redirect with a `code`.
 
 ## Deferred
 

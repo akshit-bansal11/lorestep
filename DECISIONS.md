@@ -358,3 +358,31 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
   bearer only (now a JWT), erase confirms with the email.
 - Revisit when: Neon Auth documents grant revocation, `__Host-` cookies or its rate limits, or
   `@neon/auth` reaches 1.0.
+
+## 2026-11-09 Dogear authorizes at the Neon Auth URL, not through the /api/auth proxy
+
+- Context: PLAN.md N4 spike, 12.5 top risk. The session cookie lives on the Lorestep origin, so
+  the question was whether the authorize leg must run through Lorestep's `/api/auth` proxy
+  (option B, the plan's default) for Neon to see the session.
+- Options: (A) Dogear opens `NEON_AUTH_BASE_URL/oauth2/authorize` and posts to
+  `NEON_AUTH_BASE_URL/oauth2/token` directly; (B) both through `APP_ORIGIN/api/auth/oauth2/*`.
+- Choice: A. Read from `@neon/auth` 0.8.2 `dist/server.js` (`handleAuthRequest`): the proxy
+  re-fetches upstream with `fetch`'s default `redirect: "follow"`, so a proxied authorize follows
+  Neon's 302 on the server; the browser would render the login page under the authorize URL
+  without Neon's signed query (or, already consented, the server would fetch the
+  `chromiumapp.org` redirect itself and the code would be lost). A needs no Lorestep cookie at
+  Neon: Neon's documented flow sends a session-less authorize to our `login_page`, which resumes
+  it with `POST /oauth2/continue` (or the sign-in POST carrying `oauth_query`) through the proxy,
+  first-party. Token calls go direct too: no proxy hop, no `withAuthLimit` strict bucket on
+  refresh, and the Neon origin is already in Dogear's `host_permissions` (N6).
+- Also from the Neon docs (2026-11-06), changing N-12: the `id_token` has no `email`; Dogear reads
+  it from `/oauth2/userinfo`. Scope is `openid email offline_access` (`profile` dropped, unused).
+  Without an MCP resource there is no refresh-reuse window, so a concurrent refresh revokes the
+  user's Dogear grants: the single in-flight refresh is mandatory, not an optimisation.
+  The consent page signed out redirects to `/oauth/login?<query>`, not `/sign-in?next=`, so the
+  request resumes through Neon.
+- Consequence: `docs/DOGEAR.md` documents A; Dogear's `AUTH_BASE` must be the Neon Auth URL.
+  The proxy still serves the pages' `continue`, `consent` and `public-client` calls (JSON
+  answers, never redirects).
+- Revisit when: the user spike (PLAN.md 12.4 step 11) fails at a hop, or `@neon/auth` changes
+  the proxy to `redirect: "manual"`.

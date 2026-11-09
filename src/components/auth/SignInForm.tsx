@@ -18,7 +18,16 @@ import { cn } from "@/utils/cn";
 
 const copy = AUTH_COPY.signIn;
 
-export default function SignInForm() {
+interface SignInFormProps {
+  /**
+   * On `/oauth/login`: the sign-in POST carries the page's `oauth_query` (the Neon client
+   * attaches it) and Neon's answer navigates on to the consent page, so the form never follows
+   * `?next=`; a refresh is the fallback that shows the signed-in Continue step.
+   */
+  oauth?: boolean;
+}
+
+export default function SignInForm({ oauth = false }: SignInFormProps) {
   const router = useRouter();
   const { providers } = useAuthProviders();
   const form = useAuthForm({
@@ -31,13 +40,13 @@ export default function SignInForm() {
           options,
         ),
       ),
-    onDone: () => router.replace(nextPathFromLocation()),
+    onDone: () => (oauth ? router.refresh() : router.replace(nextPathFromLocation())),
   });
   const locked = form.pending || form.done;
 
   return (
     <>
-      <OAuthButtons busy={locked} providers={providers} />
+      <OAuthButtons busy={locked} providers={providers} returnHere={oauth} />
       <form className="flex flex-col gap-4" noValidate onSubmit={form.onSubmit}>
         <AuthField
           autoComplete="email"

@@ -73,7 +73,8 @@ export const AUTH_COPY = {
     signUpFailed: "We could not create that account. If you already have one, sign in instead.",
     compromised: "This password has appeared in a data breach. Choose a different one.",
     badToken: "This reset link is invalid or has expired. Request a new one.",
-    deviceCode: "This code is invalid or has expired. Start sign-in again from Dogear.",
+    oauthExpired:
+      "This approval request is invalid or has expired. Start signing in again from the app.",
     resetUnavailable: "Password reset by email is not available right now.",
     forbidden: "That request was blocked. Reload the page and try again.",
     server: "Something went wrong on our side. Try again in a moment.",

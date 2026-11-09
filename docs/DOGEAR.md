@@ -1,32 +1,90 @@
 # Dogear protocol
 
-How the Dogear extension signs in to Lorestep and syncs marks (PLAN.md section 12, N-4, N-12).
+How the Dogear extension signs in to Lorestep and syncs marks (PLAN.md section 12, N-4, N-12, N4).
 Origin: `https://lorestep.akshitbansal.dev`. Every sync call runs from the service worker with
 `credentials: "omit"` (no cookies). Lorestep sends no CORS headers (D-10). JSON bodies,
 `content-type: application/json`. The token is sent only to Lorestep and Neon Auth, never logged.
 
 ## Sign-in: OAuth 2.1 authorization code + PKCE, Neon Auth as the provider
 
-1. `chrome.identity.launchWebAuthFlow` opens the authorize URL with `client_id` =
-   `DOGEAR_OAUTH_CLIENT_ID`, `response_type=code`, PKCE (`S256`), `state`, `scope` including
-   `email`, `resource` = `APP_ORIGIN/api/v1/sync`, and `redirect_uri` =
-   `https://<EXT_ID>.chromiumapp.org/`. Authorize base: `APP_ORIGIN/api/auth/oauth2/authorize`
-   (the proxy, option B) by default; UNVERIFIED until the N4 spike, which may switch it to the Neon
-   Auth URL (option A). This file is amended in N7 if it does.
-2. The user signs in on Lorestep and approves Dogear on the consent page.
-3. Exchange the returned `code` at the token endpoint (same base, `/oauth2/token`) for
-   `{ access_token, refresh_token, id_token, expires_in }`. Keep all three only in
-   `chrome.storage.local`.
-4. Send `Authorization: Bearer <access_token>` to the sync routes. The access token is an EdDSA JWT
-   (about 1 h) that Lorestep verifies against `NEON_AUTH_BASE_URL/.well-known/jwks.json`: `iss`,
-   `aud` = `APP_ORIGIN/api/v1/sync`, `exp`, `client_id` and a uuid `sub`. It is accepted ONLY on
-   `/api/v1/sync*`; every other route is session-cookie only and answers 401 to it.
-5. Refresh with the rotating `refresh_token` (up to 30 days) before expiry, one refresh in flight
-   at a time, persisting the new pair before use. A 401 from sync after a refresh means signed out:
-   delete the tokens. 503 `auth_unavailable` means the key set is unreachable: retry later, keep
-   the tokens.
+Facts (production, 2026-11-09): issuer and Auth base `AUTH` =
+`https://ep-noisy-king-bbgaaffj.neonauth.c-15.us-east-1.aws.neon.tech/neondb/auth`; public client
+`client_id` = `QHsrHeWAKSsEaVpDisiAwJBAdMXtMNvX` (not a secret); redirect URI =
+`https://hemmdilibbhbbgionnnfloeilhkiijop.chromiumapp.org/` (`chrome.identity.getRedirectURL()`
+for the pinned key; Neon accepted it); resource `RES` = `https://lorestep.akshitbansal.dev/api/v1/sync`;
+consent is not skipped.
 
-"Signed in as" is the `email` claim of the `id_token` (display only, never a trust decision).
+Authorize and token go to `AUTH` directly, NOT through Lorestep's `/api/auth` proxy. The proxy
+re-fetches upstream with `fetch`'s default `redirect: "follow"`, so a proxied authorize would
+follow Neon's 302 on the server and the browser would never reach the login page with Neon's
+signed query (DECISIONS.md, "Dogear authorizes at the Neon Auth URL"). The Lorestep session cookie
+is not needed at Neon: Neon always sends the browser to the Lorestep login page, which resumes the
+request with its own first-party cookie.
+
+1. `chrome.identity.launchWebAuthFlow({ url, interactive: true })` with (one line, encoded):
+
+   ```text
+   https://ep-noisy-king-bbgaaffj.neonauth.c-15.us-east-1.aws.neon.tech/neondb/auth/oauth2/authorize
+     ?response_type=code
+     &client_id=QHsrHeWAKSsEaVpDisiAwJBAdMXtMNvX
+     &redirect_uri=https%3A%2F%2Fhemmdilibbhbbgionnnfloeilhkiijop.chromiumapp.org%2F
+     &scope=openid%20email%20offline_access
+     &state=<STATE>
+     &code_challenge=<BASE64URL_SHA256_OF_VERIFIER>
+     &code_challenge_method=S256
+     &resource=https%3A%2F%2Florestep.akshitbansal.dev%2Fapi%2Fv1%2Fsync
+   ```
+
+   `profile` is not requested (unused). `offline_access` is what returns a refresh token.
+   Do not send `prompt=login` or `max_age=0`: Neon loops back to the login page with them.
+2. The browser goes `AUTH/oauth2/authorize` -> `https://lorestep.akshitbansal.dev/oauth/login?<signed>`
+   (sign in, or Continue if already signed in) -> `/oauth/consent?<signed>` (Allow / Deny; skipped
+   by Neon once the same scopes and resource were approved) -> the redirect URI.
+3. Result URL: accept it only if it starts with the redirect URI and its `state` equals yours.
+   `?code=...&state=...` on Allow; `?error=access_denied&state=...` on Deny (show "Sign-in was
+   cancelled", keep nothing). Any other `error` = show it as a failed sign-in.
+4. Token request (form-encoded, `credentials: "omit"`, no client secret, public client):
+
+   ```text
+   POST AUTH/oauth2/token
+   Content-Type: application/x-www-form-urlencoded
+
+   grant_type=authorization_code&code=<CODE>&code_verifier=<VERIFIER>
+     &redirect_uri=https%3A%2F%2Fhemmdilibbhbbgionnnfloeilhkiijop.chromiumapp.org%2F
+     &client_id=QHsrHeWAKSsEaVpDisiAwJBAdMXtMNvX
+     &resource=https%3A%2F%2Florestep.akshitbansal.dev%2Fapi%2Fv1%2Fsync
+   ```
+
+   200 `{ access_token, token_type: "Bearer", expires_in, refresh_token, id_token, scope }`.
+   Without `resource` on BOTH requests Neon issues an opaque token that Lorestep cannot verify.
+   Keep the tokens only in `chrome.storage.local`.
+5. Refresh before `expires_in` runs out (access JWT about 1 h):
+
+   ```text
+   POST AUTH/oauth2/token
+   grant_type=refresh_token&refresh_token=<REFRESH>&client_id=QHsrHeWAKSsEaVpDisiAwJBAdMXtMNvX
+     &resource=https%3A%2F%2Florestep.akshitbansal.dev%2Fapi%2Fv1%2Fsync
+   ```
+
+   The refresh token lasts 30 days and rotates on every use: persist the new pair before using
+   it. Exactly one refresh in flight: this branch has no MCP resource, so Neon has NO 30 s reuse
+   window, and presenting an already-rotated refresh token revokes all of the user's refresh
+   tokens for Dogear (signed out everywhere). `invalid_grant` = delete tokens, show signed out.
+   A network error keeps the tokens.
+6. Sync calls send `Authorization: Bearer <access_token>`. Lorestep verifies the EdDSA JWT
+   against `AUTH/.well-known/jwks.json`: `iss` = `AUTH`, `aud` contains `RES` (with `openid` it is
+   an array that also holds the userinfo URL), `exp`, `client_id` and a uuid `sub`. It is
+   accepted ONLY on `/api/v1/sync*`; every other route is session-cookie only and answers 401.
+   A 401 after one forced refresh means signed out: delete the tokens. 503 `auth_unavailable`
+   means the key set is unreachable: retry later, keep the tokens.
+
+"Signed in as": Neon's `id_token` carries NO `email` (Neon docs). Read it once after the token
+exchange from `GET AUTH/oauth2/userinfo` with `Authorization: Bearer <access_token>` (needs the
+`openid` and `email` scopes), validate with `EMAIL_RE`, store it next to the tokens. Display
+only, never a trust decision.
+
+Host permissions needed: the Lorestep origin and the `AUTH` origin
+(`https://ep-noisy-king-bbgaaffj.neonauth.c-15.us-east-1.aws.neon.tech`).
 
 ## Push: `POST /api/v1/sync/push` (bearer only; a cookie caller gets 401)
 

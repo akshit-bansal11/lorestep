@@ -15,6 +15,8 @@ interface OAuthButtonsProps {
   providers: AuthProviders | null;
   /** Locks the buttons while the email form is submitting. */
   busy: boolean;
+  /** Return to this exact URL (the `/oauth/login` query) instead of `?next=`. */
+  returnHere?: boolean;
 }
 
 const BUTTONS: readonly { provider: SocialProvider; label: string }[] = [
@@ -23,7 +25,7 @@ const BUTTONS: readonly { provider: SocialProvider; label: string }[] = [
 ];
 
 /** One button per provider the server says is configured, then a divider to the email form. */
-export default function OAuthButtons({ providers, busy }: OAuthButtonsProps) {
+export default function OAuthButtons({ providers, busy, returnHere = false }: OAuthButtonsProps) {
   const [active, setActive] = useState<SocialProvider | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,9 +34,12 @@ export default function OAuthButtons({ providers, busy }: OAuthButtonsProps) {
 
   async function start(provider: SocialProvider) {
     setActive(provider);
+    const callbackURL = returnHere
+      ? `${window.location.pathname}${window.location.search}`
+      : nextPathFromLocation();
     setError(null);
     const failure = await callAuth((options) =>
-      authClient.signIn.social({ provider, callbackURL: nextPathFromLocation() }, options),
+      authClient.signIn.social({ provider, callbackURL }, options),
     );
     if (failure !== null) {
       setActive(null);
