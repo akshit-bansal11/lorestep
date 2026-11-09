@@ -12,7 +12,10 @@ Snapshot, rewritten in place (`.claude/CLAUDE.md` section 19).
   and authorization classifies by row, so a Dogear token sent as a cookie cannot export or erase
   (DECISIONS.md); erase now matches the stored `rate_limits` bucket format; resolve-link body is
   capped (413); a well-shaped but unreal cursor date is 400; OAuth keeps `?next=`; new
-  `POST /api/v1/sync/sign-out`.
+  `POST /api/v1/sync/sign-out`. Re-review: a Dogear session is refused (403) on every
+  `/api/auth/*` path but get-session, sign-out and pairing, and treated as signed out by
+  `/account` and `/device`; the device-token hook fails closed if the row is not marked; local
+  import is browser-session only.
 - Dogear client contract: `docs/DOGEAR.md`. Routes: `docs/ROUTE-REGISTER.md`.
 - CI status: last green `39b7d9b`. The review-fix commits have never been typechecked, linted or
   tested.

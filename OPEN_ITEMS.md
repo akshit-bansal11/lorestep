@@ -90,7 +90,7 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
 
 - Dogear pairing is UNVERIFIED end to end: the `/device/token` after hook (signed `access_token`,
   session row marked `client = 'dogear'`) relies on Better-Auth 1.7.18 keeping the endpoint's JSON in
-  `context.returned`; only the signature format is unit-tested. The M13 e2e (approve a code in the
+  `context.returned`; the hook and the signature format are unit-tested with a mocked adapter. The M13 e2e (approve a code in the
   browser, exchange it over `request`, push and pull a mark) is not written. Closes when that e2e
   passes on the CI branch (needs `DATABASE_URL_CI`) or D2's live pairing calls `/api/v1/sync`.
 - M13 sync SQL is UNVERIFIED against Postgres: the D-15 keep expression (`EXISTS` over
