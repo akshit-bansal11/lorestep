@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dogear library</title>
+  <link rel="stylesheet" href="library.css">
+</head>
+<body>
+  <main id="main">
+    <header class="top">
+      <svg class="logo" viewBox="0 0 128 128" aria-hidden="true" focusable="false">
+        <rect x="4" y="4" width="120" height="120" rx="28" class="logo-tile"/>
+        <path d="M46 52V98L106 64L66 41.3Z" class="logo-play"/>
+        <path d="M46 52L66 41.3L64.3 64.2Z" class="logo-flap"/>
+      </svg>
+      <h1>Dogear</h1>
+      <span class="count" id="count"></span>
+      <button type="button" class="ghost" id="open-tab">Open in a tab</button>
+    </header>
+
+    <div class="banner" id="welcome" hidden>
+      <p><b>Welcome to Dogear.</b> Used it before? If you backed up, your list is in
+        <code>Downloads/Dogear/dogear-backup.json</code>. Restore it to pick up where you left off.</p>
+      <div class="actions">
+        <button type="button" class="primary" id="restore">Restore from backup</button>
+        <button type="button" class="ghost" id="fresh">Start fresh</button>
+      </div>
+    </div>
+
+    <div class="filters">
+      <label class="field grow"><span class="sr">Search titles</span>
+        <input id="q" type="search" placeholder="Search titles" autocomplete="off" spellcheck="false">
+      </label>
+      <label class="field"><span class="sr">Service</span>
+        <select id="platform"><option value="">All services</option></select>
+      </label>
+    </div>
+
+    <fieldset class="tabs" id="tabs" aria-label="Show titles by state"></fieldset>
+
+    <ul class="list" id="list" aria-label="Marked titles"></ul>
+    <p class="more" id="more" hidden></p>
+
+    <footer class="foot">
+      <div class="toggles">
+        <label class="toggle"><input type="checkbox" id="dim"> Dim finished and dropped titles</label>
+        <label class="toggle"><input type="checkbox" id="match"> Link the same title across services</label>      </div>
+      <div class="backup-row">
+        <p class="backup-status" id="backup-status"></p>
+        <button type="button" class="ghost" id="backup-now">Back up now</button>
+      </div>
+      <div class="backup-row">
+        <p class="backup-status" id="account-status">Checking your Lorestep sign-in…</p>
+        <button type="button" class="ghost" id="account-action" disabled>Sign in to Lorestep</button>
+      </div>
+      <div class="backup-row" id="sync-row" hidden>
+        <p class="backup-status" id="sync-status"></p>
+        <button type="button" class="ghost" id="sync-now">Sync now</button>
+      </div>
+      <div class="actions">
+        <button type="button" class="ghost" id="export">Export</button>
+        <button type="button" class="ghost" id="import">Import</button>
+        <label class="sr">Choose a Dogear export file <input type="file" id="file" accept="application/json,.json"></label>
+      </div>
+      <p class="privacy">Stored in this browser, and in a backup file on your computer when you save one. Nothing leaves this browser unless you sign in to Lorestep; then your marks sync with your Lorestep account.</p>
+    </footer>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+  </main>
+  <script src="../core/states.js"></script>
+  <script src="../core/store.js"></script>
+  <script src="../core/auth.js"></script>
+  <script src="library.js"></script>
+</body>
+</html>

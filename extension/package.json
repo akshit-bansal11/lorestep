@@ -1,0 +1,14 @@
+{
+  "name": "dogear",
+  "version": "0.8.0",
+  "private": true,
+  "description": "Chrome extension: mark titles on streaming sites as Watching, Plan to Watch, Completed, On Hold or Dropped.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "lint": "npx --yes @biomejs/biome@2.6.4 ci .",
+    "check": "node scripts/check.mjs && node --test"
+  }
+}

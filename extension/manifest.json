@@ -1,0 +1,70 @@
+{
+  "manifest_version": 3,
+  "name": "Dogear",
+  "short_name": "Dogear",
+  "version": "0.8.0",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAogVDQmxlsREeatgBQX1uE9ehNyVbHmVQlh1g/PYaQ9pQYvqPcqTlXN1cGJ7oNqcEf6WQ2TBQPZ8Ec8QW4vHx5VeUtdg2B6TG+Bbp3oN3LciH5CDuBJ2pc6uYa7yfAi8g12rNFAF+r9WNrNjIb4iSgH0Ww0VPw24FvG8OhuiGkcnPwxN0k3at7XRzjDJ2biQSOqE9k5e36Uwf7Um23nByIY52lIZYfVP9CCSeka5lsWMseihPikd/uLe6u7hI4TOzzaAl2Q2BSao3j6cdIfrY5cv07p+Sx2K41XITt8BUm3+7V4tPFFii+Be7ejGp9tlnAhYa2eZdCXAQ14JPNCMGYQIDAQAB",
+  "description": "Fold the corner of any poster on Netflix, Prime Video, JioHotstar, ZEE5, HBO Max and Crunchyroll: Watching, Plan to Watch, Completed, On Hold, Dropped.",
+  "minimum_chrome_version": "114",
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "permissions": ["storage", "contextMenus", "downloads", "downloads.ui", "offscreen", "alarms", "identity"],
+  "host_permissions": [
+    "https://lorestep.akshitbansal.dev/*",
+    "https://ep-noisy-king-bbgaaffj.neonauth.c-15.us-east-1.aws.neon.tech/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Dogear library",
+    "default_popup": "library/library.html",
+    "default_icon": {
+      "16": "icons/16.png",
+      "32": "icons/32.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.netflix.com/*"],
+      "js": ["core/states.js", "core/store.js", "core/ui.js", "adapters/netflix.js", "core/scan.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.primevideo.com/*",
+        "https://www.amazon.com/gp/video/*",
+        "https://www.amazon.in/gp/video/*",
+        "https://www.amazon.co.uk/gp/video/*",
+        "https://www.amazon.de/gp/video/*",
+        "https://www.amazon.co.jp/gp/video/*"
+      ],
+      "js": ["core/states.js", "core/store.js", "core/ui.js", "adapters/primevideo.js", "core/scan.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.hotstar.com/*", "https://www.jiohotstar.com/*"],
+      "js": ["core/states.js", "core/store.js", "core/ui.js", "adapters/hotstar.js", "core/scan.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.zee5.com/*"],
+      "js": ["core/states.js", "core/store.js", "core/ui.js", "adapters/zee5.js", "core/scan.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://play.hbomax.com/*", "https://play.max.com/*"],
+      "js": ["core/states.js", "core/store.js", "core/ui.js", "adapters/hbomax.js", "core/scan.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.crunchyroll.com/*"],
+      "js": ["core/states.js", "core/store.js", "core/ui.js", "adapters/crunchyroll.js", "core/scan.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

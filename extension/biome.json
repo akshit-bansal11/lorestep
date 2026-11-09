@@ -1,0 +1,16 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.10/schema.json",
+  "root": false,
+  "extends": "//",
+  "formatter": { "lineWidth": 120 },
+  "javascript": { "globals": ["chrome"] },
+  "linter": {
+    "rules": { "suspicious": { "noRedundantUseStrict": "off" } }
+  },
+  "overrides": [
+    {
+      "includes": ["scripts/**"],
+      "linter": { "rules": { "suspicious": { "noConsole": "off" } } }
+    }
+  ]
+}

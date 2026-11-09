@@ -1,4 +1,9 @@
-import { OAUTH_COPY, OAUTH_QUERY_MAX, SCOPE_LABELS } from "@/constants/auth/oauth";
+import {
+  OAUTH_COPY,
+  OAUTH_QUERY_MAX,
+  REPEATABLE_OAUTH_KEY,
+  SCOPE_LABELS,
+} from "@/constants/auth/oauth";
 import type { OAuthRequest, SearchRecord } from "@/types/auth/oauth";
 
 /**
@@ -12,6 +17,10 @@ export function readOAuthQuery(search: string): string | null {
   const raw = search.startsWith("?") ? search.slice(1) : search;
   if (raw.length === 0 || raw.length > OAUTH_QUERY_MAX) return null;
   const params = new URLSearchParams(raw);
+  // Fail closed on repeated keys (only Neon's own `ba_param` may repeat): otherwise the consent
+  // page could display a different client, scope or redirect than the one Neon verified.
+  const keys = [...params.keys()].filter((key) => key !== REPEATABLE_OAUTH_KEY);
+  if (new Set(keys).size !== keys.length) return null;
   return params.has("sig") && (params.get("client_id") ?? "") !== "" ? raw : null;
 }
 

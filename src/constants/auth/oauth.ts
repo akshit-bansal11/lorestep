@@ -6,6 +6,9 @@
 /** Longest signed `oauth_query` accepted. Neon's is a few hundred characters; this bounds abuse. */
 export const OAUTH_QUERY_MAX = 4096;
 
+/** The only key Neon repeats in a signed authorization query (one per signed parameter). */
+export const REPEATABLE_OAUTH_KEY = "ba_param";
+
 /** What each fixed Neon Auth scope lets the app do, in plain words. Unknown scopes show raw. */
 export const SCOPE_LABELS: Readonly<Record<string, string>> = {
   openid: "Confirm which Lorestep account you use",
