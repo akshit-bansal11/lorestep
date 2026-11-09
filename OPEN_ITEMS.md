@@ -83,9 +83,10 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
   - DB-15 credential storage: tokens and hashes live in Neon-managed tables we never read
     (closes the old R1 as "not ours"). Revisit if the app ever reads `neon_auth`.
   - Auth event audit log: Neon Console only. Revisit if an incident review needs it.
-  - Dogear token revocation: no revocation endpoint is documented and deleting the OAuth client
+  - Extension token revocation: no revocation endpoint is documented and deleting the OAuth client
     does not revoke issued tokens; a stolen refresh token lives up to 30 days (access JWT about
-    1 h). Mitigation: tokens only in `chrome.storage.local`, never logged, refresh rotates.
+    1 h). Mitigation: tokens only in the worker's IndexedDB (content scripts cannot reach it),
+    never logged, refresh rotates, redirects refused on token and API fetches.
     UNVERIFIED whether a password change or `revokeOtherSessions` invalidates grants. Revisit
     when Neon documents grant revocation or a per-user grant list; then add "Connected apps"
     to `/account`.

@@ -58,7 +58,8 @@ request with its own first-party cookie.
 
    200 `{ access_token, token_type: "Bearer", expires_in, refresh_token, id_token, scope }`.
    Without `resource` on BOTH requests Neon issues an opaque token that Lorestep cannot verify.
-   Keep the tokens only in `chrome.storage.local`.
+   Keep the tokens only in the background worker's IndexedDB (never `chrome.storage.local`,
+   which content scripts on the streaming sites can read); only `auth:status` lives there.
 5. Refresh before `expires_in` runs out (access JWT about 1 h):
 
    ```text

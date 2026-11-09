@@ -455,3 +455,17 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
   accepted lockout), and reset at 5/h; one IP gets 10 tries per 15 min per account. All keys hold
   sha256 of the trimmed, lowercased email, never the address.
 - Revisit when: Neon documents its own auth limits, or real lockout or abuse reports appear.
+
+## 2026-11-09 Extension tokens live in the worker's IndexedDB
+
+- Context: the final security review found the 30-day refresh token in `chrome.storage.local`,
+  which the extension's content scripts on six streaming sites read wholesale (`get(null)`).
+- Options: keep it and accept the risk; `chrome.storage.session` (cleared on browser restart, so
+  daily re-pairing); IndexedDB opened only by the background service worker.
+- Choice: worker-only IndexedDB. Content scripts run in the page's origin and cannot open the
+  extension origin's IndexedDB. Only `auth:status` (state, email for display, last error) stays in
+  `chrome.storage.local`. A legacy `auth` key is moved and deleted on worker start. Token, userinfo
+  and API fetches use `redirect: "error"`.
+- Consequence: the earlier D-9 trade-off is closed; the displayed email is still readable by
+  content scripts.
+- Revisit when: Chrome gives `chrome.storage.local` a trusted-contexts access level.
