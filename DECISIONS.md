@@ -436,3 +436,22 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
   delete). It deletes from Neon-managed tables, including any OAuth client application row the
   erased user owns. The app role needs SELECT on the catalog and DELETE on those tables.
 - Revisit when: Neon exposes a delete-user API that removes its own rows.
+
+## 2026-11-09 Per-email auth limits: lockout vs brute force
+
+- Context: follow-up security review of the per-email buckets on POST `sign-in/email` and
+  `request-password-reset`. A bucket keyed only by the email lets anyone lock a victim out of
+  sign-in (or reset) from any IP; no per-email bucket at all lets a botnet guess one account's
+  password from many IPs, each under its per-IP caps.
+- Options: (A) per-email only, 10/15 min (the first cut: strong ceiling, trivial lockout); (B)
+  per email and IP only (no lockout, no cross-IP ceiling); (C) both: a strict per email and IP
+  bucket plus a looser cross-IP per-email ceiling, separate per path.
+- Choice: C. `authEmailIp` 10/900 s per path, email hash and IP (the attacker cannot spend the
+  victim's budget from another IP); cross-IP ceiling per email 40/3600 s for sign-in (no higher
+  than the old effective 10/15 min) and 5/3600 s for password reset (each hit sends a mail, so it
+  doubles as the mail-bomb cap). The path is in every key, so a sign-in lockout never blocks
+  reset. The first cut's 100/3600 s ceiling was rejected as looser than the rate it replaced.
+- Consequence: an attacker on many IPs can still hold a victim's sign-in at the 40/h ceiling (the
+  accepted lockout), and reset at 5/h; one IP gets 10 tries per 15 min per account. All keys hold
+  sha256 of the trimmed, lowercased email, never the address.
+- Revisit when: Neon documents its own auth limits, or real lockout or abuse reports appear.

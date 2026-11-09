@@ -73,7 +73,8 @@ export async function readEmailBody(request: Request): Promise<{ hash: string; b
  * `auth:<path>:<ip>` bucket. `AUTH_EMAIL_LIMITED_PATHS` must carry a JSON `email` (`readEmailBody`)
  * and also count per email and IP (`auth:email:<path>:<sha256>:<ip>`, the strict one, so nobody
  * can lock a victim out from elsewhere) and per email across all IPs (`auth:email:<path>:<sha256>`,
- * the brute-force ceiling). The path is in both keys, so a sign-in lockout never blocks a reset.
+ * the brute-force ceiling: 40/h for sign-in, 5/h for reset, which sends mail). The path is in
+ * both keys, so a sign-in lockout never blocks a reset.
  * The validated body is what is forwarded. 429 past any cap, 403 when the IP cannot be resolved.
  */
 export function withAuthLimit(handler: AuthRouteHandler): AuthRouteHandler {
@@ -98,7 +99,9 @@ export function withAuthLimit(handler: AuthRouteHandler): AuthRouteHandler {
         if (AUTH_EMAIL_LIMITED_PATHS.includes(path)) {
           const { hash, body } = await readEmailBody(request);
           await enforceRateLimit(`auth:email:${path}:${hash}:${ip}`, RATE_LIMITS.authEmailIp);
-          await enforceRateLimit(`auth:email:${path}:${hash}`, RATE_LIMITS.authEmail);
+          const reset = path === "request-password-reset";
+          const ceiling = reset ? RATE_LIMITS.authEmailReset : RATE_LIMITS.authEmailSignIn;
+          await enforceRateLimit(`auth:email:${path}:${hash}`, ceiling);
           forwarded = new Request(request, { body });
         }
       }

@@ -83,7 +83,7 @@ describe("withAuthLimit", () => {
       ["auth:1.2.3.4", 30, 60],
       ["auth:sign-in/email:1.2.3.4", 10, 60],
       [`auth:email:sign-in/email:${HASH}:1.2.3.4`, 10, 900],
-      [`auth:email:sign-in/email:${HASH}`, 100, 3600],
+      [`auth:email:sign-in/email:${HASH}`, 40, 3600],
     ]);
     expect(buckets().join(" ")).not.toMatch(/example/i);
     expect(await forwardedBody(0)).toBe(EMAIL_BODY);
@@ -186,8 +186,12 @@ describe("withAuthLimit", () => {
     const reset = await post(["request-password-reset"], EMAIL_BODY);
 
     expect(reset.status).toBe(200);
-    expect(buckets()).toContain(`auth:email:request-password-reset:${HASH}:1.2.3.4`);
-    expect(buckets()).toContain(`auth:email:request-password-reset:${HASH}`);
+    const email = "auth:email:request-password-reset:";
+    const calls = rateLimit.mock.calls.filter(([bucket]) => String(bucket).startsWith(email));
+    expect(calls).toEqual([
+      [`auth:email:request-password-reset:${HASH}:1.2.3.4`, 10, 900],
+      [`auth:email:request-password-reset:${HASH}`, 5, 3600],
+    ]);
   });
 
   it("answers 415 or 400 for an email-limited POST without a JSON email", async () => {

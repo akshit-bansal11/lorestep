@@ -18,7 +18,7 @@ Snapshot, rewritten in place (`.claude/CLAUDE.md` section 19).
     expired" before Neon is called.
   - Limiter keys IPv6 by /64; sign-in/email and request-password-reset must be JSON with an
     `email` (415/400 otherwise) and also count per hashed email and IP (10/15 min) and per hashed
-    email (100/h), separately per path.
+    email across IPs (sign-in 40/h, reset 5/h), separately per path.
   - Erase also deletes the user's rows from every `neon_auth` user-id table without a cascading
     FK, found from the catalog at erase time; `scripts/migrate.mjs` prints those tables and no
     longer fails on them (mirrored to `add/production-migrations`, PR #8).
