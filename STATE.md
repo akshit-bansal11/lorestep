@@ -17,9 +17,12 @@ Snapshot, rewritten in place (`.claude/CLAUDE.md` section 19).
   `/account` and `/device`; the device-token hook fails closed if the row is not marked; local
   import is browser-session only.
 - Dogear client contract: `docs/DOGEAR.md`. Routes: `docs/ROUTE-REGISTER.md`.
-- CI status: last green `39b7d9b`. The review-fix commits have never been typechecked, linted or
-  tested.
+- CI status: green at `286aedf` (lint, types, data, unit tests) after both security reviews and
+  their fixes. Vercel preview of this branch builds.
 - Never executed: all migrations, the auth server against Neon, every SQL statement since M6,
   device pairing, every browser test. Nothing DB-backed has run. The e2e job skips until
   `DATABASE_URL_CI` exists (OPEN_ITEMS.md).
-- Next: push and read CI for the review fixes, then D3 in the Dogear repo, then P1.
+- Code complete: M1-M13 here, D1-D3 in Dogear (PR dogear#1), P1 in Plotline (PR plotline#9).
+- Deploy order (owner): provision secrets and env vars; merge PR #8 (migration runner only, so
+  `migrate.yml` exists on `main`); run Migrate production; merge this PR (#7); verify sign-up live;
+  then dogear#1, then plotline#9.
