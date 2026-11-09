@@ -1,28 +1,19 @@
 import { eq } from "drizzle-orm";
 
 import { db } from "@/lib/db/client";
-import { entries, entryLinks, listItems, lists, users } from "@/lib/db/schema";
+import { entries, entryLinks, listItems, lists } from "@/lib/db/schema";
 import type { AccountExport } from "@/types/account/account";
+import type { SessionAccount } from "@/types/auth/auth";
 
 /**
  * Every row the user owns, read in one batch so the file is one consistent snapshot. Soft-deleted
- * rows are included while they exist (they are still the user's data). `sessions`, `accounts` and
- * `verifications` are never read: they hold credentials (SEC-22).
+ * rows are included while they exist (they are still the user's data). The profile comes from the
+ * Neon Auth session; `neon_auth` is never read, so no credential can reach the file (SEC-22).
  */
-export async function exportAccount(userId: string): Promise<AccountExport> {
+export async function exportAccount(account: SessionAccount): Promise<AccountExport> {
   const client = db();
-  const [profile, entryRows, linkRows, listRows, itemRows] = await client.batch([
-    client
-      .select({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        emailVerified: users.emailVerified,
-        image: users.image,
-        createdAt: users.createdAt,
-      })
-      .from(users)
-      .where(eq(users.id, userId)),
+  const { userId } = account;
+  const [entryRows, linkRows, listRows, itemRows] = await client.batch([
     client.select().from(entries).where(eq(entries.userId, userId)),
     client.select().from(entryLinks).where(eq(entryLinks.userId, userId)),
     client.select().from(lists).where(eq(lists.userId, userId)),
@@ -31,7 +22,7 @@ export async function exportAccount(userId: string): Promise<AccountExport> {
 
   return {
     exportedAt: new Date().toISOString(),
-    profile: profile[0] ?? null,
+    profile: { id: userId, name: account.name, email: account.email },
     entries: entryRows,
     entryLinks: linkRows,
     lists: listRows,

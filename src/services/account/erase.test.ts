@@ -6,69 +6,79 @@ import { HttpError } from "@/lib/http/http-error";
 import { eraseAccount } from "@/services/account/erase";
 import { USER_TABLES } from "@/services/account/user-tables";
 
-// `execute` records its SQL and answers `state.rows` (the ids RETURNING would hand back).
+// `execute` and `deleteUser` append to `calls`, so the test sees the order of the two steps.
 const state = vi.hoisted(() => {
-  const executed: unknown[] = [];
-  const rows: unknown[] = [];
-  return { executed, rows };
+  const calls: unknown[] = [];
+  const deleteUser = vi.fn();
+  return { calls, deleteUser };
 });
 
 vi.mock("@/lib/db/client", () => ({
   db: () => ({
     execute: (query: unknown) => {
-      state.executed.push(query);
-      return Promise.resolve({ rows: state.rows });
+      state.calls.push(query);
+      return Promise.resolve({ rows: [] });
     },
   }),
 }));
+vi.mock("@/lib/auth/neon-auth", () => ({ neonAuth: () => ({ deleteUser: state.deleteUser }) }));
 
-const USER = "user-a";
-const EMAIL = "a@example.com";
+const ACCOUNT = {
+  userId: "0b7c2c0e-6c2f-4b8a-9d0e-1f2a3b4c5d6e",
+  email: "A@Example.com",
+  name: "A",
+};
 
-function lastQuery() {
-  const query = state.executed.at(-1);
+function firstQuery() {
+  const query = state.calls[0];
   if (!(query instanceof SQL)) throw new Error("nothing executed");
   return new PgDialect().sqlToQuery(query);
 }
 
+async function statusOf(promise: Promise<unknown>) {
+  const error = await promise.catch((caught: unknown) => caught);
+  return error instanceof HttpError ? `${error.status} ${error.code}` : "resolved";
+}
+
 describe("eraseAccount", () => {
   beforeEach(() => {
-    state.executed.length = 0;
-    state.rows = [{ id: USER }];
+    state.calls.length = 0;
+    state.deleteUser.mockReset();
+    state.deleteUser.mockImplementation(() => {
+      state.calls.push("deleteUser");
+      return Promise.resolve({ data: { success: true }, error: null });
+    });
   });
 
-  it("deletes from every user table, then the user, in one statement", async () => {
-    await eraseAccount(USER, EMAIL);
-    const { sql, params } = lastQuery();
+  it("deletes every user table and the user's limiter rows, then the Neon Auth user", async () => {
+    await eraseAccount(ACCOUNT, "a@example.com");
+    const { sql, params } = firstQuery();
 
-    expect(state.executed).toHaveLength(1);
+    expect(state.calls).toHaveLength(2);
+    expect(state.calls[1]).toBe("deleteUser");
     for (const table of USER_TABLES) {
-      expect(sql).toMatch(new RegExp(`DELETE FROM "${table}" WHERE user_id = \\$\\d+ AND EXISTS`));
+      expect(sql).toMatch(new RegExp(`DELETE FROM "${table}" WHERE user_id = \\$\\d+::uuid`));
     }
-    expect(sql).toContain("DELETE FROM verifications WHERE value = $");
-    expect(sql).toContain("DELETE FROM rate_limits WHERE strpos(bucket, $");
-    expect(sql).toMatch(
-      /DELETE FROM users WHERE id = \$\d+ AND lower\(email\) = lower\(\$\d+\)\s+RETURNING id$/,
-    );
-    expect(params).toContain(`:${USER}:`);
-    // Every value is the caller's id, the typed email or its bucket needle: never another user.
-    expect(new Set(params)).toEqual(new Set([USER, EMAIL, `:${USER}:`]));
+    expect(sql).toMatch(/DELETE FROM rate_limits WHERE strpos\(bucket, \$\d+\) > 0$/);
+    // Every value is the caller's id or its bucket needle: never another user.
+    expect(new Set(params)).toEqual(new Set([ACCOUNT.userId, `:${ACCOUNT.userId}:`]));
   });
 
-  it("guards every delete on the typed email matching the account", async () => {
-    await eraseAccount(USER, EMAIL);
-    const { sql } = lastQuery();
-    const guards = sql.match(/EXISTS \(SELECT 1 FROM users WHERE id = \$\d+ AND lower\(email\)/g);
-
-    expect(guards).toHaveLength(USER_TABLES.length + 2);
+  it("throws 400 confirm_mismatch on a wrong email and deletes nothing", async () => {
+    expect(await statusOf(eraseAccount(ACCOUNT, "b@example.com"))).toBe("400 confirm_mismatch");
+    expect(state.calls).toHaveLength(0);
+    expect(state.deleteUser).not.toHaveBeenCalled();
   });
 
-  it("throws 400 confirm_mismatch when the email does not match (nothing deleted)", async () => {
-    state.rows = [];
+  it("answers 502 erase_incomplete when deleteUser fails, after the rows are gone", async () => {
+    state.deleteUser.mockResolvedValueOnce({
+      data: null,
+      error: { message: "fresh session required", status: 400, statusText: "", code: "X" },
+    });
+    expect(await statusOf(eraseAccount(ACCOUNT, "a@example.com"))).toBe("502 erase_incomplete");
+    expect(state.calls).toHaveLength(1);
 
-    const error = await eraseAccount(USER, "wrong@example.com").catch((caught: unknown) => caught);
-
-    expect(error).toBeInstanceOf(HttpError);
-    expect(error).toMatchObject({ status: 400, code: "confirm_mismatch" });
+    state.deleteUser.mockRejectedValueOnce(new Error("network"));
+    expect(await statusOf(eraseAccount(ACCOUNT, "a@example.com"))).toBe("502 erase_incomplete");
   });
 });

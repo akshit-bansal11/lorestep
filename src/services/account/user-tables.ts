@@ -1,19 +1,10 @@
 /**
  * Every table whose rows carry a `user_id` owned by one user, children first (DB-11, DB-D10).
- * Account erase deletes from each by `user_id`, then the `users` row itself. A new user-owned
- * table MUST be added here, or erase leaves an orphan.
+ * Account erase deletes from each by `user_id` before Neon Auth deletes the user. A new
+ * user-owned table MUST be added here, or erase leaves an orphan until the FK cascade fires.
  *
- * Erased separately, because they are not keyed by `user_id`: `rate_limits` (bucket
- * `<name>:<userId>`, matched by suffix) and `verifications` (a reset token's `value` is the user
- * id). Never attributable to a user, so left to expire and the purge cron: `auth_rate_limits`
- * (keyed by client IP and path) and other `verifications` rows (hashed identifiers).
+ * Erased separately, because it is not keyed by `user_id`: `rate_limits` (bucket
+ * `<name>:<userId>`, matched by `userBucketNeedle`). Accounts, sessions and credentials live in
+ * Neon Auth's managed schema and go with `deleteUser()` (PLAN.md section 12, N-10, N-11).
  */
-export const USER_TABLES: readonly string[] = [
-  "entry_links",
-  "list_items",
-  "lists",
-  "entries",
-  "device_codes",
-  "sessions",
-  "accounts",
-];
+export const USER_TABLES: readonly string[] = ["entry_links", "list_items", "lists", "entries"];

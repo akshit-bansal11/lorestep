@@ -124,7 +124,7 @@ export async function createList(userId: string, input: ListCreate): Promise<Lis
   try {
     const result = await db().execute<{ id: string }>(sql`
       INSERT INTO lists (user_id, name, description, kinds)
-      SELECT ${userId}, ${input.name}, ${input.description ?? ""},
+      SELECT ${userId}::uuid, ${input.name}, ${input.description ?? ""},
         ARRAY[${sql.join(kinds, sql`, `)}]::text[]
       WHERE (SELECT count(*) FROM lists WHERE user_id = ${userId} AND deleted_at IS NULL)
         < ${LIST_LIMITS.perUser}

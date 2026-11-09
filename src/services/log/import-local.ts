@@ -58,7 +58,7 @@ export async function importLocal(userId: string, marks: LocalMarks): Promise<Im
   const result = await db().execute<{ id: string }>(sql`
     INSERT INTO entries (user_id, kind, title, title_norm, status, status_at, shelf, notes, progress,
       repeat_count, device, storefront, game_id)
-    SELECT ${userId}, 'game', r.title, r.title_norm, r.status,
+    SELECT ${userId}::uuid, 'game', r.title, r.title_norm, r.status,
       CASE WHEN r.status IS NULL THEN NULL ELSE now() END, r.shelf, '', '{}'::jsonb, 0,
       r.device, r.storefront, r.game_id
     FROM jsonb_to_recordset(${JSON.stringify(rows)}::jsonb)

@@ -1,39 +1,32 @@
-import { and, desc, eq, gt } from "drizzle-orm";
-
-import { db } from "@/lib/db/client";
-import { sessions } from "@/lib/db/schema";
+import { neonAuth } from "@/lib/auth/neon-auth";
+import { neonData } from "@/lib/auth/neon-result";
 import type { DeviceSession } from "@/types/account/account";
 
 /**
- * The user's unexpired sessions, newest first. Read directly rather than through Better-Auth's
- * `listSessions`, which returns each raw token; only display columns are selected (DB-21).
+ * The caller's sessions from Neon Auth, newest first, display fields only: the token each one
+ * carries never leaves this file (DB-21). Neon Auth reads the caller from the request cookie.
  */
-export async function listDeviceSessions(userId: string): Promise<DeviceSession[]> {
-  const rows = await db()
-    .select({
-      id: sessions.id,
-      userAgent: sessions.userAgent,
-      createdAt: sessions.createdAt,
-      expiresAt: sessions.expiresAt,
-    })
-    .from(sessions)
-    .where(and(eq(sessions.userId, userId), gt(sessions.expiresAt, new Date())))
-    .orderBy(desc(sessions.createdAt));
-  return rows.map((row) => ({
-    ...row,
-    createdAt: row.createdAt.toISOString(),
-    expiresAt: row.expiresAt.toISOString(),
-  }));
+export async function listDeviceSessions(): Promise<DeviceSession[]> {
+  const sessions = neonData(await neonAuth().listSessions());
+  return sessions
+    .map((session) => ({
+      id: session.id,
+      userAgent: session.userAgent ?? null,
+      // `new Date` because the JSON transport may hand back strings where the type says Date.
+      createdAt: new Date(session.createdAt).toISOString(),
+      expiresAt: new Date(session.expiresAt).toISOString(),
+    }))
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 /**
- * Ends one of the user's sessions by id; false when no such session is theirs (the route answers
- * 404). Deleting the row is the revocation: no cookie cache or secondary storage is configured.
+ * Ends one of the caller's sessions by id; false when the id is not in the caller's own
+ * `listSessions()` (the route answers 404), so no other user's session can be named. Neon revokes
+ * by token, which is looked up here and never exposed.
  */
-export async function revokeDeviceSession(userId: string, id: string): Promise<boolean> {
-  const rows = await db()
-    .delete(sessions)
-    .where(and(eq(sessions.id, id), eq(sessions.userId, userId)))
-    .returning({ id: sessions.id });
-  return rows.length > 0;
+export async function revokeDeviceSession(id: string): Promise<boolean> {
+  const target = neonData(await neonAuth().listSessions()).find((session) => session.id === id);
+  if (target === undefined) return false;
+  neonData(await neonAuth().revokeSession({ token: target.token }));
+  return true;
 }

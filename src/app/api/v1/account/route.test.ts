@@ -4,17 +4,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DELETE } from "@/app/api/v1/account/route";
 import { HttpError } from "@/lib/http/http-error";
 
-const { requireUser, rateLimit, assertSameOrigin, eraseAccount } = vi.hoisted(() => ({
-  requireUser: vi.fn(),
+const { requireSessionAccount, rateLimit, assertSameOrigin, eraseAccount } = vi.hoisted(() => ({
+  requireSessionAccount: vi.fn(),
   rateLimit: vi.fn(),
   assertSameOrigin: vi.fn(),
   eraseAccount: vi.fn(),
 }));
 
-vi.mock("@/lib/auth/require-user", () => ({ requireUser }));
+vi.mock("@/lib/auth/require-session-account", () => ({ requireSessionAccount }));
 vi.mock("@/lib/db/rate-limit", () => ({ rateLimit }));
 vi.mock("@/lib/http/assert-same-origin", () => ({ assertSameOrigin }));
 vi.mock("@/services/account/erase", () => ({ eraseAccount }));
+
+const ACCOUNT = { userId: "user-a", email: "a@example.com", name: "A" };
 
 const erase = (body: unknown) =>
   DELETE(
@@ -28,7 +30,7 @@ const erase = (body: unknown) =>
 describe("DELETE /api/v1/account", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    requireUser.mockResolvedValue({ userId: "user-a", via: "session" });
+    requireSessionAccount.mockResolvedValue(ACCOUNT);
     rateLimit.mockResolvedValue({ allowed: true, retryAfterSec: 30 });
     eraseAccount.mockResolvedValue(undefined);
   });
@@ -38,16 +40,20 @@ describe("DELETE /api/v1/account", () => {
 
     expect(response.status).toBe(204);
     expect(assertSameOrigin).toHaveBeenCalledTimes(1);
-    expect(eraseAccount).toHaveBeenCalledWith("user-a", "a@example.com");
+    expect(eraseAccount).toHaveBeenCalledWith(ACCOUNT, "a@example.com");
   });
 
-  it("refuses a bearer token with 403 and erases nothing", async () => {
-    requireUser.mockResolvedValue({ userId: "user-a", via: "bearer" });
+  it("answers 401 for a bearer token or no session and erases nothing", async () => {
+    requireSessionAccount.mockRejectedValueOnce(new HttpError(401, "unauthorized", "Sign in."));
 
-    const response = await erase({ confirm: "a@example.com" });
+    expect((await erase({ confirm: "a@example.com" })).status).toBe(401);
+    expect(eraseAccount).not.toHaveBeenCalled();
+  });
 
-    expect(response.status).toBe(403);
-    expect((await response.json()).error.code).toBe("session_required");
+  it("answers 503 when Neon Auth is unavailable", async () => {
+    requireSessionAccount.mockRejectedValueOnce(new HttpError(503, "auth_unavailable", "Down."));
+
+    expect((await erase({ confirm: "a@example.com" })).status).toBe(503);
     expect(eraseAccount).not.toHaveBeenCalled();
   });
 
@@ -58,19 +64,19 @@ describe("DELETE /api/v1/account", () => {
     expect(eraseAccount).not.toHaveBeenCalled();
   });
 
-  it("passes the service's 400 confirm_mismatch through", async () => {
+  it("passes the service's 400 confirm_mismatch and 502 erase_incomplete through", async () => {
     eraseAccount.mockRejectedValueOnce(new HttpError(400, "confirm_mismatch", "Not your email."));
+    const mismatch = await erase({ confirm: "b@example.com" });
+    expect(mismatch.status).toBe(400);
+    expect((await mismatch.json()).error.code).toBe("confirm_mismatch");
 
-    const response = await erase({ confirm: "b@example.com" });
-
-    expect(response.status).toBe(400);
-    expect((await response.json()).error.code).toBe("confirm_mismatch");
+    eraseAccount.mockRejectedValueOnce(new HttpError(502, "erase_incomplete", "Try again."));
+    const incomplete = await erase({ confirm: "a@example.com" });
+    expect(incomplete.status).toBe(502);
+    expect((await incomplete.json()).error.code).toBe("erase_incomplete");
   });
 
-  it("answers 401 signed out and 403 when the CSRF check fails", async () => {
-    requireUser.mockRejectedValueOnce(new HttpError(401, "unauthorized", "Sign in to continue."));
-    expect((await erase({ confirm: "a@example.com" })).status).toBe(401);
-
+  it("answers 403 when the CSRF check fails", async () => {
     assertSameOrigin.mockImplementationOnce(() => {
       throw new HttpError(403, "csrf_failed", "Reload the page and try again.");
     });

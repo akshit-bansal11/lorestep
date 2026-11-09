@@ -21,15 +21,7 @@ vi.mock("@/lib/db/client", () => ({
 }));
 
 const NOW = new Date("2026-11-08T04:00:00.000Z");
-const COUNTS = {
-  entries: 1,
-  lists: 0,
-  sessions: 3,
-  verifications: 0,
-  deviceCodes: 0,
-  rateLimits: 9,
-  authRateLimits: 4,
-};
+const COUNTS = { entries: 1, lists: 0, rateLimits: 9 };
 
 function lastQuery() {
   const query = state.executed.at(-1);
@@ -47,33 +39,28 @@ describe("purgeExpired", () => {
     expect(await purgeExpired(NOW)).toEqual(COUNTS);
   });
 
-  it("cuts soft deletes at 30 days, expiries at now and limiter rows at one day", async () => {
+  it("cuts soft deletes at 30 days and limiter rows at one day", async () => {
     await purgeExpired(NOW);
     const { params } = lastQuery();
 
     expect(params).toEqual([
       "2026-10-09T04:00:00.000Z",
       "2026-10-09T04:00:00.000Z",
-      "2026-11-08T04:00:00.000Z",
-      "2026-11-08T04:00:00.000Z",
-      "2026-11-08T04:00:00.000Z",
       NOW.getTime() / 1000 - 86_400,
-      NOW.getTime() - 86_400_000,
     ]);
   });
 
-  it("deletes only rows strictly older than each cutoff", async () => {
+  it("deletes only rows strictly older than each cutoff, and no Neon Auth table", async () => {
     await purgeExpired(NOW);
     const { sql } = lastQuery();
 
     expect(sql).toContain("DELETE FROM entries WHERE deleted_at < $1::timestamptz");
     expect(sql).toContain("DELETE FROM lists WHERE deleted_at < $2::timestamptz");
-    expect(sql).toContain("DELETE FROM sessions WHERE expires_at < $3::timestamptz");
-    expect(sql).toContain("DELETE FROM verifications WHERE expires_at < $4::timestamptz");
-    expect(sql).toContain("DELETE FROM device_codes WHERE expires_at < $5::timestamptz");
-    expect(sql).toContain("DELETE FROM rate_limits WHERE window_start < $6::bigint");
-    expect(sql).toContain("DELETE FROM auth_rate_limits WHERE last_request < $7::bigint");
-    expect(sql).not.toMatch(/DELETE FROM (users|accounts|entry_links|list_items)\b/);
+    expect(sql).toContain("DELETE FROM rate_limits WHERE window_start < $3::bigint");
+    expect(sql).not.toMatch(
+      /sessions|verifications|device_codes|auth_rate_limits|users|accounts|neon_auth/,
+    );
+    expect(sql).not.toMatch(/DELETE FROM (entry_links|list_items)\b/);
   });
 
   it("throws when Postgres returns no counts row", async () => {

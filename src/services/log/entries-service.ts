@@ -100,7 +100,7 @@ export async function createEntry(userId: string, input: EntryCreate): Promise<E
       INSERT INTO entries (user_id, kind, title, title_norm, year, status, status_at, shelf, rating,
         notes, progress, repeat_count, device, storefront, game_id, ext_source, ext_id, image_url,
         started_at, completed_at)
-      SELECT ${userId}, ${input.kind}, ${input.title}, ${normTitle(input.title)},
+      SELECT ${userId}::uuid, ${input.kind}, ${input.title}, ${normTitle(input.title)},
         ${input.year ?? null}::smallint, ${status}, ${statusAt}::timestamptz,
         ${input.shelf ?? null}, ${input.rating ?? null}::smallint, ${input.notes ?? ""},
         ${JSON.stringify(input.progress ?? {})}::jsonb, ${input.repeatCount ?? 0}::integer,
