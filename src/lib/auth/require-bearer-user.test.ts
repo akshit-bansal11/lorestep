@@ -59,12 +59,13 @@ describe("requireBearerUser", () => {
   });
 
   it("refuses a session cookie or a malformed header with 401, verifying nothing", async () => {
-    for (const headers of [
+    const cases: Record<string, string>[] = [
       { cookie: "__Secure-neon-auth.session_token=abc" },
       { authorization: "Basic dTpw" },
       { authorization: "Bearer" },
       { authorization: "Bearer a b" },
-    ]) {
+    ];
+    for (const headers of cases) {
       expect(await statusOf(requireBearerUser(request(headers)))).toBe("401 unauthorized");
     }
     expect(verifyDogearToken).not.toHaveBeenCalled();
