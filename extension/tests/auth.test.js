@@ -8,7 +8,9 @@ const D = globalThis.Lorestep;
 
 const ORIGIN = "https://lorestep.akshitbansal.dev";
 const SYNC = `${ORIGIN}/api/v1/sync`;
+const NEON = "https://ep-noisy-king-bbgaaffj.neonauth.c-15.us-east-1.aws.neon.tech/neondb/auth";
 const TOKEN = D.authEndpoint("token");
+const USERINFO = D.authEndpoint("userinfo");
 const REDIRECT = "https://hemmdilibbhbbgionnnfloeilhkiijop.chromiumapp.org/";
 const CLIENT = "extension-client";
 const T0 = 1_700_000_000_000;
@@ -21,9 +23,10 @@ const tokens = (n, extra = {}) =>
     refresh_token: `rt${n}`,
     token_type: "Bearer",
     expires_in: 3600,
-    id_token: idToken({ email: "ana@example.com" }),
+    id_token: idToken({ sub: "u1" }), // Neon's id_token carries no email
     ...extra,
   });
+const me = (email = "ana@example.com") => reply(200, { sub: "u1", email });
 const stateOf = (url) => new URL(url).searchParams.get("state");
 /** The provider approving: echoes the state from the authorize URL back on the redirect URI. */
 const approve = (url) => `${REDIRECT}?code=c0de&state=${stateOf(url)}`;
@@ -35,9 +38,14 @@ function world(script = {}, opts = {}) {
   const calls = [];
   const opened = [];
   const clock = { t: T0 };
+  let gets = 0;
   const storage = {
+    /** opts.hold = { n, until }: the n-th get answers with what was stored when it was asked, but
+        only once `until` settles (a slow read racing a refresh). */
     async get(k) {
-      return db.has(k) ? { [k]: structuredClone(db.get(k)) } : {};
+      const snap = db.has(k) ? { [k]: structuredClone(db.get(k)) } : {};
+      if (opts.hold?.n === ++gets) await opts.hold.until;
+      return snap;
     },
     async set(o) {
       for (const [k, v] of Object.entries(o)) db.set(k, structuredClone(v));
@@ -79,9 +87,15 @@ test("PKCE S256 matches the RFC 7636 appendix B vector", async () => {
   );
 });
 
+test("authorize, token and userinfo go to the Neon Auth base, never Lorestep's /api/auth proxy", () => {
+  assert.equal(D.authEndpoint("authorize"), `${NEON}/oauth2/authorize`);
+  assert.equal(TOKEN, `${NEON}/oauth2/token`);
+  assert.equal(USERINFO, `${NEON}/oauth2/userinfo`);
+});
+
 test("authorizeUrl carries every parameter the contract names", () => {
   const u = new URL(D.authorizeUrl({ clientId: CLIENT, redirectUri: REDIRECT, state: "st", challenge: "ch" }));
-  assert.equal(`${u.origin}${u.pathname}`, D.authEndpoint("authorize"));
+  assert.equal(`${u.origin}${u.pathname}`, `${NEON}/oauth2/authorize`);
   assert.deepEqual(Object.fromEntries(u.searchParams), {
     response_type: "code",
     client_id: CLIENT,
@@ -94,8 +108,8 @@ test("authorizeUrl carries every parameter the contract names", () => {
   });
 });
 
-test("sign-in: code + PKCE exchange stores the tokens and shows the id_token email", async () => {
-  const w = world({ [TOKEN]: tokens(1) });
+test("sign-in: code + PKCE exchange stores the tokens and shows the userinfo email", async () => {
+  const w = world({ [TOKEN]: tokens(1), [USERINFO]: me() });
   await w.auth.signIn();
   const q = new URL(w.opened[0]).searchParams;
   assert.match(q.get("state"), /^[A-Za-z0-9_-]{43}$/);
@@ -108,6 +122,9 @@ test("sign-in: code + PKCE exchange stores the tokens and shows the id_token ema
   assert.match(body.code_verifier, /^[A-Za-z0-9_-]{64}$/);
   assert.equal(await D.pkceChallenge(body.code_verifier), q.get("code_challenge"));
   assert.equal(w.calls[0].init.credentials, "omit");
+  assert.equal(w.calls[1].url, USERINFO);
+  assert.equal(w.calls[1].init.headers.authorization, "Bearer at1");
+  assert.equal(w.calls[1].init.credentials, "omit");
   assert.deepEqual(w.db.get("auth"), {
     accessToken: "at1",
     refreshToken: "rt1",
@@ -120,12 +137,13 @@ test("sign-in: code + PKCE exchange stores the tokens and shows the id_token ema
 });
 
 test("sign-in: two attempts use different state and verifier", async () => {
-  const w = world({ [TOKEN]: [tokens(1), tokens(2)] });
+  const w = world({ [TOKEN]: [tokens(1), tokens(2)], [USERINFO]: [me(), me()] });
   await w.auth.signIn();
   await w.auth.signIn();
   const states = w.opened.map((u) => new URL(u).searchParams.get("state"));
   assert.notEqual(states[0], states[1]);
-  assert.notEqual(form(w.calls[0]).code_verifier, form(w.calls[1]).code_verifier);
+  const [a, b] = w.calls.filter((c) => c.url === TOKEN).map(form);
+  assert.notEqual(a.code_verifier, b.code_verifier);
 });
 
 test("sign-in: a wrong state or a foreign redirect is refused before any token request", async () => {
@@ -174,12 +192,13 @@ test("sign-in: an unusable token reply stores nothing", async () => {
   }
 });
 
-test("sign-in: an unusable id_token email is dropped, the sign-in kept", async () => {
-  const w = world({ [TOKEN]: tokens(1, { id_token: idToken({ email: "a‮b@example.com" }) }) });
-  await w.auth.signIn();
-  assert.deepEqual(w.db.get("auth:status"), { state: "signed-in", email: "" });
-  assert.equal(D.idTokenEmail("not a jwt"), "");
-  assert.equal(D.idTokenEmail(undefined), "");
+test("sign-in: an unusable or unreachable userinfo email is dropped, the sign-in kept", async () => {
+  for (const info of [me("a‮b@example.com"), me(42), reply(401, null), reply(200, null), new TypeError("offline")]) {
+    const w = world({ [TOKEN]: tokens(1), [USERINFO]: info });
+    await w.auth.signIn();
+    assert.deepEqual(w.db.get("auth:status"), { state: "signed-in", email: "" });
+    assert.equal(w.db.get("auth").refreshToken, "rt1");
+  }
 });
 
 test("empty client_id: sign-in says the extension isn't registered and makes no request", async () => {
@@ -212,7 +231,7 @@ test("refresh before expiry: the new pair is stored before the request that uses
 });
 
 test("a refresh reply without refresh_token keeps the old one", async () => {
-  const w = world({ [TOKEN]: tokens(1, { refresh_token: undefined, id_token: undefined }), [SYNC]: reply(200, {}) });
+  const w = world({ [TOKEN]: tokens(1, { refresh_token: undefined }), [SYNC]: reply(200, {}) });
   signedIn(w, T0);
   await w.auth.call("/api/v1/sync");
   assert.equal(w.db.get("auth").refreshToken, "rt0");
@@ -224,6 +243,44 @@ test("concurrent calls share one refresh", async () => {
   signedIn(w, T0);
   await Promise.all([w.auth.call("/api/v1/sync"), w.auth.call("/api/v1/sync")]);
   assert.equal(w.calls.filter((c) => c.url === TOKEN).length, 1);
+});
+
+const presented = (w) => w.calls.filter((c) => c.url === TOKEN).map((c) => form(c).refresh_token);
+
+test("single flight: three concurrent 401s present the refresh token once", async () => {
+  const w = world({
+    [TOKEN]: tokens(1),
+    [SYNC]: [reply(401, null), reply(401, null), reply(401, null), reply(200, {}), reply(200, {}), reply(200, {})],
+  });
+  signedIn(w);
+  const res = await Promise.all([1, 2, 3].map(() => w.auth.call("/api/v1/sync")));
+  assert.deepEqual(
+    res.map((r) => r.status),
+    [200, 200, 200],
+  );
+  assert.deepEqual(presented(w), ["rt0"]);
+  assert.equal(w.db.get("auth").refreshToken, "rt1");
+});
+
+test("single flight: a caller that read the old pair never re-presents the rotated refresh token", async () => {
+  let release;
+  // The second storage read (caller B's) answers with the old pair only after A's refresh is done.
+  const hold = {
+    n: 2,
+    until: new Promise((r) => {
+      release = r;
+    }),
+  };
+  const w = world({ [TOKEN]: tokens(1), [SYNC]: [reply(200, {}), reply(200, {})] }, { hold });
+  signedIn(w, T0); // expired: both callers want a refresh
+  const a = w.auth.call("/api/v1/sync");
+  const b = w.auth.call("/api/v1/sync");
+  await a;
+  release();
+  assert.equal((await b).status, 200);
+  assert.deepEqual(presented(w), ["rt0"]);
+  assert.equal(w.calls.at(-1).init.headers.authorization, "Bearer at1");
+  assert.equal(await w.auth.signedIn(), true);
 });
 
 test("a 401 refreshes once and retries with the new token", async () => {

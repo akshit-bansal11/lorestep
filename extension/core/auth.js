@@ -2,7 +2,7 @@
    provider (lorestep docs/EXTENSION.md, PLAN.md section 12, N-12). Only background.js calls makeAuth.
    Loads after core/store.js, which names the storage keys.
    Tokens live in chrome.storage.local "auth" and leave the worker only as an Authorization header to
-   Lorestep or a form body to the token endpoint; they are never logged and never put in a message.
+   Lorestep or Neon userinfo, or a form body to the token endpoint; they are never logged and never put in a message.
    The library reads "auth:status" (state, email, message), never a token.
    While signed out nothing here touches the network, except the sign-in the user starts. */
 (() => {
@@ -14,11 +14,10 @@
   // The extension's public OAuth client, registered with Neon Auth on 2026-11-09 (lorestep PLAN 12.4).
   // Public client: no secret; PKCE protects the code exchange.
   const CLIENT_ID = "QHsrHeWAKSsEaVpDisiAwJBAdMXtMNvX";
-  // Authorize and token endpoints share this base. Default: Lorestep's proxy (option B). If the
-  // lorestep N4 spike proves option A, set it to the Neon Auth base
-  // https://ep-noisy-king-bbgaaffj.neonauth.c-15.us-east-1.aws.neon.tech/neondb/auth (its origin is
-  // already in host_permissions).
-  const AUTH_BASE = `${ORIGIN}/api/auth`;
+  // Authorize, token and userinfo all go to the Neon Auth base directly (option A, docs/EXTENSION.md
+  // "Sign-in"), never Lorestep's /api/auth proxy: the proxy follows Neon's 302 on the server, so the
+  // browser would never reach the login page. Its origin is in host_permissions.
+  const AUTH_BASE = "https://ep-noisy-king-bbgaaffj.neonauth.c-15.us-east-1.aws.neon.tech/neondb/auth";
   const RESOURCE = `${ORIGIN}/api/v1/sync`; // the access token's audience
   const SCOPE = "openid email offline_access";
   const AUTH_KEY = "auth";
@@ -31,7 +30,7 @@
 
   D.AUTH_KEY = AUTH_KEY;
 
-  /** One of the provider's OAuth endpoints ("authorize", "token"). */
+  /** One of the provider's OAuth endpoints ("authorize", "token", "userinfo"). */
   D.authEndpoint = (name) => `${AUTH_BASE}/oauth2/${name}`;
 
   const URL_SAFE = { "+": "-", "/": "_", "=": "" };
@@ -80,19 +79,8 @@
     return { accessToken: body.access_token, refreshToken: refresh, expiresAt: at + ttl * 1000 };
   };
 
+  /** A userinfo email fit for "Signed in as" (display only, nothing is decided on it), else "". */
   const cleanEmail = (v) => (typeof v === "string" && EMAIL_RE.test(v) ? v : "");
-
-  /** The email claim of an id_token, for "Signed in as" only: the signature is not checked, and
-      nothing is decided on it. "" when absent or unusable. */
-  D.idTokenEmail = (idToken) => {
-    try {
-      const part = idToken.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-      const json = new TextDecoder().decode(Uint8Array.from(atob(part), (c) => c.charCodeAt(0)));
-      return cleanEmail(JSON.parse(json).email);
-    } catch {
-      return "";
-    }
-  };
 
   const readJson = (res) => res.json().catch(() => null);
 
@@ -130,6 +118,21 @@
       });
     };
 
+    /** "Signed in as": Neon's id_token carries no email, so userinfo is asked once after sign-in.
+        Display only; any failure is "" and the sign-in stands. */
+    const userinfoEmail = async (accessToken) => {
+      try {
+        const res = await fetch(D.authEndpoint("userinfo"), {
+          credentials: "omit",
+          cache: "no-store",
+          headers: { authorization: `Bearer ${accessToken}` },
+        });
+        return res.ok ? cleanEmail((await readJson(res))?.email) : "";
+      } catch {
+        return "";
+      }
+    };
+
     const end = async (message) => {
       await storage.remove([AUTH_KEY]);
       await setStatus({ state: "signed-out", message });
@@ -147,10 +150,16 @@
     /** Trades the refresh token for a new pair. The new pair is stored before anyone uses it
         (rotation: the old refresh token is spent). A refused grant signs out; a network error or a
         5xx throws and keeps the tokens, so sync backs off and tries again.
+        Only ever runs as the one shared `refreshing` promise. Neon has no reuse window: presenting
+        a refresh token that was already rotated revokes the whole grant. So the stored pair is
+        re-read here, and if another refresh already replaced `spent`, the new pair is returned
+        without a request.
         ponytail: a worker killed between the provider rotating and the set() below loses the new
         pair; the next refresh then gets invalid_grant and the user signs in again. */
-    const refresh = async (a) => {
+    const refresh = async (spent) => {
       const mine = run;
+      const a = await read();
+      if (!a || a.refreshToken !== spent) return a;
       const res = await tokenRequest({ grant_type: "refresh_token", refresh_token: a.refreshToken });
       const body = await readJson(res);
       if (mine !== run) return null;
@@ -160,18 +169,19 @@
       }
       const t = res.ok ? D.readTokens(body, now(), a.refreshToken) : null;
       if (!t) throw new Error(`Lorestep's sign-in service answered ${res.status}`);
-      t.email = D.idTokenEmail(body.id_token) || a.email || "";
+      t.email = a.email || "";
       await storage.set({ [AUTH_KEY]: t });
       return t;
     };
 
     /** Tokens fit to send: refreshed first when under a minute is left, or when `stale` is the
-        access token a 401 just answered. Concurrent callers share one refresh. */
+        access token a 401 just answered. Concurrent callers share one refresh (single flight). */
     const fresh = async (stale) => {
+      if (refreshing) return refreshing;
       const a = await read();
       if (!a) return null;
       if (a.accessToken !== stale && now() < a.expiresAt - REFRESH_EARLY_MS) return a;
-      refreshing ??= refresh(a).finally(() => {
+      refreshing ??= refresh(a.refreshToken).finally(() => {
         refreshing = null;
       });
       return refreshing;
@@ -222,7 +232,8 @@
         const t = res.ok ? D.readTokens(body, now()) : null;
         if (!t) throw new Error(`Lorestep answered ${res.status}`);
         if (!live()) return;
-        t.email = D.idTokenEmail(body.id_token);
+        t.email = await userinfoEmail(t.accessToken);
+        if (!live()) return;
         await storage.set({ [AUTH_KEY]: t });
         await setStatus({ state: "signed-in", email: t.email });
       } catch (err) {

@@ -1,6 +1,7 @@
-# Dogear protocol
+# Lorestep for Chrome protocol
 
-How the Dogear extension signs in to Lorestep and syncs marks (PLAN.md section 12, N-4, N-12, N4).
+How Lorestep for Chrome (`extension/`, formerly Dogear) signs in to Lorestep and syncs marks
+(PLAN.md section 12, N-4, N-12, N4). Client: `extension/core/auth.js` and `extension/core/sync.js`.
 Origin: `https://lorestep.akshitbansal.dev`. Every sync call runs from the service worker with
 `credentials: "omit"` (no cookies). Lorestep sends no CORS headers (D-10). JSON bodies,
 `content-type: application/json`. The token is sent only to Lorestep and Neon Auth, never logged.
@@ -69,8 +70,10 @@ request with its own first-party cookie.
    The refresh token lasts 30 days and rotates on every use: persist the new pair before using
    it. Exactly one refresh in flight: this branch has no MCP resource, so Neon has NO 30 s reuse
    window, and presenting an already-rotated refresh token revokes all of the user's refresh
-   tokens for Dogear (signed out everywhere). `invalid_grant` = delete tokens, show signed out.
-   A network error keeps the tokens.
+   tokens for the extension (signed out everywhere). `invalid_grant` = delete tokens, show signed out.
+   A network error keeps the tokens. The client shares one in-flight refresh promise and re-reads
+   the stored pair inside it, so a caller still holding the old pair never presents it again
+   (`extension/tests/auth.test.js`, "single flight").
 6. Sync calls send `Authorization: Bearer <access_token>`. Lorestep verifies the EdDSA JWT
    against `AUTH/.well-known/jwks.json`: `iss` = `AUTH`, `aud` contains `RES` (with `openid` it is
    an array that also holds the userinfo URL), `exp`, `client_id` and a uuid `sub`. It is
@@ -98,7 +101,7 @@ Host permissions needed: the Lorestep origin and the `AUTH` origin
   `primevideo`, `hotstar`, `zee5`, `hbomax`, `crunchyroll`; anything else is 400. `platformId`
   matches `^[A-Za-z0-9_-]{1,128}$`. `kind` is `movie`, `series`, `anime` or `""`/absent (unknown);
   `url` https or `""`/absent; `year` optional. `status` is `planned | in_progress | completed |
-  on_hold | dropped` (Dogear `D.WIRE.to`) or `null` to clear. `at` is epoch ms.
+  on_hold | dropped` (extension `D.WIRE.to`) or `null` to clear. `at` is epoch ms.
 - Entry choice (D-14): an existing link for `(platform, platformId)`, else the single live entry
   with the same normalised title and a compatible kind, else a new entry. Two or more candidates
   always create.
@@ -121,6 +124,6 @@ Both sync routes: 60 requests a minute per user, then 429 with `Retry-After`.
 
 ## Sign out
 
-Discard the stored tokens. There is no server route: Dogear holds no server-side session, and no
+Discard the stored tokens. There is no server route: the extension holds no server-side session, and no
 grant-revocation endpoint is documented (OPEN_ITEMS.md, accepted). A stolen refresh token stays
 valid up to 30 days.
