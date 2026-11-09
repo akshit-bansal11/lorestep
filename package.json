@@ -8,6 +8,7 @@
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
+    "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
     "format": "biome format --write .",
     "imports": "biome check --write --linter-enabled=false .",
     "lint:js": "biome lint . && eslint . --max-warnings=0",
