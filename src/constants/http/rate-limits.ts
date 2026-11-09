@@ -5,7 +5,7 @@
 export const RATE_LIMITS = {
   /** Per client IP: every POST to `/api/auth/*`. */
   auth: { limit: 30, windowSec: 60 },
-  /** Per client IP and path, on top of `auth`: each of `AUTH_CREDENTIAL_PATHS`. */
+  /** Per client IP and path, on top of `auth`: every POST not in `AUTH_NON_CREDENTIAL_PATHS`. */
   authCredential: { limit: 10, windowSec: 60 },
   /** Per client IP. */
   authProviders: { limit: 30, windowSec: 60 },

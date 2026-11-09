@@ -1,32 +1,16 @@
 /** The OAuth providers `AUTH_PROVIDERS` may name; Neon Auth holds their secrets (PLAN.md N-7). */
 export const AUTH_PROVIDER_IDS = ["github", "google"] as const;
 
-/** Where the Neon Auth proxy is mounted; the limiter keys on the path after it. */
-export const AUTH_ROUTE_PREFIX = "/api/auth";
-
 /**
- * Credential POST paths (canonical: lowercase, no leading, trailing or doubled slash) that get a
- * stricter per-path, per-IP bucket on top of the default one every `/api/auth/*` POST counts in
- * (N-5, SEC-20). Neon's own limits are undocumented, so this is one more layer, not proof. Taken
- * from the `@neon/auth` 0.8.2 endpoint list plus Better Auth's `set-password`.
+ * The only `/api/auth/*` POST paths (canonical: segments lowercased, joined by `/`) exempt from
+ * the strict per-path bucket (N-5, SEC-20). Fail closed: every other POST, including any unknown
+ * spelling, counts in the strict bucket on top of the default one. Kept minimal on purpose:
+ * sign-out and the Dogear consent submit, the two non-credential POSTs the UI makes.
  */
-export const AUTH_CREDENTIAL_PATHS: readonly string[] = [
-  "sign-in/email",
-  "sign-in/email-otp",
-  "sign-in/magic-link",
-  "sign-up/email",
-  "request-password-reset",
-  "reset-password",
-  "change-password",
-  "set-password",
-  "send-verification-email",
-  "verify-email",
-  "magic-link/verify",
-  "email-otp/send-verification-otp",
-  "email-otp/check-verification-otp",
-  "email-otp/verify-email",
-  "email-otp/reset-password",
-];
+export const AUTH_NON_CREDENTIAL_PATHS: readonly string[] = ["sign-out", "oauth2/consent"];
+
+/** Characters a decoded auth path segment may never contain (traversal and double encoding). */
+export const AUTH_SEGMENT_FORBIDDEN = /[/\\%]/;
 
 /** The Dogear access token's audience is `APP_ORIGIN` + this path: sync only (PLAN.md N-4). */
 export const DOGEAR_AUDIENCE_PATH = "/api/v1/sync";
