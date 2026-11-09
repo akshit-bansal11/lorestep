@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import AuthShell from "@/components/auth/AuthShell";
 import ConsentCard from "@/components/auth/ConsentCard";
 import OAuthInvalid from "@/components/auth/OAuthInvalid";
-import { DOGEAR_AUDIENCE_PATH } from "@/constants/auth/auth";
+import { EXTENSION_AUDIENCE_PATH } from "@/constants/auth/auth";
 import { OAUTH_COPY } from "@/constants/auth/oauth";
 import { appOrigin } from "@/lib/auth/auth-env";
 import {
@@ -41,7 +41,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
   // closed to the error boundary rather than ask the user to approve an unnamed app.
   if (error !== null && error !== undefined) throw new Error("Neon Auth is unavailable.");
   const clientName = data?.client_name ?? request.clientId;
-  const grants = grantLines(request, `${appOrigin()}${DOGEAR_AUDIENCE_PATH}`);
+  const grants = grantLines(request, `${appOrigin()}${EXTENSION_AUDIENCE_PATH}`);
 
   return (
     <AuthShell

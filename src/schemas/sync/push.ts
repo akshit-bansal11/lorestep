@@ -11,7 +11,7 @@ import {
 import { cleanTitle } from "@/utils/log/norm-title";
 
 /**
- * One Dogear mark (dogear/core/store.js `validEntry`, mapped through `D.WIRE`). Dogear sends `""`
+ * One extension mark (extension/core/store.js `validEntry`, mapped through `D.WIRE`). It sends `""`
  * for an unknown kind or URL; both read as absent. An unknown platform is a 400.
  */
 export const syncMarkSchema = z.object({

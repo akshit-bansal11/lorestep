@@ -6,7 +6,7 @@ import { fail, ok } from "@/lib/http/respond";
 import { syncPullQuerySchema } from "@/schemas/sync/pull";
 import { pullChanges } from "@/services/sync/pull";
 
-/** Dogear pull: `?since&limit&kinds`, changes after the cursor, tombstones included. */
+/** Extension pull: `?since&limit&kinds`, changes after the cursor, tombstones included. */
 export async function GET(request: Request) {
   try {
     const { userId } = await requireBearerUser(request);

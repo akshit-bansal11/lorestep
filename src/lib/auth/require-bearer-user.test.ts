@@ -3,12 +3,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { requireBearerUser } from "@/lib/auth/require-bearer-user";
 import { HttpError } from "@/lib/http/http-error";
 
-const { verifyDogearToken, createRemoteJWKSet } = vi.hoisted(() => ({
-  verifyDogearToken: vi.fn(),
+const { verifyExtensionToken, createRemoteJWKSet } = vi.hoisted(() => ({
+  verifyExtensionToken: vi.fn(),
   createRemoteJWKSet: vi.fn(),
 }));
 
-vi.mock("@/lib/auth/verify-dogear-token", () => ({ verifyDogearToken }));
+vi.mock("@/lib/auth/verify-extension-token", () => ({ verifyExtensionToken }));
 vi.mock("jose", () => ({ createRemoteJWKSet }));
 
 const BASE = "https://ep-test.neonauth.test/neondb/auth";
@@ -28,9 +28,9 @@ describe("requireBearerUser", () => {
     vi.clearAllMocks();
     vi.stubEnv("NEON_AUTH_BASE_URL", BASE);
     vi.stubEnv("APP_ORIGIN", "https://lorestep.test");
-    vi.stubEnv("DOGEAR_OAUTH_CLIENT_ID", "dogear-client");
+    vi.stubEnv("EXTENSION_OAUTH_CLIENT_ID", "extension-client");
     createRemoteJWKSet.mockReturnValue(KEYS);
-    verifyDogearToken.mockResolvedValue(USER_ID);
+    verifyExtensionToken.mockResolvedValue(USER_ID);
   });
 
   afterEach(() => {
@@ -43,11 +43,11 @@ describe("requireBearerUser", () => {
     const user = await requireBearerUser(request({ authorization: "Bearer a.b.c" }));
 
     expect(user).toEqual({ userId: USER_ID, via: "bearer" });
-    expect(verifyDogearToken).toHaveBeenCalledWith("a.b.c", {
+    expect(verifyExtensionToken).toHaveBeenCalledWith("a.b.c", {
       getKey: KEYS,
       issuer: "https://issuer.test",
       audience: "https://lorestep.test/api/v1/sync",
-      clientId: "dogear-client",
+      clientId: "extension-client",
     });
     expect(createRemoteJWKSet).toHaveBeenCalledWith(new URL(`${BASE}/.well-known/jwks.json`));
   });
@@ -55,7 +55,7 @@ describe("requireBearerUser", () => {
   it("uses the Auth base URL as issuer when NEON_AUTH_ISSUER is unset", async () => {
     await requireBearerUser(request({ authorization: "bearer a.b.c" }));
 
-    expect(verifyDogearToken.mock.calls[0]?.[1]).toMatchObject({ issuer: BASE });
+    expect(verifyExtensionToken.mock.calls[0]?.[1]).toMatchObject({ issuer: BASE });
   });
 
   it("refuses a session cookie or a malformed header with 401, verifying nothing", async () => {
@@ -68,15 +68,15 @@ describe("requireBearerUser", () => {
     for (const headers of cases) {
       expect(await statusOf(requireBearerUser(request(headers)))).toBe("401 unauthorized");
     }
-    expect(verifyDogearToken).not.toHaveBeenCalled();
+    expect(verifyExtensionToken).not.toHaveBeenCalled();
   });
 
   it("passes the verifier's 401 and 503 through", async () => {
     const authorization = "Bearer a.b.c";
-    verifyDogearToken.mockRejectedValueOnce(new HttpError(401, "unauthorized", "x"));
+    verifyExtensionToken.mockRejectedValueOnce(new HttpError(401, "unauthorized", "x"));
     expect(await statusOf(requireBearerUser(request({ authorization })))).toBe("401 unauthorized");
 
-    verifyDogearToken.mockRejectedValueOnce(new HttpError(503, "auth_unavailable", "x"));
+    verifyExtensionToken.mockRejectedValueOnce(new HttpError(503, "auth_unavailable", "x"));
     expect(await statusOf(requireBearerUser(request({ authorization })))).toBe(
       "503 auth_unavailable",
     );

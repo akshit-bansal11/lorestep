@@ -1,9 +1,9 @@
-/* Dogear scanner: finds poster tiles through the site's adapter, mounts the overlay, keeps it
+/* Lorestep for Chrome scanner: finds poster tiles through the site's adapter, mounts the overlay, keeps it
    right as the site lazy-loads rows and recycles tiles, and drives the title-page panel.
    Loaded last in every content script bundle. */
 (() => {
   "use strict";
-  const D = globalThis.Dogear;
+  const D = globalThis.Lorestep;
   const A = D.adapters[0];
   if (!A || !D.PLATFORMS[A.platform]) return;
 
@@ -13,7 +13,7 @@
 
   const seen = new WeakMap(); // link element -> { raw, href, mount }
   const mounts = new Set(); // every live tile overlay
-  const actionMounts = new Set(); // every Dogear button in a site's control row
+  const actionMounts = new Set(); // every Lorestep button in a site's control row
   const titles = new Map(); // key -> title read from a tile, for the title-page panel
   let pending = 0;
   let observer = null;
@@ -197,7 +197,7 @@
     return top ? linkNear(top) : null;
   };
 
-  // ---------- the Dogear button in the site's own control rows ----------
+  // ---------- the Lorestep button in the site's own control rows ----------
 
   const helpers = Object.freeze({ describe, linkNear, tileUnder, detail: detailInfo });
 
@@ -207,7 +207,7 @@
     for (const anchor of document.querySelectorAll(A.actions.anchor)) {
       const spot = A.actions.place(anchor);
       if (!spot?.after?.parentElement || !spot.like) continue;
-      if (spot.after.nextElementSibling?.localName === "dogear-action") continue;
+      if (spot.after.nextElementSibling?.localName === "lorestep-action") continue;
       // Rows inside a link are fine (Netflix's hover card is one): the button cancels the
       // link's navigation for its own clicks.
       const m = D.mountAction(spot.after, spot.like, () => A.actions.resolve(anchor, helpers));
@@ -307,7 +307,7 @@
       scanActions();
       scan();
       // Our own overlays and the video player mutate constantly; neither needs a rescan.
-      const ours = (n) => n.nodeType === 1 && n.localName.startsWith("dogear-");
+      const ours = (n) => n.nodeType === 1 && n.localName.startsWith("lorestep-");
       observer = new MutationObserver((recs) => {
         if (document.fullscreenElement || A.player?.(location)) return;
         if (!recs.some((r) => r.type === "attributes" || [...r.addedNodes].some((n) => !ours(n)))) return;
@@ -336,13 +336,13 @@
         { capture: true, passive: true },
       );
       chrome.runtime.onMessage.addListener((msg, sender) => {
-        if (sender.id !== chrome.runtime.id || msg?.type !== "dogear:mark") return;
+        if (sender.id !== chrome.runtime.id || msg?.type !== "lorestep:mark") return;
         const to = msg.state === null ? null : D.isState(msg.state) ? msg.state : undefined;
         const info = menuTarget;
         menuTarget = null;
         if (to === undefined) return;
         if (!info) {
-          D.toast("Dogear couldn't tell which title that was. Right-click the poster itself.", null);
+          D.toast("Lorestep couldn't tell which title that was. Right-click the poster itself.", null);
           return;
         }
         const name = info.title || D.store.get(info.key)?.title || "Title";
@@ -352,5 +352,5 @@
         });
       });
     })
-    .catch((err) => console.warn("Dogear: could not start", err));
+    .catch((err) => console.warn("Lorestep for Chrome: could not start", err));
 })();

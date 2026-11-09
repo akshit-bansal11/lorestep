@@ -1,16 +1,16 @@
 import { base64url, generateKeyPair, type JWTPayload, SignJWT } from "jose";
 import { beforeAll, describe, expect, it } from "vitest";
 
-import { verifyDogearToken } from "@/lib/auth/verify-dogear-token";
-import type { DogearTokenDeps } from "@/types/auth/auth";
+import { verifyExtensionToken } from "@/lib/auth/verify-extension-token";
+import type { ExtensionTokenDeps } from "@/types/auth/auth";
 
 const ISSUER = "https://ep-test.neonauth.test";
 const AUDIENCE = "https://lorestep.test/api/v1/sync";
-const CLIENT_ID = "dogear-client";
+const CLIENT_ID = "extension-client";
 const USER_ID = "3f2b8c1e-9a4d-4e6f-8b7a-1c2d3e4f5a6b";
 
 let keys: Awaited<ReturnType<typeof generateKeyPair>>;
-let deps: DogearTokenDeps;
+let deps: ExtensionTokenDeps;
 
 const claims = (): JWTPayload => ({ client_id: CLIENT_ID, sub: USER_ID });
 
@@ -27,13 +27,13 @@ function sign(payload: JWTPayload, edit: (jwt: SignJWT) => SignJWT = (jwt) => jw
 async function expectStatus(
   token: string,
   status: number,
-  override: Partial<DogearTokenDeps> = {},
+  override: Partial<ExtensionTokenDeps> = {},
 ) {
-  const result = verifyDogearToken(token, { ...deps, ...override });
+  const result = verifyExtensionToken(token, { ...deps, ...override });
   await expect(result).rejects.toMatchObject({ status });
 }
 
-describe("verifyDogearToken", () => {
+describe("verifyExtensionToken", () => {
   beforeAll(async () => {
     keys = await generateKeyPair("EdDSA");
     deps = {
@@ -45,7 +45,7 @@ describe("verifyDogearToken", () => {
   });
 
   it("returns the sub of a valid token", async () => {
-    await expect(verifyDogearToken(await sign(claims()), deps)).resolves.toBe(USER_ID);
+    await expect(verifyExtensionToken(await sign(claims()), deps)).resolves.toBe(USER_ID);
   });
 
   it("rejects a wrong issuer", async () => {

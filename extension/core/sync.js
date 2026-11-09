@@ -1,14 +1,14 @@
-/* Dogear sync: pushes queued mark changes to Lorestep and pulls the account's changes back
-   (lorestep docs/DOGEAR.md). Only background.js calls makeSync, so every request runs in the
+/* Lorestep for Chrome sync: pushes queued mark changes to Lorestep and pulls the account's changes back
+   (lorestep docs/EXTENSION.md). Only background.js calls makeSync, so every request runs in the
    service worker through core/auth.js (bearer header, no cookies). chrome.storage.local stays the
-   source of truth: signed out or offline, nothing here changes how Dogear works.
+   source of truth: signed out or offline, nothing here changes how the extension works.
    Keys: "sync:q:<title key>" queued changes (core/store.js writes them), "sync:ids" title key ->
    Lorestep entry id, "sync:cursor" the pull cursor, "sync:seeded" the first full upload is queued,
    "sync:rejected:<title key>" marks Lorestep refused, "sync:status" what the library shows.
    All of them are removed on sign-out or a 401. */
 (() => {
   "use strict";
-  const D = globalThis.Dogear;
+  const D = globalThis.Lorestep;
 
   const Q = D.QUEUE_PREFIX;
   const STATUS_KEY = D.SYNC_STATUS_KEY;
@@ -312,7 +312,7 @@
           rejected,
           failures,
           retryAt: now() + wait,
-          error: "Couldn't reach Lorestep. Dogear will try again.",
+          error: "Couldn't reach Lorestep. It will try again.",
         };
         await alarm.set(next.retryAt);
       } else if (out?.error) {
@@ -342,7 +342,7 @@
           try {
             result = await once(m);
           } catch (err) {
-            console.warn("Dogear: sync failed", err);
+            console.warn("Lorestep for Chrome: sync failed", err);
           }
           m = againManual;
           againManual = false;

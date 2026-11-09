@@ -6,7 +6,7 @@ import {
   TITLE_NORM_MIN,
 } from "@/constants/log/entries";
 
-/** Port of Dogear's `cleanTitle`: strips invisible and spoofing characters, collapses spaces. */
+/** Port of the extension's `cleanTitle`: strips invisible and spoofing characters, collapses spaces. */
 export function cleanTitle(value: string): string {
   return value
     .replace(TITLE_BREAKS, " ")
@@ -17,7 +17,7 @@ export function cleanTitle(value: string): string {
 }
 
 /**
- * Port of Dogear's `normalize` (dogear/core/store.js): the title's matching form, stored as
+ * Port of the extension's `normalize` (extension/core/store.js): the title's matching form, stored as
  * `entries.title_norm`. "The Boys - Season 1 (Hindi)" becomes "the boys". Accents are dropped only
  * from Latin, Greek and Cyrillic; in Indic scripts the marks are vowels ("काल" vs "किल"). Only
  * season markers are stripped: "Part 2" names a different film. "" when too little is left.

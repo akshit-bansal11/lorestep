@@ -1,10 +1,10 @@
-/* Dogear UI: the fold on poster tiles, the Dogear button placed in sites' own control rows,
+/* Lorestep for Chrome UI: the fold on poster tiles, the Lorestep button placed in sites' own control rows,
    the title-page panel (for services without such rows), and the toast.
    Everything renders inside a closed Shadow DOM, so page CSS can't leak in and page scripts
    can't read which state a title holds. Styles are one constructed sheet shared by every tile. */
 (() => {
   "use strict";
-  const D = globalThis.Dogear;
+  const D = globalThis.Lorestep;
 
   const FONT = `system-ui,-apple-system,"Segoe UI",Roboto,sans-serif`;
   const TOKENS = `--bar:#0B0C0F;--panel:#16181D;--edge:#2C303A;--fg:#E9EAEE;--muted:#A3A8B4;--hover:#262932;--ink:${D.INK};--on:#FFFFFF;--line:rgba(255,255,255,.5);--soft:rgba(42,42,42,.6);--shadow:rgba(0,0,0,.5);--fast:140ms`;
@@ -40,7 +40,7 @@ ${SHARED}
 .w .fold{width:clamp(18px,22cqmin,44px);display:none}
 .w[data-s] .fold{display:block}`;
 
-  // The Dogear button, placed inside the site's own control row (next to Play / My List /
+  // The Lorestep button, placed inside the site's own control row (next to Play / My List /
   // Watchlist) so it takes its own slot and never covers anything. Its size, border and fill are
   // copied from the neighbouring site button at mount time (--size, --radius, --border, --fill).
   // The menu is a native popover: it renders in the top layer, so no card's overflow or
@@ -219,7 +219,7 @@ ${SHARED}
    * the store.
    */
   D.mountCard = (target) => {
-    const host = document.createElement("dogear-mark");
+    const host = document.createElement("lorestep-mark");
     const root = host.attachShadow({ mode: "closed" });
     adopt(root, CARD_CSS);
     const w = el("div", "w");
@@ -260,12 +260,12 @@ ${SHARED}
   };
 
   /**
-   * Puts the Dogear button into a site's control row, right after `after`, styled like `like`
+   * Puts the Lorestep button into a site's control row, right after `after`, styled like `like`
    * (the site's own neighbouring button). resolve() names the title; it runs lazily because a
    * hover card can mount before its title is readable. Returns { host, paint }.
    */
   D.mountAction = (after, like, resolve) => {
-    const host = document.createElement("dogear-action");
+    const host = document.createElement("lorestep-action");
     // Copy the neighbour's box so ours reads as part of the row. These are plain style values
     // (the same for every title), never anything about the user's list.
     const cs = getComputedStyle(like);
@@ -311,8 +311,8 @@ ${SHARED}
       else delete t.dataset.s;
       t.replaceChildren(D.icon(state || "dogear"));
       const name = state ? D.STATES[state].name : "Not marked";
-      t.setAttribute("aria-label", `Dogear${title ? ` for ${title}` : ""}: ${name}`);
-      t.title = state ? `Dogear: ${name}` : "Mark with Dogear";
+      t.setAttribute("aria-label", `Lorestep${title ? ` for ${title}` : ""}: ${name}`);
+      t.title = state ? `Lorestep: ${name}` : "Mark with Lorestep";
     };
 
     const item = (to, checked, label, cls = "mi") => {
@@ -391,7 +391,7 @@ ${SHARED}
       if (menu.matches(":popover-open")) return menu.hidePopover();
       if (performance.now() - closedAt < 300) return;
       if (!current()) {
-        D.toast("Dogear couldn't tell which title this is. Right-click the poster instead.", null);
+        D.toast("Lorestep couldn't tell which title this is. Right-click the poster instead.", null);
         return;
       }
       buildMenu();
@@ -432,7 +432,7 @@ ${SHARED}
     let host, box, timer;
     return (text, state) => {
       if (!host) {
-        host = document.createElement("dogear-toast");
+        host = document.createElement("lorestep-toast");
         const root = host.attachShadow({ mode: "closed" });
         adopt(root, TOAST_CSS);
         box = el("div", "toast");
@@ -465,19 +465,19 @@ ${SHARED}
     let all = false;
 
     const build = () => {
-      host = document.createElement("dogear-dock");
+      host = document.createElement("lorestep-dock");
       const root = host.attachShadow({ mode: "closed" });
       adopt(root, DOCK_CSS);
       w = el("div", "w");
       const dk = el("div", "dk");
       dk.setAttribute("role", "region");
-      dk.setAttribute("aria-label", "Dogear");
+      dk.setAttribute("aria-label", "Lorestep");
       const top = el("div", "top");
       chip = el("span", "chip");
       t = el("span", "t");
       const min = el("button", "ic");
       min.type = "button";
-      min.setAttribute("aria-label", "Minimise the Dogear panel");
+      min.setAttribute("aria-label", "Minimise the Lorestep panel");
       min.append(D.icon("minimise"));
       top.append(chip, t, min);
       g = el("div", "g");
@@ -555,7 +555,10 @@ ${SHARED}
       t.textContent = name;
       t.title = name;
       g.setAttribute("aria-label", `Mark ${name}`);
-      fab.setAttribute("aria-label", `Open the Dogear panel. ${name}: ${state ? D.STATES[state].name : "not marked"}`);
+      fab.setAttribute(
+        "aria-label",
+        `Open the Lorestep panel. ${name}: ${state ? D.STATES[state].name : "not marked"}`,
+      );
       // Keep keyboard focus on the same control (by what it does, not where it sits) across a
       // rebuild; if that control is gone, land on the first button.
       const focused = g.getRootNode().activeElement;

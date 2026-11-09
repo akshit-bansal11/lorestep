@@ -6,7 +6,7 @@ import type { SessionAccount } from "@/types/auth/auth";
 
 /**
  * The signed-in browser user, by Neon Auth session cookie only (PLAN.md section 12, N-4). A
- * request carrying `Authorization: Bearer` is refused with 401: a Dogear token is a sync-only
+ * request carrying `Authorization: Bearer` is refused with 401: an extension token is a sync-only
  * JWT, never a session. No session = 401. Neon Auth unreachable, or answering an error, = 503
  * `auth_unavailable` (fail closed, BE-06), never treated as signed out.
  */

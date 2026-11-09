@@ -21,7 +21,7 @@ export const RATE_LIMITS = {
   accountWrite: { limit: 10, windowSec: 60 },
   /** Per user: each export reads every row the user owns. */
   accountExport: { limit: 10, windowSec: 3600 },
-  /** Per user, Dogear sync (PLAN.md M13). */
+  /** Per user, extension sync (PLAN.md M13). */
   syncPull: { limit: 60, windowSec: 60 },
   syncPush: { limit: 60, windowSec: 60 },
 };

@@ -27,7 +27,7 @@ globalThis.chrome = {
 };
 require("../core/states.js");
 require("../core/store.js");
-const D = globalThis.Dogear;
+const D = globalThis.Lorestep;
 
 const NF = "t:netflix:1111111";
 const PV = "t:primevideo:B000000001";

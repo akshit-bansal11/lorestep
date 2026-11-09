@@ -5,7 +5,7 @@ import { sanitiseEntries } from "@/utils/canon/entries-store";
 
 /**
  * Account game rows -> the games table's marks. A status the table has no id for yet (`planned`,
- * `on_hold`, set by the library or Dogear) is left out of the cache, never rewritten.
+ * `on_hold`, set by the library or the extension) is left out of the cache, never rewritten.
  */
 export function toUserEntries(items: readonly ServerGameEntry[]): UserEntries {
   const raw: Record<string, unknown> = {};

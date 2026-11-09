@@ -9,7 +9,7 @@
     return m && { id: m[2], kind: m[1] === "movies" ? "movie" : "series" };
   };
 
-  globalThis.Dogear.adapter({
+  globalThis.Lorestep.adapter({
     platform: "hotstar",
     names: ["Hotstar", "Disney+ Hotstar", "JioCinema"],
     links: 'a[href*="/shows/"], a[href*="/movies/"]',

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 /**
  * Profile, signed-in sessions, export and erasure. Dynamic by design (it reads the session
  * cookie), like `/library`. Sessions are read on the server, so no session token reaches the
- * browser. Dogear holds no server-side session, so it is never listed (PLAN.md N-10).
+ * browser. The extension holds no server-side session, so it is never listed (PLAN.md N-10).
  */
 export default async function Page() {
   const { user, session } = await pageSession("/account");

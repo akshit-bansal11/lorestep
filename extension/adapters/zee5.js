@@ -9,7 +9,7 @@
     return m && { id: m[2], kind: m[1] === "movies" ? "movie" : "series" };
   };
 
-  globalThis.Dogear.adapter({
+  globalThis.Lorestep.adapter({
     platform: "zee5",
     names: ["Zee 5", "Zee5 OTT"],
     links: 'a[href*="/details/"]',

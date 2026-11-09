@@ -1,4 +1,4 @@
-// Dogear quality gate. Plain Node, no dependencies; runs in CI (`npm run check`).
+// Lorestep for Chrome quality gate. Plain Node, no dependencies; runs in CI (`npm run check`).
 //  1. Every JS file parses.
 //  2. Every file the manifest names exists, and it grants only the permissions listed in ALLOWED.
 //  3. Content-script hosts match core/states.js PLATFORMS exactly, and each bundle loads in order.
@@ -72,13 +72,13 @@ if (JSON.stringify(manifest.host_permissions) !== HOSTS)
 if (typeof manifest.key !== "string" || !/^[A-Za-z0-9+/]{200,}={0,2}$/.test(manifest.key))
   fail("manifest.json key is missing or is not a base64 public key");
 for (const k of ["optional_host_permissions", "web_accessible_resources", "externally_connectable"]) {
-  if (k in manifest) fail(`manifest.json declares ${k}; Dogear needs none of it`);
+  if (k in manifest) fail(`manifest.json declares ${k}; the extension needs none of it`);
 }
 
 // 3. hosts and bundle order
-globalThis.Dogear = undefined;
+globalThis.Lorestep = undefined;
 await import(pathToFileURL(join(root, "core/states.js")).href);
-const D = globalThis.Dogear;
+const D = globalThis.Lorestep;
 const expected = new Set(Object.values(D.PLATFORMS).flatMap((p) => p.hosts));
 const declared = new Set(
   manifest.content_scripts.flatMap((c) => c.matches.map((m) => new URL(m.replace("/*", "/")).hostname)),

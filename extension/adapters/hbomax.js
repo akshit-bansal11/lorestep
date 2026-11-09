@@ -11,7 +11,7 @@
     return m && { id: m[2].toLowerCase(), kind: MOVIE.has(m[1].toLowerCase()) ? "movie" : "series" };
   };
 
-  globalThis.Dogear.adapter({
+  globalThis.Lorestep.adapter({
     platform: "hbomax",
     names: ["Max", "HBO"],
     links: 'a[href*="/show/"], a[href*="/series/"], a[href*="/mini-series/"], a[href*="/movie/"], a[href*="/feature/"]',

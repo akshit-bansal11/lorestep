@@ -22,8 +22,8 @@ Snapshot, rewritten in place (`.claude/CLAUDE.md` section 19).
   proxy (DECISIONS.md 2026-11-09). OAuth provider and the Dogear public client are provisioned on
   production (PLAN.md 12.4 steps 6, 7).
 - Next: push and read CI for N4; user spike (PLAN.md 12.4 step 11) after N4 reaches production;
-  N7 (Dogear, against `docs/DOGEAR.md` "Sign-in"), N8 (review).
-- Dogear client contract: `docs/DOGEAR.md`. Routes: `docs/ROUTE-REGISTER.md`.
+  N7 (Dogear, against `docs/EXTENSION.md` "Sign-in"), N8 (review).
+- Dogear client contract: `docs/EXTENSION.md`. Routes: `docs/ROUTE-REGISTER.md`.
 - CI status: green at `9646ee6` (N2); later commits per the latest Actions run.
 - Never executed: all migrations, every SQL statement since M6, Neon Auth calls, every browser
   test. The e2e job skips until `DATABASE_URL_CI` exists, and then needs Neon Auth enabled on the

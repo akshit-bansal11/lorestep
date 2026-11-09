@@ -14,7 +14,7 @@ import { decodeCursor, encodeCursor } from "@/utils/log/entry-cursor";
  * links. `cursor` is the last row's, or `since` unchanged when nothing is new.
  *
  * ponytail: a write committed with an `updated_at` earlier than a cursor already handed out is
- * missed until it changes again; add a small overlap window if Dogear ever shows stale marks.
+ * missed until it changes again; add a small overlap window if the extension ever shows stale marks.
  */
 export async function pullChanges(userId: string, query: SyncPullQuery): Promise<SyncPage> {
   const where: SQL[] = [eq(entries.userId, userId)];

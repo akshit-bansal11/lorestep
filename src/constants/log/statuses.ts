@@ -1,8 +1,8 @@
 import type {
   CanonicalState,
   CanonicalStatus,
-  DogearStatus,
   EntryKind,
+  ExtensionStatus,
   LibraryStatus,
   PlotlineState,
   PlotlineStatus,
@@ -31,7 +31,7 @@ export const LIBRARY_STATUSES = [
   "on_hold",
 ] as const;
 
-export const DOGEAR_STATUSES = ["watching", "plan", "hold", "completed", "dropped"] as const;
+export const EXTENSION_STATUSES = ["watching", "plan", "hold", "completed", "dropped"] as const;
 
 export const PLOTLINE_STATUSES = [
   "watching",
@@ -79,8 +79,8 @@ export const CANONICAL_TO_LIBRARY: Record<CanonicalStatus, LibraryStatus> = {
   dropped: "dropped",
 };
 
-/** Dogear keeps its own ids and maps at the sync boundary only. */
-export const DOGEAR_TO_CANONICAL: Record<DogearStatus, CanonicalStatus> = {
+/** The extension keeps its own ids and maps at the sync boundary only. */
+export const EXTENSION_TO_CANONICAL: Record<ExtensionStatus, CanonicalStatus> = {
   watching: "in_progress",
   plan: "planned",
   hold: "on_hold",
@@ -88,7 +88,7 @@ export const DOGEAR_TO_CANONICAL: Record<DogearStatus, CanonicalStatus> = {
   dropped: "dropped",
 };
 
-export const CANONICAL_TO_DOGEAR: Record<CanonicalStatus, DogearStatus> = {
+export const CANONICAL_TO_EXTENSION: Record<CanonicalStatus, ExtensionStatus> = {
   in_progress: "watching",
   planned: "plan",
   on_hold: "hold",

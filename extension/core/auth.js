@@ -1,5 +1,5 @@
-/* Dogear auth: sign in to Lorestep with OAuth 2.1 authorization code + PKCE, Neon Auth as the
-   provider (lorestep docs/DOGEAR.md, PLAN.md section 12, N-12). Only background.js calls makeAuth.
+/* Lorestep for Chrome auth: sign in to Lorestep with OAuth 2.1 authorization code + PKCE, Neon Auth as the
+   provider (lorestep docs/EXTENSION.md, PLAN.md section 12, N-12). Only background.js calls makeAuth.
    Loads after core/store.js, which names the storage keys.
    Tokens live in chrome.storage.local "auth" and leave the worker only as an Authorization header to
    Lorestep or a form body to the token endpoint; they are never logged and never put in a message.
@@ -7,11 +7,11 @@
    While signed out nothing here touches the network, except the sign-in the user starts. */
 (() => {
   "use strict";
-  globalThis.Dogear ??= {};
-  const D = globalThis.Dogear;
+  globalThis.Lorestep ??= {};
+  const D = globalThis.Lorestep;
 
   const ORIGIN = "https://lorestep.akshitbansal.dev";
-  // Dogear's public OAuth client, registered with Neon Auth on 2026-11-09 (lorestep PLAN 12.4).
+  // The extension's public OAuth client, registered with Neon Auth on 2026-11-09 (lorestep PLAN 12.4).
   // Public client: no secret; PKCE protects the code exchange.
   const CLIENT_ID = "QHsrHeWAKSsEaVpDisiAwJBAdMXtMNvX";
   // Authorize and token endpoints share this base. Default: Lorestep's proxy (option B). If the
@@ -27,7 +27,7 @@
   const ACCESS_TTL_S = 3600; // if the reply omits expires_in
   const TOKEN_RE = /^[\x21-\x7e]{1,4096}$/;
   const EMAIL_RE = /^[^\s@\p{C}]{1,200}@[^\s@\p{C}]{1,200}$/u;
-  const UNREGISTERED = "Dogear isn't registered with Lorestep yet. Sign-in will work once it is.";
+  const UNREGISTERED = "Lorestep for Chrome isn't registered with Lorestep yet. Sign-in will work once it is.";
 
   D.AUTH_KEY = AUTH_KEY;
 

@@ -19,7 +19,7 @@ globalThis.chrome = { runtime: { id: "x" }, storage: { onChanged: { addListener(
 require("../core/states.js");
 require("../core/store.js");
 require("../core/sync.js");
-const D = globalThis.Dogear;
+const D = globalThis.Lorestep;
 
 const NOW = 1_700_000_000_000;
 const Q = D.QUEUE_PREFIX;

@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 // Neon signs the real query; these pages only check its shape, so a fake one reaches them. The
-// full round trip (Neon authorize to the Dogear redirect) is the user spike, PLAN.md 12.4 step 11.
+// full round trip (Neon authorize to the extension redirect) is the user spike, PLAN.md 12.4 step 11.
 const QUERY = "client_id=e2e-client&scope=openid+email&sig=e2e-signature";
 
 test("the OAuth pages without a signed request say the link expired", async ({ page }) => {

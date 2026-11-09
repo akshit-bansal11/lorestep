@@ -1,7 +1,7 @@
 import {
-  CANONICAL_TO_DOGEAR,
+  CANONICAL_TO_EXTENSION,
   CANONICAL_TO_LIBRARY,
-  DOGEAR_TO_CANONICAL,
+  EXTENSION_TO_CANONICAL,
   LIBRARY_TO_CANONICAL,
   PLOTLINE_TO_CANONICAL,
   PLOTLINE_VERBS,
@@ -9,8 +9,8 @@ import {
 import type {
   CanonicalState,
   CanonicalStatus,
-  DogearStatus,
   EntryKind,
+  ExtensionStatus,
   LibraryStatus,
   PlotlineState,
   PlotlineStatus,
@@ -33,12 +33,12 @@ export function toLibraryStatus({ status, shelf }: CanonicalState): LibraryStatu
   return status === null ? null : CANONICAL_TO_LIBRARY[status];
 }
 
-export function fromDogear(status: DogearStatus): CanonicalStatus {
-  return DOGEAR_TO_CANONICAL[status];
+export function fromExtension(status: ExtensionStatus): CanonicalStatus {
+  return EXTENSION_TO_CANONICAL[status];
 }
 
-export function toDogear(status: CanonicalStatus): DogearStatus {
-  return CANONICAL_TO_DOGEAR[status];
+export function toExtension(status: CanonicalStatus): ExtensionStatus {
+  return CANONICAL_TO_EXTENSION[status];
 }
 
 /** Plotline id -> stored state. A shelf only exists on games, so it is dropped for other kinds. */

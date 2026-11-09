@@ -5,7 +5,7 @@ import type { AUTH_PROVIDER_IDS } from "@/constants/auth/auth";
 export type AuthProviderId = (typeof AUTH_PROVIDER_IDS)[number];
 
 /**
- * How the caller authenticated: a Neon Auth session cookie, or (sync routes only) a Dogear bearer
+ * How the caller authenticated: a Neon Auth session cookie, or (sync routes only) an extension bearer
  * JWT. The two never mix: `requireUser` reads only the cookie, `requireBearerUser` only the token.
  */
 export interface AuthedUser {
@@ -20,8 +20,8 @@ export interface SessionAccount {
   name: string;
 }
 
-/** What `verifyDogearToken` checks a Dogear access token against; `getKey` is the JWKS resolver. */
-export interface DogearTokenDeps {
+/** What `verifyExtensionToken` checks an extension access token against; `getKey` is the JWKS resolver. */
+export interface ExtensionTokenDeps {
   getKey: JWTVerifyGetKey;
   issuer: string;
   audience: string;

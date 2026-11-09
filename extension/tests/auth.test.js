@@ -4,13 +4,13 @@ const assert = require("node:assert/strict");
 require("../core/states.js");
 require("../core/store.js");
 require("../core/auth.js");
-const D = globalThis.Dogear;
+const D = globalThis.Lorestep;
 
 const ORIGIN = "https://lorestep.akshitbansal.dev";
 const SYNC = `${ORIGIN}/api/v1/sync`;
 const TOKEN = D.authEndpoint("token");
 const REDIRECT = "https://hemmdilibbhbbgionnnfloeilhkiijop.chromiumapp.org/";
-const CLIENT = "dogear-client";
+const CLIENT = "extension-client";
 const T0 = 1_700_000_000_000;
 
 const reply = (status, body) => ({ ok: status >= 200 && status < 300, status, json: async () => body });
@@ -182,7 +182,7 @@ test("sign-in: an unusable id_token email is dropped, the sign-in kept", async (
   assert.equal(D.idTokenEmail(undefined), "");
 });
 
-test("empty client_id: sign-in says Dogear isn't registered and makes no request", async () => {
+test("empty client_id: sign-in says the extension isn't registered and makes no request", async () => {
   const w = world({}, { clientId: "" });
   await w.auth.signIn();
   assert.deepEqual(w.opened, []);

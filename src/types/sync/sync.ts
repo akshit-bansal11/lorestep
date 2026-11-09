@@ -19,7 +19,7 @@ export interface SyncCandidate {
   year: number | null;
   status: string | null;
   statusAt: number | null;
-  /** Has a rating, notes, a shelf or a list membership, so a Dogear clear keeps it (D-15). */
+  /** Has a rating, notes, a shelf or a list membership, so an extension clear keeps it (D-15). */
   keep: boolean;
 }
 

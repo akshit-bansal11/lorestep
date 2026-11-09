@@ -1,8 +1,8 @@
 {
-  "name": "dogear",
+  "name": "lorestep-for-chrome",
   "version": "0.8.0",
   "private": true,
-  "description": "Chrome extension: mark titles on streaming sites as Watching, Plan to Watch, Completed, On Hold or Dropped.",
+  "description": "Lorestep for Chrome: mark titles on streaming sites as Watching, Plan to Watch, Completed, On Hold or Dropped.",
   "license": "MIT",
   "engines": {
     "node": ">=24"

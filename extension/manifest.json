@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "Dogear",
-  "short_name": "Dogear",
+  "name": "Lorestep for Chrome",
+  "short_name": "Lorestep",
   "version": "0.8.0",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAogVDQmxlsREeatgBQX1uE9ehNyVbHmVQlh1g/PYaQ9pQYvqPcqTlXN1cGJ7oNqcEf6WQ2TBQPZ8Ec8QW4vHx5VeUtdg2B6TG+Bbp3oN3LciH5CDuBJ2pc6uYa7yfAi8g12rNFAF+r9WNrNjIb4iSgH0Ww0VPw24FvG8OhuiGkcnPwxN0k3at7XRzjDJ2biQSOqE9k5e36Uwf7Um23nByIY52lIZYfVP9CCSeka5lsWMseihPikd/uLe6u7hI4TOzzaAl2Q2BSao3j6cdIfrY5cv07p+Sx2K41XITt8BUm3+7V4tPFFii+Be7ejGp9tlnAhYa2eZdCXAQ14JPNCMGYQIDAQAB",
-  "description": "Fold the corner of any poster on Netflix, Prime Video, JioHotstar, ZEE5, HBO Max and Crunchyroll: Watching, Plan to Watch, Completed, On Hold, Dropped.",
+  "description": "Mark posters on Netflix, Prime Video, JioHotstar, ZEE5, HBO Max and Crunchyroll, and sync the list to Lorestep.",
   "minimum_chrome_version": "114",
   "icons": {
     "16": "icons/16.png",
@@ -21,7 +21,7 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Dogear library",
+    "default_title": "Lorestep library",
     "default_popup": "library/library.html",
     "default_icon": {
       "16": "icons/16.png",

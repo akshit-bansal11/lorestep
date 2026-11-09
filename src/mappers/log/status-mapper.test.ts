@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { CANONICAL_STATUSES, DOGEAR_STATUSES, LIBRARY_STATUSES } from "@/constants/log/statuses";
+import { CANONICAL_STATUSES, EXTENSION_STATUSES, LIBRARY_STATUSES } from "@/constants/log/statuses";
 import { MEDIA_KINDS } from "@/constants/metadata/metadata";
 import {
-  fromDogear,
+  fromExtension,
   fromPlotline,
   toCanonical,
-  toDogear,
+  toExtension,
   toLibraryStatus,
   toPlotline,
 } from "@/mappers/log/status-mapper";
@@ -30,12 +30,12 @@ describe("status mapper", () => {
     expect(toLibraryStatus({ status: null, shelf: null })).toBeNull();
   });
 
-  it.each(DOGEAR_STATUSES)("round-trips the Dogear id %s", (status) => {
-    expect(toDogear(fromDogear(status))).toBe(status);
+  it.each(EXTENSION_STATUSES)("round-trips the extension id %s", (status) => {
+    expect(toExtension(fromExtension(status))).toBe(status);
   });
 
-  it.each(CANONICAL_STATUSES)("round-trips %s through Dogear", (status) => {
-    expect(fromDogear(toDogear(status))).toBe(status);
+  it.each(CANONICAL_STATUSES)("round-trips %s through the extension", (status) => {
+    expect(fromExtension(toExtension(status))).toBe(status);
   });
 
   const plotlineCases = MEDIA_KINDS.flatMap((kind) =>

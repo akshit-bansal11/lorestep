@@ -1,5 +1,5 @@
 /**
- * The OAuth provider pages (`/oauth/login`, `/oauth/consent`) that Neon Auth sends Dogear's
+ * The OAuth provider pages (`/oauth/login`, `/oauth/consent`) that Neon Auth sends the extension's
  * authorization request to (PLAN.md section 12, N4). Wording lives here, like `AUTH_COPY`.
  */
 
@@ -38,7 +38,7 @@ export const OAUTH_COPY = {
     denying: "Denying…",
     done: "Done. Returning to {name}…",
   },
-  /** The sync resource Dogear asks for (`APP_ORIGIN/api/v1/sync`). */
+  /** The sync resource the extension asks for (`APP_ORIGIN/api/v1/sync`). */
   syncResource: "Read and change your marks (sync)",
   invalid: {
     title: "This link has expired",

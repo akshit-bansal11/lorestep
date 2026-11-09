@@ -15,7 +15,7 @@ const MARK = {
 };
 
 describe("syncPushSchema", () => {
-  it("accepts a Dogear mark and reads an empty kind or url as absent", () => {
+  it("accepts an extension mark and reads an empty kind or url as absent", () => {
     const parsed = syncPushSchema.parse({ marks: [{ ...MARK, kind: "", url: "" }] });
     expect(parsed.marks[0]).toMatchObject({ kind: undefined, url: undefined });
   });

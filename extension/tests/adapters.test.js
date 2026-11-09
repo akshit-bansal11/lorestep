@@ -4,7 +4,7 @@ const assert = require("node:assert/strict");
 require("../core/states.js");
 require("../core/store.js");
 for (const n of ["netflix", "primevideo", "hotstar", "zee5", "hbomax", "crunchyroll"]) require(`../adapters/${n}.js`);
-const D = globalThis.Dogear;
+const D = globalThis.Lorestep;
 const A = (p) => D.adapters.find((a) => a.platform === p);
 const U = (s) => new URL(s);
 const keyOk = (p, id) => assert.ok(D.parseKey(D.makeKey(p, id)), `${p}:${id}`);

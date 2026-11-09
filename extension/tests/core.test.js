@@ -3,7 +3,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 require("../core/states.js");
 require("../core/store.js");
-const D = globalThis.Dogear;
+const D = globalThis.Lorestep;
 
 test("parseKey accepts a valid key", () => {
   assert.deepEqual(D.parseKey("t:netflix:80057281"), { platform: "netflix", id: "80057281" });

@@ -1,4 +1,4 @@
-/* Dogear library: the toolbar popup, and the same page opened in a tab (html.tab).
+/* Lorestep for Chrome library: the toolbar popup, and the same page opened in a tab (html.tab).
    State colours (--s-*) and --ink are set from core/states.js at load: one source of truth.
    Status colours are only ever fills behind --ink glyphs, never text on the page background. */
 :root {

@@ -186,7 +186,7 @@ export const entries = pgTable(
     kind: text("kind").notNull(),
     /** @classification neither */
     title: text("title").notNull(),
-    /** @classification neither — normalised title, the Dogear match key. */
+    /** @classification neither — normalised title, the extension match key. */
     titleNorm: text("title_norm").notNull(),
     /** @classification neither */
     year: smallint("year"),
@@ -258,7 +258,7 @@ export const entries = pgTable(
   ],
 );
 
-/** Dogear tile -> entry. */
+/** Extension tile -> entry. */
 export const entryLinks = pgTable(
   "entry_links",
   {

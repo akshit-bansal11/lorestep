@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { normTitle } from "@/utils/log/norm-title";
 
-// Fixtures copied from dogear/tests/core.test.js ("normTitle" and the Indic case).
+// Fixtures copied from extension/tests/core.test.js ("normTitle" and the Indic case).
 describe("normTitle", () => {
   it.each([
     "The Boys - Season 1",

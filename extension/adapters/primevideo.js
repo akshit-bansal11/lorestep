@@ -11,7 +11,7 @@
     return m && { id: m[1], end: m.index + m[0].length };
   };
 
-  globalThis.Dogear.adapter({
+  globalThis.Lorestep.adapter({
     platform: "primevideo",
     names: ["Amazon.com", "Amazon.in", "Amazon.co.uk", "Amazon.de", "Amazon.co.jp", "Amazon"],
     links: 'a[href*="/detail/"]',

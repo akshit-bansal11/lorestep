@@ -1,8 +1,8 @@
-/* Dogear library: every marked title, grouped so one show linked across services is one row.
+/* Lorestep for Chrome library: every marked title, grouped so one show linked across services is one row.
    Runs as the toolbar popup and, with #tab, as a full page (file pickers close popups). */
 (() => {
   "use strict";
-  const D = globalThis.Dogear;
+  const D = globalThis.Lorestep;
   const $ = (id) => document.getElementById(id);
   const root = document.documentElement;
   // #welcome is the tab opened after install; both it and #tab are full pages, not the popup.
@@ -169,7 +169,7 @@
         el(
           "li",
           "empty",
-          "Nothing marked yet. On Netflix or Prime Video, use the Dogear button next to Play. On any supported service, right-click a poster and choose Dogear.",
+          "Nothing marked yet. On Netflix or Prime Video, use the Lorestep button next to Play. On any supported service, right-click a poster and choose Lorestep.",
         ),
       );
     } else if (!shown.length) {
@@ -225,7 +225,7 @@
         ? `Last backup failed: ${s.error}`
         : s.at
           ? `Backed up ${when(s.at)} · ${s.count} ${s.count === 1 ? "entry" : "entries"} · ${D.BACKUP_FILE}`
-          : "No backup yet. Uninstalling Dogear would lose your list.";
+          : "No backup yet. Uninstalling Lorestep for Chrome would lose your list.";
     $("backup-now").disabled = Boolean(s.pending);
   }
 
@@ -246,7 +246,7 @@
 
   $("backup-now").addEventListener("click", async () => {
     $("backup-now").disabled = true;
-    const r = await ask("dogear:backup-now");
+    const r = await ask("lorestep:backup-now");
     $("backup-now").disabled = false;
     if (r?.ok) say(`Saved ${D.BACKUP_FILE} in your Downloads folder.`);
     else if (r?.skipped === "empty") say("Nothing to back up yet: mark a title first.");
@@ -266,7 +266,7 @@
     $("file").click();
   });
   $("fresh").addEventListener("click", async () => {
-    await ask("dogear:restore-decided");
+    await ask("lorestep:restore-decided");
     say("Starting fresh. Click Back up now whenever you want a backup file.");
   });
 
@@ -274,7 +274,7 @@
 
   const ACCOUNT_TEXT = {
     "signed-out": () => "Not signed in to Lorestep. Your list stays in this browser.",
-    waiting: () => "Sign in and allow Dogear in the Lorestep window.",
+    waiting: () => "Sign in and allow Lorestep for Chrome in the Lorestep window.",
     "signed-in": (s) => (s.email ? `Signed in to Lorestep as ${s.email}.` : "Signed in to Lorestep."),
     denied: () => "Sign-in was denied on Lorestep. Nothing changed.",
     error: () => "Couldn't sign in to Lorestep. Try again.",
@@ -292,7 +292,7 @@
   }
 
   function loadAccount() {
-    return ask("dogear:auth-status").then((s) => {
+    return ask("lorestep:auth-status").then((s) => {
       account = typeof s?.state === "string" ? s : { state: "signed-out" };
       renderAccount();
     });
@@ -301,11 +301,11 @@
   $("account-action").addEventListener("click", async () => {
     $("account-action").disabled = true;
     if (account.state === "signed-in" || account.state === "waiting") {
-      const r = await ask("dogear:signout");
+      const r = await ask("lorestep:signout");
       if (r?.ok) say(r.signedOut ? "Signed out of Lorestep in this browser." : "Sign-in cancelled.");
     } else {
       $("account-status").textContent = "Opening the Lorestep sign-in window…";
-      await ask("dogear:signin");
+      await ask("lorestep:signin");
     }
     await loadAccount();
   });
@@ -342,7 +342,7 @@
     $("sync-now").disabled = true;
     $("sync-status").textContent = "Syncing…";
     // Retry also puts back the titles Lorestep refused, for another try.
-    await ask("dogear:sync-now", { manual: true, requeue: Boolean(syncStatus.rejected) });
+    await ask("lorestep:sync-now", { manual: true, requeue: Boolean(syncStatus.rejected) });
     // The worker writes sync:status when it finishes; if nothing changed, show the last result.
     setTimeout(renderSync, 15000);
   });
@@ -360,7 +360,7 @@
     const blob = new Blob([D.toExport(D.store.entries())], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `dogear-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `lorestep-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 10000);
     say(n === 1 ? "Exported 1 entry." : `Exported ${n} entries.`);
@@ -381,7 +381,7 @@
     $("file").value = "";
     if (!f) return;
     if (f.size > D.MAX_IMPORT_BYTES) {
-      say("That file is over 20 MB, which is bigger than any Dogear export. Nothing was imported.", { warn: true });
+      say("That file is over 20 MB, which is bigger than any Lorestep export. Nothing was imported.", { warn: true });
       return;
     }
     let text;
@@ -403,7 +403,7 @@
       });
       return;
     }
-    if (backupStatus.pending) await ask("dogear:restore-decided"); // restored: backups may resume
+    if (backupStatus.pending) await ask("lorestep:restore-decided"); // restored: backups may resume
     const parts = [`Imported ${n} ${n === 1 ? "entry" : "entries"}.`];
     if (plan.older) parts.push(`Kept ${plan.older} where your copy was newer.`);
     if (plan.skipped) parts.push(`Skipped ${plan.skipped} that weren't valid.`);
@@ -428,10 +428,10 @@
     .then(loadSync)
     .then(() => {
       // Opening the library pulls fresh marks (respecting any backoff). Signed out: nothing.
-      if (account.state === "signed-in") ask("dogear:sync-now");
+      if (account.state === "signed-in") ask("lorestep:sync-now");
     })
     .catch((err) => {
-      console.error("Dogear: could not load the library", err);
+      console.error("Lorestep for Chrome: could not load the library", err);
       say("Couldn't read your titles. Close this and open it again.", { warn: true });
     });
 })();

@@ -1,9 +1,9 @@
-/* Dogear store: validation, the in-memory cache over chrome.storage.local, the title index that
+/* Lorestep for Chrome store: validation, the in-memory cache over chrome.storage.local, the title index that
    links the same show across tiles, IDs and services, and export / import.
    Everything read from storage, a page, or an import file is untrusted and passes validEntry(). */
 (() => {
   "use strict";
-  const D = globalThis.Dogear;
+  const D = globalThis.Lorestep;
 
   const KEY_RE = /^t:([a-z0-9]{2,20}):([A-Za-z0-9_-]{1,128})$/;
   const KINDS = new Set(["series", "movie"]);
@@ -105,6 +105,8 @@
 
   /** Storage key for the backup file's status, written by background.js. Not a title key. */
   D.BACKUP_STATUS_KEY = "backup:status";
+  // Kept from the Dogear name, like the export format "dogear" below: existing backups and
+  // exports must still restore.
   D.BACKUP_FILE = "Dogear/dogear-backup.json";
 
   // Lorestep sync keys (core/auth.js, core/sync.js). "auth:status" holds no secret.
@@ -146,7 +148,7 @@
       typeof titles !== "object" ||
       Array.isArray(titles)
     ) {
-      return { error: "That file isn't a Dogear export." };
+      return { error: "That file isn't a Lorestep for Chrome (or Dogear) export." };
     }
     const keys = Object.keys(titles);
     if (keys.length > D.MAX_IMPORT_TITLES) {
@@ -173,7 +175,7 @@
     const enc = new TextEncoder();
     const bytes = enc.encode(JSON.stringify([...existing])).length + enc.encode(JSON.stringify(writes)).length;
     if (bytes > D.MAX_STORE_BYTES) {
-      return { error: "That import wouldn't fit in the browser's storage for Dogear (10 MB)." };
+      return { error: "That import wouldn't fit in the browser's storage for Lorestep for Chrome (10 MB)." };
     }
     return { writes, skipped, older };
   };
@@ -219,7 +221,7 @@
       try {
         fn(keys);
       } catch (err) {
-        console.error("Dogear: listener failed", err);
+        console.error("Lorestep for Chrome: listener failed", err);
       }
     }
   };
@@ -287,7 +289,7 @@
       await persist(changes, queued(changes, undo));
       return true;
     } catch (err) {
-      console.warn("Dogear: could not save", err);
+      console.warn("Lorestep for Chrome: could not save", err);
       // A later chunk may have failed after earlier ones landed: re-read what storage really
       // holds rather than assume nothing was written.
       try {
@@ -395,7 +397,7 @@
         await chrome.storage.local.set({ [SETTINGS_KEY]: settings });
         return true;
       } catch (err) {
-        console.warn("Dogear: could not save settings", err);
+        console.warn("Lorestep for Chrome: could not save settings", err);
         settings = prev;
         emit([SETTINGS_KEY]);
         return false;

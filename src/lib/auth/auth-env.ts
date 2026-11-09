@@ -30,5 +30,5 @@ export function authProviders(): AuthProviderId[] {
 /** Password reset is offered only once custom SMTP is set up in Neon Auth (AUTH_RESET=true). */
 export const resetEnabled = () => read("AUTH_RESET") === "true";
 
-/** Neon Auth's issuer for Dogear tokens: NEON_AUTH_ISSUER, else the Auth base URL (N-4). */
+/** Neon Auth's issuer for extension tokens: NEON_AUTH_ISSUER, else the Auth base URL (N-4). */
 export const authIssuer = () => read("NEON_AUTH_ISSUER") ?? requiredEnv("NEON_AUTH_BASE_URL");

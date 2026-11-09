@@ -13,7 +13,7 @@
     return id && NUM.test(id) ? { id } : null;
   };
 
-  globalThis.Dogear.adapter({
+  globalThis.Lorestep.adapter({
     platform: "netflix",
     links: 'a[href*="jbv="], a[href*="/title/"], a[href*="/watch/"]',
     match(url) {

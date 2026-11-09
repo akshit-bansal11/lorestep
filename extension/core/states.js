@@ -1,10 +1,10 @@
-/* Dogear: the five states, their glyphs, the three moves each state offers, and the
+/* Lorestep for Chrome: the five states, their glyphs, the three moves each state offers, and the
    supported services. Loaded first by every content script and by the library page.
    This file is the single source of truth for state colours; CSS reads them from here. */
 (() => {
   "use strict";
-  globalThis.Dogear ??= {};
-  const D = globalThis.Dogear;
+  globalThis.Lorestep ??= {};
+  const D = globalThis.Lorestep;
 
   D.ORDER = Object.freeze(["watching", "plan", "completed", "hold", "dropped"]);
 
@@ -100,7 +100,7 @@
     return svg;
   };
 
-  // Sync wire format (Lorestep): Dogear ids to canonical statuses, and back.
+  // Sync wire format (Lorestep): extension ids to canonical statuses, and back.
   D.WIRE = Object.freeze({
     to: Object.freeze({
       watching: "in_progress",
@@ -146,7 +146,7 @@
       Required: platform, links (CSS selector for title links), match(URL), detail(URL),
       canonical(id, URL). Optional: names (extra page-title suffixes), title(a), kind(a), and
       actions: { anchor: selector, place(el) -> { after, like } | null, resolve(el, h) -> info }
-      to put the Dogear button in the site's own control rows (h: describe, linkNear, tileUnder,
+      to put the Lorestep button in the site's own control rows (h: describe, linkNear, tileUnder,
       detail). Without actions, title pages get the corner panel instead. player(location) ->
       true on the video player page, where scanning stops. pageTitle() -> the title page's own
       name, when document.title is unusable. cards: { selector, title(el) } for tiles that are

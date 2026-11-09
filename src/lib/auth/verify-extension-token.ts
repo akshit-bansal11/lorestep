@@ -3,17 +3,21 @@ import { errors, type JWTPayload, jwtVerify } from "jose";
 import { JWKS_UNAVAILABLE_CODES, UUID_RE } from "@/constants/auth/auth";
 import { authUnavailable } from "@/lib/auth/neon-result";
 import { HttpError } from "@/lib/http/http-error";
-import type { DogearTokenDeps } from "@/types/auth/auth";
+import type { ExtensionTokenDeps } from "@/types/auth/auth";
 
-const unauthorized = () => new HttpError(401, "unauthorized", "Sign in to Dogear again.");
+const unauthorized = () =>
+  new HttpError(401, "unauthorized", "Sign in to Lorestep for Chrome again.");
 
 /**
- * The user id a Dogear access token was issued to, or HttpError: 401 for any token fault, 503
+ * The user id an extension access token was issued to, or HttpError: 401 for any token fault, 503
  * `auth_unavailable` when the JWKS cannot be fetched (fail closed, BE-06). Pins `EdDSA`, checks
  * `iss`, `aud`, `exp`, `client_id` and a uuid `sub` (PLAN.md section 12, N-4). The key resolver is
  * injected, so tests need no network.
  */
-export async function verifyDogearToken(token: string, deps: DogearTokenDeps): Promise<string> {
+export async function verifyExtensionToken(
+  token: string,
+  deps: ExtensionTokenDeps,
+): Promise<string> {
   if (token === "") throw unauthorized();
 
   let payload: JWTPayload;

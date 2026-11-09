@@ -1,6 +1,6 @@
 import type { SyncKind } from "@/types/sync/sync";
 
-/** Mirrors `entry_links_platform_check` and Dogear's `D.PLATFORMS` ids (dogear/core/states.js). */
+/** Mirrors `entry_links_platform_check` and the extension's `D.PLATFORMS` ids (extension/core/states.js). */
 export const SYNC_PLATFORMS = [
   "netflix",
   "primevideo",
@@ -10,7 +10,7 @@ export const SYNC_PLATFORMS = [
   "crunchyroll",
 ] as const;
 
-/** The kinds Dogear can mark; games, manga and the rest never match a streaming tile. */
+/** The kinds the extension can mark; games, manga and the rest never match a streaming tile. */
 export const SYNC_KINDS = ["movie", "series", "anime"] as const;
 
 /**

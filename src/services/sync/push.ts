@@ -13,7 +13,7 @@ import { normTitle } from "@/utils/log/norm-title";
 
 /**
  * D-15's "keep" test, in SQL: a rating, notes, a shelf, or a live list item with the entry's
- * external id. List items carry no entry id, so a Dogear-created entry (no external id) is never
+ * external id. List items carry no entry id, so an extension-created entry (no external id) is never
  * a list member.
  */
 const KEEP = sql<boolean>`(${entries.rating} IS NOT NULL OR ${entries.notes} <> ''

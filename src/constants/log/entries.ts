@@ -33,7 +33,7 @@ export const YEAR_MIN = 1800;
 export const YEAR_MAX = 2200;
 
 /**
- * Dogear `cleanTitle` (dogear/core/store.js): control and line/paragraph separators become spaces;
+ * The extension's `cleanTitle` (extension/core/store.js): control and line/paragraph separators become spaces;
  * format characters (zero-width, bidi overrides, BOM) are dropped except ZWNJ / ZWJ, which shape
  * Indic titles and emoji.
  */

@@ -14,7 +14,7 @@
 
   const showLink = () => globalThis.document?.querySelector(SHOW_LINK);
 
-  globalThis.Dogear.adapter({
+  globalThis.Lorestep.adapter({
     platform: "crunchyroll",
     links: 'a[href*="/series/"]',
     match,

@@ -1,4 +1,4 @@
-/* Dogear background service worker.
+/* Lorestep for Chrome background service worker.
    1. The right-click menu: forwards the chosen state to the tab, whose content script knows
       which poster was under the pointer and writes it.
    2. The backup file: Chrome deletes an extension's storage when it is uninstalled (IndexedDB
@@ -14,7 +14,7 @@
    Menu names and validation come from core/; the sites come from the manifest. */
 importScripts("core/states.js", "core/store.js", "core/auth.js", "core/sync.js");
 
-const D = globalThis.Dogear;
+const D = globalThis.Lorestep;
 const PATTERNS = chrome.runtime.getManifest().content_scripts.flatMap((c) => c.matches);
 const CONTEXTS = ["page", "link", "image", "video", "frame"];
 const DOWNLOAD_TIMEOUT_MS = 15000;
@@ -24,7 +24,7 @@ const auth = D.makeAuth({
   launchFlow: (url) => chrome.identity.launchWebAuthFlow({ url, interactive: true }),
   redirectUri: chrome.identity.getRedirectURL(), // https://<extension id>.chromiumapp.org/
 });
-const SYNC_ALARM = "dogear-sync";
+const SYNC_ALARM = "dogear-sync"; // kept from the Dogear name: Chrome keeps alarms across updates
 const SYNC_DEBOUNCE_MS = 3000;
 const sync = D.makeSync({
   auth,
@@ -41,21 +41,21 @@ const sync = D.makeSync({
 const buildMenu = () =>
   chrome.contextMenus.removeAll(() => {
     const base = { contexts: CONTEXTS, documentUrlPatterns: PATTERNS };
-    chrome.contextMenus.create({ ...base, id: "dogear", title: "Dogear" });
+    chrome.contextMenus.create({ ...base, id: "lorestep", title: "Lorestep" });
     for (const s of D.ORDER) {
-      chrome.contextMenus.create({ ...base, id: `dogear:${s}`, parentId: "dogear", title: D.STATES[s].name });
+      chrome.contextMenus.create({ ...base, id: `lorestep:${s}`, parentId: "lorestep", title: D.STATES[s].name });
     }
-    chrome.contextMenus.create({ ...base, id: "dogear:sep", parentId: "dogear", type: "separator" });
-    chrome.contextMenus.create({ ...base, id: "dogear:clear", parentId: "dogear", title: "Remove mark" });
+    chrome.contextMenus.create({ ...base, id: "lorestep:sep", parentId: "lorestep", type: "separator" });
+    chrome.contextMenus.create({ ...base, id: "lorestep:clear", parentId: "lorestep", title: "Remove mark" });
   });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   const id = String(info.menuItemId);
-  if (!tab?.id || !id.startsWith("dogear:")) return;
-  const s = id.slice("dogear:".length);
+  if (!tab?.id || !id.startsWith("lorestep:")) return;
+  const s = id.slice("lorestep:".length);
   const state = s === "clear" ? null : D.isState(s) ? s : undefined;
   if (state === undefined) return;
-  chrome.tabs.sendMessage(tab.id, { type: "dogear:mark", state }, { frameId: info.frameId ?? 0 }).catch(() => {}); // the tab was closed or never ran Dogear: nothing to mark
+  chrome.tabs.sendMessage(tab.id, { type: "lorestep:mark", state }, { frameId: info.frameId ?? 0 }).catch(() => {}); // the tab was closed or never ran the extension: nothing to mark
 });
 
 // ---------- backup file ----------
@@ -136,7 +136,7 @@ const backup = () =>
       await ensureOffscreen();
       const res = await chrome.runtime.sendMessage({
         target: "offscreen",
-        type: "dogear:blob-url",
+        type: "lorestep:blob-url",
         text: D.toExport(entries),
       });
       if (!res?.url) throw new Error(res?.error || "Couldn't prepare the backup file.");
@@ -161,7 +161,7 @@ const backup = () =>
     } finally {
       if (hidUi) chrome.downloads.setUiOptions({ enabled: true }).catch(() => {});
       // Free the blob, then close the page so it holds no memory between backups.
-      if (url) await chrome.runtime.sendMessage({ target: "offscreen", type: "dogear:revoke", url }).catch(() => {});
+      if (url) await chrome.runtime.sendMessage({ target: "offscreen", type: "lorestep:revoke", url }).catch(() => {});
       chrome.offscreen.closeDocument().catch(() => {});
     }
   })().finally(() => {
@@ -172,20 +172,20 @@ const backup = () =>
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   const fromLibrary = sender.id === chrome.runtime.id && sender.url?.startsWith(chrome.runtime.getURL("library/"));
   if (!fromLibrary) return;
-  if (msg?.type === "dogear:backup-now") {
+  if (msg?.type === "lorestep:backup-now") {
     backup().then(reply);
     return true; // reply asynchronously
   }
-  if (msg?.type === "dogear:restore-decided") {
+  if (msg?.type === "lorestep:restore-decided") {
     setStatus({ pending: false }).then(() => reply({ ok: true }));
     return true;
   }
-  if (msg?.type === "dogear:signin") {
+  if (msg?.type === "lorestep:signin") {
     auth.signIn(); // the sign-in window outlives the popup; progress lands in auth:status
     reply({ ok: true });
     return;
   }
-  if (msg?.type === "dogear:signout") {
+  if (msg?.type === "lorestep:signout") {
     // Token first (auth.signOut), then every sync:* key; the marks themselves stay.
     auth.signOut().then(async (r) => {
       await sync.purge();
@@ -193,14 +193,14 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     });
     return true;
   }
-  if (msg?.type === "dogear:sync-now") {
+  if (msg?.type === "lorestep:sync-now") {
     // requeue: the Retry for marks Lorestep refused puts them back in the queue first.
     const before = msg.requeue === true ? sync.requeue().catch(() => {}) : Promise.resolve();
     before.then(() => sync.run(msg.manual === true));
     reply({ ok: true });
     return;
   }
-  if (msg?.type === "dogear:auth-status") {
+  if (msg?.type === "lorestep:auth-status") {
     auth.status().then(reply); // state, email and message only: never a token
     return true;
   }

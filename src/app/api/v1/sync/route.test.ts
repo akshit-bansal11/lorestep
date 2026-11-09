@@ -4,8 +4,8 @@ import { POST } from "@/app/api/v1/sync/push/route";
 import { GET } from "@/app/api/v1/sync/route";
 import { HttpError } from "@/lib/http/http-error";
 
-const { verifyDogearToken, getSession, rateLimit, pullChanges, pushMarks } = vi.hoisted(() => ({
-  verifyDogearToken: vi.fn(),
+const { verifyExtensionToken, getSession, rateLimit, pullChanges, pushMarks } = vi.hoisted(() => ({
+  verifyExtensionToken: vi.fn(),
   getSession: vi.fn(),
   rateLimit: vi.fn(),
   pullChanges: vi.fn(),
@@ -13,7 +13,7 @@ const { verifyDogearToken, getSession, rateLimit, pullChanges, pushMarks } = vi.
 }));
 
 // The real bearer guard runs; only the JWT check, the key set and the services are stubbed.
-vi.mock("@/lib/auth/verify-dogear-token", () => ({ verifyDogearToken }));
+vi.mock("@/lib/auth/verify-extension-token", () => ({ verifyExtensionToken }));
 vi.mock("jose", () => ({ createRemoteJWKSet: () => () => undefined }));
 vi.mock("@/lib/auth/neon-auth", () => ({ neonAuth: () => ({ getSession }) }));
 vi.mock("@/lib/db/rate-limit", () => ({ rateLimit }));
@@ -38,9 +38,9 @@ describe("/api/v1/sync", () => {
     vi.clearAllMocks();
     vi.stubEnv("NEON_AUTH_BASE_URL", "https://ep-test.neonauth.test/neondb/auth");
     vi.stubEnv("APP_ORIGIN", "https://lorestep.test");
-    vi.stubEnv("DOGEAR_OAUTH_CLIENT_ID", "dogear-client");
+    vi.stubEnv("EXTENSION_OAUTH_CLIENT_ID", "extension-client");
     rateLimit.mockResolvedValue({ allowed: true, retryAfterSec: 30 });
-    verifyDogearToken.mockResolvedValue(USER_ID);
+    verifyExtensionToken.mockResolvedValue(USER_ID);
     pullChanges.mockResolvedValue({ changes: [], cursor: null });
     pushMarks.mockResolvedValue([]);
   });
@@ -64,7 +64,7 @@ describe("/api/v1/sync", () => {
   });
 
   it("answers 503 when the key set is unreachable", async () => {
-    verifyDogearToken.mockRejectedValueOnce(new HttpError(503, "auth_unavailable", "Down."));
+    verifyExtensionToken.mockRejectedValueOnce(new HttpError(503, "auth_unavailable", "Down."));
 
     expect((await push({ authorization: "Bearer a.b.c" })).status).toBe(503);
     expect(pushMarks).not.toHaveBeenCalled();

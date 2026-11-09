@@ -8,7 +8,7 @@ import { fail, ok } from "@/lib/http/respond";
 import { syncPushSchema } from "@/schemas/sync/push";
 import { pushMarks } from "@/services/sync/push";
 
-/** Dogear push: up to 200 marks, applied in order, last write wins, safe to resend. */
+/** Extension push: up to 200 marks, applied in order, last write wins, safe to resend. */
 export async function POST(request: Request) {
   try {
     const { userId } = await requireBearerUser(request);

@@ -5,15 +5,15 @@ export const AUTH_PROVIDER_IDS = ["github", "google"] as const;
  * The only `/api/auth/*` POST paths (canonical: segments lowercased, joined by `/`) exempt from
  * the strict per-path bucket (N-5, SEC-20). Fail closed: every other POST, including any unknown
  * spelling, counts in the strict bucket on top of the default one. Kept minimal on purpose:
- * sign-out and the Dogear consent submit, the two non-credential POSTs the UI makes.
+ * sign-out and the extension consent submit, the two non-credential POSTs the UI makes.
  */
 export const AUTH_NON_CREDENTIAL_PATHS: readonly string[] = ["sign-out", "oauth2/consent"];
 
 /** Characters a decoded auth path segment may never contain (traversal and double encoding). */
 export const AUTH_SEGMENT_FORBIDDEN = /[/\\%]/;
 
-/** The Dogear access token's audience is `APP_ORIGIN` + this path: sync only (PLAN.md N-4). */
-export const DOGEAR_AUDIENCE_PATH = "/api/v1/sync";
+/** The extension access token's audience is `APP_ORIGIN` + this path: sync only (PLAN.md N-4). */
+export const EXTENSION_AUDIENCE_PATH = "/api/v1/sync";
 
 /** Neon Auth's key set, relative to NEON_AUTH_BASE_URL. */
 export const JWKS_PATH = "/.well-known/jwks.json";
