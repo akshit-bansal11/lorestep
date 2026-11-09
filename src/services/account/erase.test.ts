@@ -56,7 +56,8 @@ describe("eraseAccount", () => {
 
     expect(state.calls).toEqual([expect.any(SQL), "signOut"]);
     for (const table of USER_TABLES) {
-      expect(sql).toMatch(new RegExp(`DELETE FROM "${table}" WHERE user_id = \$\d+::uuid`));
+      // `\\$\\d+` is the regex `\$\d+`: a template literal would otherwise drop the backslashes.
+      expect(sql).toMatch(new RegExp(`DELETE FROM "${table}" WHERE user_id = \\$\\d+::uuid`));
     }
     expect(sql).toMatch(/DELETE FROM rate_limits WHERE strpos\(bucket, \$\d+\) > 0\)/);
     expect(sql).toMatch(/DELETE FROM neon_auth\."user" WHERE id = \$\d+::uuid$/);
