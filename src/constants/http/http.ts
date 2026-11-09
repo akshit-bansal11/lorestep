@@ -14,3 +14,6 @@ export const CSRF_TOKEN_PATTERN = /^[\w-]{43}$/;
 
 /** RFC 7235: the auth scheme is case-insensitive. */
 export const BEARER_SCHEME = /^bearer\s/i;
+
+/** `Authorization: Bearer <token>`, capturing the token. */
+export const BEARER_TOKEN = /^bearer\s+(\S+)$/i;

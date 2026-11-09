@@ -1,5 +1,5 @@
 import { RATE_LIMITS } from "@/constants/http/rate-limits";
-import { githubCredentials, googleCredentials, mailCredentials } from "@/lib/auth/auth-env";
+import { authProviders, resetEnabled } from "@/lib/auth/auth-env";
 import { rateLimit } from "@/lib/db/rate-limit";
 import { clientIp } from "@/lib/http/client-ip";
 import { HttpError } from "@/lib/http/http-error";
@@ -21,10 +21,11 @@ export async function GET(request: Request) {
       });
     }
 
+    const providers = authProviders();
     return ok({
-      github: githubCredentials() !== null,
-      google: googleCredentials() !== null,
-      reset: mailCredentials() !== null,
+      github: providers.includes("github"),
+      google: providers.includes("google"),
+      reset: resetEnabled(),
     });
   } catch (error) {
     return fail(error);

@@ -12,6 +12,7 @@ const { requireUser, rateLimit, setGameEntry } = vi.hoisted(() => ({
 
 vi.mock("@/lib/auth/require-user", () => ({ requireUser }));
 vi.mock("@/lib/db/rate-limit", () => ({ rateLimit }));
+vi.mock("@/lib/http/assert-same-origin", () => ({ assertSameOrigin: vi.fn() }));
 vi.mock("@/services/log/entries-service", () => ({ setGameEntry }));
 
 const put = (body: string, gameId = "hades") =>

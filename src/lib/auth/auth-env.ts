@@ -1,30 +1,34 @@
-import type { MailCredentials, OAuthCredentials } from "@/types/auth/auth";
+import { AUTH_PROVIDER_IDS } from "@/constants/auth/auth";
+import type { AuthProviderId } from "@/types/auth/auth";
 
 const read = (name: string) => {
   const value = process.env[name];
   return value === undefined || value === "" ? null : value;
 };
 
-function oauth(idVar: string, secretVar: string): OAuthCredentials | null {
-  const clientId = read(idVar);
-  const clientSecret = read(secretVar);
-  return clientId === null || clientSecret === null ? null : { clientId, clientSecret };
+/** A variable the server cannot run without. Throws at the call site, never at import. */
+export function requiredEnv(name: string): string {
+  const value = read(name);
+  if (value === null) throw new Error(`${name} is not set. See .env.example.`);
+  return value;
 }
 
-/** A provider is enabled only when both of its variables are set (PLAN.md section 6). */
-export const githubCredentials = () => oauth("GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET");
-export const googleCredentials = () => oauth("GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET");
-
-/** Reset email needs both the Resend key and a sender; without them reset answers 503. */
-export function mailCredentials(): MailCredentials | null {
-  const apiKey = read("RESEND_API_KEY");
-  const from = read("MAIL_FROM");
-  return apiKey === null || from === null ? null : { apiKey, from };
-}
-
-/** The app's own origin, from BETTER_AUTH_URL. Throws when unset: an origin check cannot guess. */
+/** The app's own origin, from APP_ORIGIN. Throws when unset: an origin check cannot guess. */
 export function appOrigin(): string {
-  const url = read("BETTER_AUTH_URL");
-  if (url === null) throw new Error("BETTER_AUTH_URL is not set. See .env.example.");
-  return new URL(url).origin;
+  return new URL(requiredEnv("APP_ORIGIN")).origin;
 }
+
+/**
+ * The OAuth buttons to show, from the comma list in AUTH_PROVIDERS. Neon Auth holds the provider
+ * secrets; unknown names are ignored (PLAN.md section 12, N-7).
+ */
+export function authProviders(): AuthProviderId[] {
+  const names = (read("AUTH_PROVIDERS") ?? "").split(",").map((name) => name.trim());
+  return AUTH_PROVIDER_IDS.filter((id) => names.includes(id));
+}
+
+/** Password reset is offered only once custom SMTP is set up in Neon Auth (AUTH_RESET=true). */
+export const resetEnabled = () => read("AUTH_RESET") === "true";
+
+/** Neon Auth's issuer for Dogear tokens: NEON_AUTH_ISSUER, else the Auth base URL (N-4). */
+export const authIssuer = () => read("NEON_AUTH_ISSUER") ?? requiredEnv("NEON_AUTH_BASE_URL");

@@ -1,60 +1,23 @@
 import type { JWTVerifyGetKey } from "jose";
 
-import type { SESSION_CLIENTS } from "@/constants/auth/auth";
+import type { AUTH_PROVIDER_IDS } from "@/constants/auth/auth";
 
-export interface Argon2Cost {
-  /** KiB. */
-  memory: number;
-  passes: number;
-  parallelism: number;
-  /** Bytes. */
-  tagLength: number;
-}
-
-export interface OAuthCredentials {
-  clientId: string;
-  clientSecret: string;
-}
-
-export interface MailCredentials {
-  apiKey: string;
-  from: string;
-}
-
-/** Which client holds a session row (`sessions.client`). */
-export type SessionClient = (typeof SESSION_CLIENTS)[number];
+export type AuthProviderId = (typeof AUTH_PROVIDER_IDS)[number];
 
 /**
- * How `requireUser` authenticated the caller. Bearer callers are exempt from CSRF checks. A Dogear
- * session is always `bearer`, whatever transport carried its token.
+ * How the caller authenticated: a Neon Auth session cookie, or (sync routes only) a Dogear bearer
+ * JWT. The two never mix: `requireUser` reads only the cookie, `requireBearerUser` only the token.
  */
 export interface AuthedUser {
   userId: string;
   via: "session" | "bearer";
-  client: SessionClient;
-  /** The calling session row's id, so a route can act on exactly that session. */
-  sessionId: string;
 }
 
-/** The slice of Better-Auth's after-hook context that `markDeviceToken` reads and writes. */
-export interface DeviceTokenContext {
-  path: string;
-  context: {
-    returned?: unknown;
-    secret: string;
-    internalAdapter: {
-      updateSession(
-        token: string,
-        data: { client: SessionClient; userAgent: string },
-      ): Promise<object | null>;
-    };
-  };
-}
-
-/** Session credentials a request carries, unverified; `refuse` when any is malformed or excess. */
-export interface CredentialScan {
-  tokens: string[];
-  refuse: boolean;
+/** The signed-in browser user as Neon Auth's session reports it, for export and erase. */
+export interface SessionAccount {
+  userId: string;
+  email: string;
+  name: string;
 }
 
 /** What `verifyDogearToken` checks a Dogear access token against; `getKey` is the JWKS resolver. */
@@ -64,3 +27,10 @@ export interface DogearTokenDeps {
   audience: string;
   clientId: string;
 }
+
+/** The second argument of the `/api/auth/[...path]` handlers. */
+export interface AuthRouteContext {
+  params: Promise<{ path: string[] }>;
+}
+
+export type AuthRouteHandler = (request: Request, context: AuthRouteContext) => Promise<Response>;

@@ -41,17 +41,12 @@ describe("POST /api/v1/resolve-link", () => {
     expect(resolveLink).not.toHaveBeenCalled();
   });
 
-  it("runs the CSRF check for cookie callers only", async () => {
+  it("runs the CSRF check on every call", async () => {
     resolveLink.mockResolvedValue({ id: "tt1", title: "Heat" });
 
     await withUrl("https://www.imdb.com/title/tt1/");
-    expect(assertSameOrigin).not.toHaveBeenCalled();
-
-    requireUser.mockResolvedValueOnce({ userId: "u1", via: "session" });
-    await withUrl("https://www.imdb.com/title/tt1/");
     expect(assertSameOrigin).toHaveBeenCalledTimes(1);
 
-    requireUser.mockResolvedValueOnce({ userId: "u1", via: "session" });
     assertSameOrigin.mockImplementationOnce(() => {
       throw new HttpError(403, "csrf_failed", "Reload the page and try again.");
     });

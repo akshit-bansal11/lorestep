@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import LibraryApp from "@/components/log/LibraryApp";
-import { getAuth } from "@/lib/auth/auth";
+import { pageSession } from "@/lib/auth/page-session";
 
 export const metadata: Metadata = {
   title: "Library — Lorestep",
@@ -14,8 +12,7 @@ export const metadata: Metadata = {
  * the one page that must never be prerendered, since its content belongs to one user.
  */
 export default async function Page() {
-  const session = await getAuth().api.getSession({ headers: await headers() });
-  if (session === null) redirect("/sign-in?next=/library");
+  await pageSession("/library");
 
   return <LibraryApp />;
 }

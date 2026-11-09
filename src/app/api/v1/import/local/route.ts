@@ -14,7 +14,7 @@ import { importLocal } from "@/services/log/import-local";
 /**
  * Copies this browser's games-table marks into the caller's library: `{inserted, skipped}`.
  * Insert-if-absent, so repeating it is harmless. 413 past 1000 marks or 256 KB. Browser session
- * only (bearer or any Dogear session = 403), CSRF-checked: it is the website's one-time import.
+ * only (a bearer token = 401), CSRF-checked: it is the website's one-time import.
  */
 export async function POST(request: NextRequest) {
   try {

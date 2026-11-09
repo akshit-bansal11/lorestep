@@ -38,28 +38,6 @@ export const AUTH_COPY = {
     doneLink: "Sign in with it",
     badLink: "This reset link is invalid or has expired. Request a new one below.",
   },
-  device: {
-    title: "Connect Dogear",
-    lead: "The Dogear browser extension is asking to sign in to your Lorestep account.",
-    enterLead: "Enter the code the Dogear extension shows to connect it to your account.",
-    codeField: "Code from Dogear",
-    enterSubmit: "Continue",
-    codeLabel: "Code",
-    codeHint: "Check that it matches the code in the extension. If it does not, deny.",
-    grants:
-      "If you approve, Dogear can read your library and lists and set the status of movies, series and anime you mark on streaming sites. It cannot change your password, export or delete your account.",
-    lifetime: "It stays signed in for 30 days. You can sign it out at any time from Account.",
-    approve: "Approve",
-    approving: "Approving…",
-    deny: "Deny",
-    denying: "Denying…",
-    approved: "Dogear is connected. You can close this tab and go back to the extension.",
-    denied: "Request denied. Dogear was not connected. You can close this tab.",
-    invalid: "This code is invalid or has expired. Start sign-in again from Dogear.",
-    handled:
-      "This request was already answered. If Dogear did not connect, start sign-in again from the extension.",
-    accountLink: "Manage devices in Account",
-  },
   fields: {
     name: "Name",
     email: "Email",

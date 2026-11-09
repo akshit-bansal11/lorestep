@@ -17,8 +17,8 @@ const UNSUPPORTED = "Unsupported link. Use IMDb, TMDB, MyAnimeList, Netflix or P
 /** Resolve a pasted IMDb, TMDB, MAL, Netflix or Prime Video link. Signed-in only. */
 export async function POST(request: NextRequest) {
   try {
-    const { userId, via } = await requireUser(request);
-    if (via === "session") assertSameOrigin(request);
+    const { userId } = await requireUser(request);
+    assertSameOrigin(request);
     await enforceRateLimit(`resolve:${userId}`, RATE_LIMITS.resolveLink);
 
     const body = resolveBodySchema.safeParse(await readJson(request, ENTRY_LIMITS.bodyBytes));

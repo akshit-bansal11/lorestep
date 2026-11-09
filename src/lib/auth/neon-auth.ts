@@ -1,12 +1,6 @@
 import { createNeonAuth, type NeonAuth } from "@neon/auth/next/server";
 
-function required(name: string): string {
-  const value = process.env[name];
-  if (value === undefined || value === "") {
-    throw new Error(`${name} is not set. See .env.example.`);
-  }
-  return value;
-}
+import { requiredEnv } from "@/lib/auth/auth-env";
 
 /**
  * The Neon Auth server instance (PLAN.md section 12, N-3). Built per call, like `db()`, so a
@@ -18,9 +12,9 @@ function required(name: string): string {
  */
 export function neonAuth(): NeonAuth {
   return createNeonAuth({
-    baseUrl: required("NEON_AUTH_BASE_URL"),
+    baseUrl: requiredEnv("NEON_AUTH_BASE_URL"),
     cookies: {
-      secret: required("NEON_AUTH_COOKIE_SECRET"),
+      secret: requiredEnv("NEON_AUTH_COOKIE_SECRET"),
       sessionDataTtl: 60,
       sameSite: "lax",
     },

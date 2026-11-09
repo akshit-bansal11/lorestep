@@ -1,16 +1,36 @@
-import { requireUser } from "@/lib/auth/require-user";
+import { createRemoteJWKSet, type JWTVerifyGetKey } from "jose";
+
+import { DOGEAR_AUDIENCE_PATH, JWKS_PATH } from "@/constants/auth/auth";
+import { BEARER_TOKEN } from "@/constants/http/http";
+import { appOrigin, authIssuer, requiredEnv } from "@/lib/auth/auth-env";
+import { verifyDogearToken } from "@/lib/auth/verify-dogear-token";
 import { HttpError } from "@/lib/http/http-error";
 import type { AuthedUser } from "@/types/auth/auth";
 
+let jwks: JWTVerifyGetKey | undefined;
+
+/** Neon Auth's key set, built on first use (never at import) and cached by jose across requests. */
+function dogearKeys(): JWTVerifyGetKey {
+  jwks ??= createRemoteJWKSet(new URL(`${requiredEnv("NEON_AUTH_BASE_URL")}${JWKS_PATH}`));
+  return jwks;
+}
+
 /**
- * The caller, by signed bearer token only. The sync routes refuse a session cookie with 403:
- * a bearer request carries no ambient credential, so they need no CSRF check and send no CORS
- * headers (D-10); the extension's service worker is their only client.
+ * The caller of the sync routes, by Dogear bearer JWT only (PLAN.md section 12, N-4). A session
+ * cookie is never read here, so a request without `Authorization: Bearer` is 401. A bearer
+ * request carries no ambient credential, so sync needs no CSRF check and sends no CORS headers
+ * (D-10). Token faults are 401; an unreachable key set is 503 (`verifyDogearToken`).
  */
 export async function requireBearerUser(request: Request): Promise<AuthedUser> {
-  const user = await requireUser(request);
-  if (user.via !== "bearer") {
-    throw new HttpError(403, "bearer_required", "Sync is only for the Dogear extension.");
+  const match = BEARER_TOKEN.exec(request.headers.get("authorization") ?? "");
+  if (match?.[1] === undefined) {
+    throw new HttpError(401, "unauthorized", "Sign in to Dogear again.");
   }
-  return user;
+  const userId = await verifyDogearToken(match[1], {
+    getKey: dogearKeys(),
+    issuer: authIssuer(),
+    audience: `${appOrigin()}${DOGEAR_AUDIENCE_PATH}`,
+    clientId: requiredEnv("DOGEAR_OAUTH_CLIENT_ID"),
+  });
+  return { userId, via: "bearer" };
 }

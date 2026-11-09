@@ -1,6 +1,7 @@
 import { errors, type JWTPayload, jwtVerify } from "jose";
 
 import { JWKS_UNAVAILABLE_CODES, UUID_RE } from "@/constants/auth/auth";
+import { authUnavailable } from "@/lib/auth/neon-result";
 import { HttpError } from "@/lib/http/http-error";
 import type { DogearTokenDeps } from "@/types/auth/auth";
 
@@ -27,7 +28,7 @@ export async function verifyDogearToken(token: string, deps: DogearTokenDeps): P
     if (error instanceof errors.JOSEError && !JWKS_UNAVAILABLE_CODES.includes(error.code)) {
       throw unauthorized();
     }
-    throw new HttpError(503, "auth_unavailable", "Sign-in is unavailable. Try again shortly.");
+    throw authUnavailable();
   }
 
   if (payload.client_id !== deps.clientId) throw unauthorized();

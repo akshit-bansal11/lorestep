@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { POST } from "@/app/api/v1/import/local/route";
+import { HttpError } from "@/lib/http/http-error";
 
 const { requireUser, rateLimit, assertSameOrigin, importLocal } = vi.hoisted(() => ({
   requireUser: vi.fn(),
@@ -30,29 +31,18 @@ describe("POST /api/v1/import/local", () => {
     rateLimit.mockResolvedValue({ allowed: true, retryAfterSec: 30 });
   });
 
-  it("refuses a bearer token or a Dogear session with 403 and imports nothing", async () => {
-    for (const caller of [
-      { userId: "u1", via: "bearer", client: "browser", sessionId: "s1" },
-      { userId: "u1", via: "bearer", client: "dogear", sessionId: "s2" },
-    ]) {
-      requireUser.mockResolvedValueOnce(caller);
+  it("answers 401 without a session and imports nothing", async () => {
+    requireUser.mockRejectedValueOnce(new HttpError(401, "unauthorized", "Sign in to continue."));
 
-      const response = await post();
+    const response = await post();
 
-      expect(response.status).toBe(403);
-      expect((await response.json()).error.code).toBe("session_required");
-    }
+    expect(response.status).toBe(401);
     expect(importLocal).not.toHaveBeenCalled();
     expect(assertSameOrigin).not.toHaveBeenCalled();
   });
 
   it("CSRF-checks a browser session before importing", async () => {
-    requireUser.mockResolvedValueOnce({
-      userId: "u1",
-      via: "session",
-      client: "browser",
-      sessionId: "s3",
-    });
+    requireUser.mockResolvedValueOnce({ userId: "u1", via: "session" });
     importLocal.mockResolvedValueOnce({ inserted: 0, skipped: 0 });
 
     const response = await post();

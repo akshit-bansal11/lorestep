@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import ListDetailApp from "@/components/log/ListDetailApp";
-import { getAuth } from "@/lib/auth/auth";
+import { pageSession } from "@/lib/auth/page-session";
 import { listIdSchema } from "@/schemas/log/list";
 
 export const metadata: Metadata = {
@@ -20,8 +19,7 @@ export default async function Page({ params }: PageProps) {
   const parsed = listIdSchema.safeParse(id);
   if (!parsed.success) notFound();
 
-  const session = await getAuth().api.getSession({ headers: await headers() });
-  if (session === null) redirect(`/sign-in?next=/lists/${parsed.data}`);
+  await pageSession(`/lists/${parsed.data}`);
 
   return <ListDetailApp id={parsed.data} />;
 }

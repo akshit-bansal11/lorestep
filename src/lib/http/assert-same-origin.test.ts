@@ -32,7 +32,7 @@ function codeOf(headers: Record<string, string>) {
 
 describe("assertSameOrigin", () => {
   beforeEach(() => {
-    vi.stubEnv("BETTER_AUTH_URL", `${ORIGIN}/`);
+    vi.stubEnv("APP_ORIGIN", `${ORIGIN}/`);
   });
 
   afterEach(() => {
