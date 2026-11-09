@@ -44,11 +44,13 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
   branch and a real Dogear token passes `requireBearerUser`.
 
 - Erase deletes `neon_auth."user"` directly (DECISIONS.md), because Neon's `deleteUser()` answers
-  404 `user_not_found` (Better Auth's hidden endpoint while `user.deleteUser.enabled` is off).
-  UNVERIFIED: that the app's database role may DELETE in `neon_auth`, and that Neon Auth keeps no
-  user state outside its tables. `scripts/migrate.mjs` fails unless `neon_auth.session` and
-  `neon_auth.account` cascade from `"user"`. Closes when e2e/account.spec.ts passes on the CI
-  branch. Revisit (switch back to the API) when Neon exposes delete-user or an admin delete API.
+  404 `user_not_found` (Better Auth's hidden endpoint while `user.deleteUser.enabled` is off),
+  plus the user's rows in every `neon_auth` table with a user-id column that does not cascade
+  (found from the catalog at erase time). UNVERIFIED: that the app's database role may SELECT the
+  catalog and DELETE in `neon_auth`, and that Neon Auth keeps no user state outside its tables.
+  `scripts/migrate.mjs` prints every user-id table and its FK delete rule. Closes when
+  e2e/account.spec.ts passes on the CI branch. Revisit (switch back to the API) when Neon exposes
+  delete-user or an admin delete API.
 
 ## Accepted
 

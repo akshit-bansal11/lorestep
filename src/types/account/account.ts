@@ -35,3 +35,9 @@ export type PurgeResult = {
 export interface SessionRouteContext {
   params: Promise<{ id: string }>;
 }
+
+/** A `neon_auth` table with a user-id column and no cascading FK to `"user"`: erase deletes it. */
+export type NeonAuthUserTable = {
+  table_name: string;
+  column_name: string;
+};

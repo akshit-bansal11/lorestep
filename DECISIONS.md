@@ -418,3 +418,21 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
   manifest key is unchanged, so the extension id and its OAuth redirect stay the same.
 - Consequence: a few internal strings still say "dogear" on purpose.
 - Revisit when: a breaking release can migrate storage and backup names.
+
+## 2026-11-09 Erase also deletes every non-cascading neon_auth user table, found at erase time
+
+- Context: final security review. `scripts/migrate.mjs` asserted cascades only for the FKs it
+  knew (session, account, member, invitation); Neon's OAuth provider tables (access tokens,
+  consents) carry a user id too, so erase could leave a user's grants and tokens behind.
+- Options: (A) extend the migrate assertion with the OAuth table names; (B) at erase time, read
+  `information_schema.columns` + `pg_constraint` for every `neon_auth` base table with a `userId`
+  or `user_id` column and no `ON DELETE CASCADE` FK to `"user"` on it, and delete those rows in
+  the same statement (identifiers via `sql.identifier`, id compared as text).
+- Choice: B. It covers tables Neon adds later without a code change, and needs no guessed names.
+  `migrate.mjs` now only prints every user-id table with its delete rule and no longer fails on a
+  non-cascading one; this supersedes the migrate check in the 2026-11-09 "Erase deletes
+  neon_auth."user" directly" entry. A was rejected: a fixed list goes stale silently.
+- Consequence: erase is two statements (one read-only catalog query, then the one atomic
+  delete). It deletes from Neon-managed tables, including any OAuth client application row the
+  erased user owns. The app role needs SELECT on the catalog and DELETE on those tables.
+- Revisit when: Neon exposes a delete-user API that removes its own rows.
