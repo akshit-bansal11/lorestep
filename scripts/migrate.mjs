@@ -9,6 +9,9 @@
 // CONCURRENTLY). It uses the Neon WebSocket Pool, not neon-http: neon-http sends one statement per
 // request and has no transactions.
 //
+// It refuses to run at all until Neon Auth is enabled on the target branch: 0002's foreign keys
+// point at the managed `neon_auth."user"` table (PLAN.md section 12, N-9).
+//
 // It refuses a non-localhost database outside CI unless --allow-remote is passed: production
 // migrations run from .github/workflows/migrate.yml, behind the `production` environment.
 //
@@ -63,6 +66,13 @@ async function inTransaction(work) {
 }
 
 try {
+  const auth = await client.query(`SELECT to_regclass('neon_auth."user"') IS NOT NULL AS ok`);
+  if (!auth.rows[0]?.ok) {
+    throw new Error(
+      "Neon Auth is not enabled on this branch. Enable it (Console > Auth), then re-run.",
+    );
+  }
+
   // Before 0000 has run there is no table, and so nothing applied.
   const table = await client.query("SELECT to_regclass('schema_migrations') IS NOT NULL AS ok");
   const recorded = table.rows[0]?.ok

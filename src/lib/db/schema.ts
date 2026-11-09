@@ -9,6 +9,7 @@ import {
   index,
   integer,
   jsonb,
+  pgSchema,
   pgTable,
   primaryKey,
   smallint,
@@ -119,172 +120,23 @@ export const screenFranchises = pgTable(
 );
 
 /**
- * Auth and limiter tables, created by `db/migrations/0001_auth_tables.sql` and mirrored here
- * column for column. Shapes follow the Better-Auth docs (core schema, `deviceAuthorization`,
- * database rate-limit storage); tables are renamed through `modelName` and the property names are
- * Better-Auth's field names, so the Drizzle adapter maps them without a `fields` override.
- * Every column carries its DB-14 classification.
+ * Neon Auth's managed user table (PLAN.md section 12, N-8). Only the id is mirrored: it is the FK
+ * target of `entries.user_id` and `lists.user_id`, and the app never selects from it (the managed
+ * columns are camelCase and Neon's to change). Accounts, sessions and credentials live in
+ * `neon_auth` and are never read here.
  */
+export const neonAuthUser = pgSchema("neon_auth").table("user", {
+  /** @classification neither */
+  id: uuid("id").primaryKey(),
+});
 
 const createdAt = () => timestamp("created_at", { withTimezone: true }).notNull().defaultNow();
 const updatedAt = () => timestamp("updated_at", { withTimezone: true }).notNull().defaultNow();
 
-export const users = pgTable(
-  "users",
-  {
-    /** @classification neither */
-    id: text("id").primaryKey(),
-    /** @classification personal */
-    name: text("name").notNull(),
-    /** @classification personal */
-    email: text("email").notNull().unique("users_email_key"),
-    /** @classification neither */
-    emailVerified: boolean("email_verified").notNull().default(false),
-    /** @classification personal — provider avatar URL, https only. */
-    image: text("image"),
-    /** @classification neither */
-    createdAt: createdAt(),
-    /** @classification neither */
-    updatedAt: updatedAt(),
-  },
-  (table) => [
-    check("users_name_length", sql`char_length(${table.name}) BETWEEN 1 AND 100`),
-    // RFC 5321 path limit.
-    check("users_email_length", sql`char_length(${table.email}) <= 254`),
-    check("users_image_https", sql`${table.image} IS NULL OR ${table.image} LIKE 'https://%'`),
-    check("users_image_length", sql`char_length(${table.image}) <= 500`),
-  ],
-);
-
-export const sessions = pgTable(
-  "sessions",
-  {
-    /** @classification neither */
-    id: text("id").primaryKey(),
-    /** @classification credential — stored raw by Better-Auth (OPEN_ITEMS.md, R1). */
-    token: text("token").notNull().unique("sessions_token_key"),
-    /** @classification neither */
-    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-    /** @classification personal */
-    ipAddress: text("ip_address"),
-    /** @classification personal — display label only, never an authorization input. */
-    userAgent: text("user_agent"),
-    /** @classification personal — owner id. */
-    userId: text("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    /** @classification neither — which client holds the session; authorization reads this. */
-    client: text("client").notNull().default("browser"),
-    /** @classification neither */
-    createdAt: createdAt(),
-    /** @classification neither */
-    updatedAt: updatedAt(),
-  },
-  (table) => [
-    index("sessions_user_id_idx").on(table.userId),
-    check("sessions_client_known", sql`${table.client} IN ('browser', 'dogear')`),
-  ],
-);
-
-export const accounts = pgTable(
-  "accounts",
-  {
-    /** @classification neither */
-    id: text("id").primaryKey(),
-    /** @classification personal — provider-side identity. */
-    accountId: text("account_id").notNull(),
-    /** @classification neither */
-    providerId: text("provider_id").notNull(),
-    /** @classification personal — owner id. */
-    userId: text("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    /** @classification credential */
-    accessToken: text("access_token"),
-    /** @classification credential */
-    refreshToken: text("refresh_token"),
-    /** @classification credential */
-    idToken: text("id_token"),
-    /** @classification neither */
-    accessTokenExpiresAt: timestamp("access_token_expires_at", { withTimezone: true }),
-    /** @classification neither */
-    refreshTokenExpiresAt: timestamp("refresh_token_expires_at", { withTimezone: true }),
-    /** @classification neither */
-    scope: text("scope"),
-    /** @classification credential — Argon2id hash. */
-    password: text("password"),
-    /** @classification neither */
-    createdAt: createdAt(),
-    /** @classification neither */
-    updatedAt: updatedAt(),
-  },
-  (table) => [index("accounts_user_id_idx").on(table.userId)],
-);
-
-export const verifications = pgTable(
-  "verifications",
-  {
-    /** @classification neither */
-    id: text("id").primaryKey(),
-    /** @classification credential — token or OTP key. */
-    identifier: text("identifier").notNull(),
-    /** @classification credential */
-    value: text("value").notNull(),
-    /** @classification neither */
-    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-    /** @classification neither */
-    createdAt: createdAt(),
-    /** @classification neither */
-    updatedAt: updatedAt(),
-  },
-  (table) => [index("verifications_identifier_idx").on(table.identifier)],
-);
-
-export const deviceCodes = pgTable(
-  "device_codes",
-  {
-    /** @classification neither */
-    id: text("id").primaryKey(),
-    /** @classification credential */
-    deviceCode: text("device_code").notNull().unique("device_codes_device_code_key"),
-    /** @classification credential */
-    userCode: text("user_code").notNull().unique("device_codes_user_code_key"),
-    /** @classification personal — set on approval. The FK is ours, not the plugin's (DB-11). */
-    userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
-    /** @classification neither */
-    clientId: text("client_id"),
-    /** @classification neither */
-    scope: text("scope"),
-    /** @classification neither — pending, approved or denied. */
-    status: text("status").notNull(),
-    /** @classification neither */
-    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-    /** @classification neither */
-    lastPolledAt: timestamp("last_polled_at", { withTimezone: true }),
-    /** @classification neither */
-    pollingInterval: integer("polling_interval"),
-  },
-  (table) => [
-    check(
-      "device_codes_code_length",
-      sql`char_length(${table.deviceCode}) <= 191 AND char_length(${table.userCode}) <= 191`,
-    ),
-  ],
-);
-
-/** Better-Auth's own limiter (`rateLimit.storage = "database"`). */
-export const authRateLimits = pgTable("auth_rate_limits", {
-  /** @classification neither */
-  id: text("id").primaryKey(),
-  /** @classification personal — client IP plus path. */
-  key: text("key").notNull().unique("auth_rate_limits_key_key"),
-  /** @classification neither */
-  count: integer("count").notNull(),
-  /** @classification neither — epoch ms. */
-  lastRequest: bigint("last_request", { mode: "number" }).notNull(),
-});
-
-/** The app's fixed-window limiter, one atomic upsert per request (PLAN.md D-11). */
+/**
+ * The app's fixed-window limiter, created by `db/migrations/0001_auth_tables.sql`, one atomic
+ * upsert per request (PLAN.md D-11).
+ */
 export const rateLimits = pgTable(
   "rate_limits",
   {
@@ -327,9 +179,9 @@ export const entries = pgTable(
     /** @classification neither */
     id: uuid("id").primaryKey().defaultRandom(),
     /** @classification personal — owner id. */
-    userId: text("user_id")
+    userId: uuid("user_id")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => neonAuthUser.id, { onDelete: "cascade" }),
     /** @classification neither — movie, series, anime, manga or game. */
     kind: text("kind").notNull(),
     /** @classification neither */
@@ -411,7 +263,7 @@ export const entryLinks = pgTable(
   "entry_links",
   {
     /** @classification personal — owner id. */
-    userId: text("user_id").notNull(),
+    userId: uuid("user_id").notNull(),
     /** @classification neither */
     platform: text("platform").notNull(),
     /** @classification neither */
@@ -449,9 +301,9 @@ export const lists = pgTable(
     /** @classification neither */
     id: uuid("id").primaryKey().defaultRandom(),
     /** @classification personal — owner id. */
-    userId: text("user_id")
+    userId: uuid("user_id")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => neonAuthUser.id, { onDelete: "cascade" }),
     /** @classification personal */
     name: text("name").notNull(),
     /** @classification personal */
@@ -487,7 +339,7 @@ export const listItems = pgTable(
     /** @classification neither */
     listId: uuid("list_id").notNull(),
     /** @classification personal — owner id. */
-    userId: text("user_id").notNull(),
+    userId: uuid("user_id").notNull(),
     /** @classification neither */
     kind: text("kind").notNull(),
     /** @classification neither */
