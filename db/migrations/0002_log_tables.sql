@@ -1,11 +1,13 @@
 -- Domain tables: the unified library (entries), Dogear's tile links (entry_links), and user lists
 -- (lists, list_items). Shapes follow PLAN.md section 4; the status model is section 3. Mirrored by
 -- the Drizzle schema in src/lib/db/schema.ts. Each column carries its DB-14 classification, every
--- free-text field its DB-24 length cap. No FK to the catalog tables. Re-runnable (DB-D06).
+-- free-text field its DB-24 length cap. No FK to the catalog tables. `user_id` is Neon Auth's
+-- user id (uuid, FK to the managed `neon_auth."user"`); scripts/migrate.mjs refuses to run until
+-- Neon Auth is enabled (PLAN.md section 12, N-8, N-9). Re-runnable (DB-D06).
 
 CREATE TABLE IF NOT EXISTS entries (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),           -- neither
-  user_id text NOT NULL REFERENCES users (id) ON DELETE CASCADE, -- personal (owner id)
+  user_id uuid NOT NULL REFERENCES neon_auth."user" (id) ON DELETE CASCADE, -- personal (owner id)
   kind text NOT NULL,                                      -- neither
   title text NOT NULL,                                     -- neither
   title_norm text NOT NULL,                                -- neither (match key)
@@ -78,7 +80,7 @@ CREATE INDEX IF NOT EXISTS entries_deleted_at_idx ON entries (deleted_at)
 
 -- Dogear tile -> entry. The composite FK means a link can never point at another user's entry.
 CREATE TABLE IF NOT EXISTS entry_links (
-  user_id text NOT NULL,                                   -- personal (owner id)
+  user_id uuid NOT NULL,                                   -- personal (owner id)
   platform text NOT NULL,                                  -- neither
   platform_id text NOT NULL,                               -- neither
   entry_id uuid NOT NULL,                                  -- neither
@@ -101,7 +103,7 @@ CREATE INDEX IF NOT EXISTS entry_links_entry_id_idx ON entry_links (entry_id);
 
 CREATE TABLE IF NOT EXISTS lists (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),           -- neither
-  user_id text NOT NULL REFERENCES users (id) ON DELETE CASCADE, -- personal (owner id)
+  user_id uuid NOT NULL REFERENCES neon_auth."user" (id) ON DELETE CASCADE, -- personal (owner id)
   name text NOT NULL,                                      -- personal
   description text NOT NULL DEFAULT '',                    -- personal
   kinds text[] NOT NULL DEFAULT '{}',                      -- neither
@@ -125,7 +127,7 @@ CREATE INDEX IF NOT EXISTS lists_user_updated_idx ON lists (user_id, updated_at)
 CREATE TABLE IF NOT EXISTS list_items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),           -- neither
   list_id uuid NOT NULL,                                   -- neither
-  user_id text NOT NULL,                                   -- personal (owner id)
+  user_id uuid NOT NULL,                                   -- personal (owner id)
   kind text NOT NULL,                                      -- neither
   title text NOT NULL,                                     -- neither
   year smallint,                                           -- neither
