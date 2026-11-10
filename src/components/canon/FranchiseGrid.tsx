@@ -43,9 +43,7 @@ export default function FranchiseGrid({
     <div className="h-full overflow-y-auto">
       <div className="anim-lift flex flex-col gap-5 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 2xl:px-10">
         <header className="flex flex-col gap-3">
-          <h1 className={APP_TITLE_CLASS}>
-            Every franchise, in story order
-          </h1>
+          <h1 className={APP_TITLE_CLASS}>Every franchise, in story order</h1>
           <p className="max-w-prose text-[13px] text-muted leading-relaxed">
             {franchises.length} connected series and {games} games, each sorted by in-universe
             chronology rather than release date. Series that split into separate storylines are
