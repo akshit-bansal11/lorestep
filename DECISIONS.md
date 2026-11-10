@@ -523,3 +523,11 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
   the same values are applied in `extension/core/states.js`. Dropped red doubles as `danger`.
 - Consequence: status hue is never the only signal; a shape and a label always go with it.
 - Revisit when: the owner changes a state colour (update both the site tokens and the extension).
+
+## 2026-11-10 Remove the Chrome extension backup file
+
+- Context: accounts store marks in Neon, so a signed-in user's list survives an uninstall through sync. The extension's "Back up now" file (`Downloads/Dogear/dogear-backup.json`) and its restore banner were built before accounts existed.
+- Options: keep the backup file; remove it.
+- Choice: remove it (0.10.0). Export and Import stay as explicit user actions (blob URL plus `<a download>` in the library page).
+- Consequence: a signed-out user's marks live only in this browser and are lost on uninstall unless exported. Three fewer permissions (`downloads`, `downloads.ui`, `offscreen`), no offscreen page.
+- Revisit when: signed-out use matters.

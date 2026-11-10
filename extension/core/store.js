@@ -103,12 +103,6 @@
     dock: v?.dock === "min" ? "min" : "open",
   });
 
-  /** Storage key for the backup file's status, written by background.js. Not a title key. */
-  D.BACKUP_STATUS_KEY = "backup:status";
-  // Kept from the Dogear name, like the export format "dogear" below: existing backups and
-  // exports must still restore.
-  D.BACKUP_FILE = "Dogear/dogear-backup.json";
-
   // Lorestep sync keys (core/auth.js, core/sync.js). "auth:status" holds no secret.
   D.AUTH_STATUS_KEY = "auth:status";
   D.SYNC_STATUS_KEY = "sync:status";
@@ -411,7 +405,7 @@
     const keys = [];
     for (const [k, { newValue }] of Object.entries(changes)) {
       if (k === D.AUTH_STATUS_KEY) readAuthStatus(newValue);
-      // Queue, sync and backup keys change often and draw nothing: no repaint for them.
+      // Queue and sync keys change often and draw nothing: no repaint for them.
       if (k !== SETTINGS_KEY && !k.startsWith("t:")) continue;
       if (k === SETTINGS_KEY) settings = D.validSettings(newValue);
       else put(k, newValue === undefined ? null : D.validEntry(k, newValue));

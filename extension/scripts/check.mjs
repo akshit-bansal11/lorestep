@@ -24,7 +24,7 @@ const walk = (dir) =>
       });
 
 const shipped = [
-  ...["core", "adapters", "library", "offscreen"].flatMap((d) => walk(join(root, d))),
+  ...["core", "adapters", "library"].flatMap((d) => walk(join(root, d))),
   join(root, "background.js"),
 ];
 const js = [...shipped, ...walk(join(root, "tests")), ...walk(join(root, "scripts"))].filter((f) =>
@@ -50,12 +50,10 @@ const named = [
   ...manifest.content_scripts.flatMap((c) => [...(c.js ?? []), ...(c.css ?? [])]),
 ].filter(Boolean);
 for (const f of named) if (!existsSync(join(root, f))) fail(`manifest.json names ${f}, which does not exist`);
-// storage: the list. contextMenus: right-click marking under sites' hover cards. downloads +
-// downloads.ui: the "Back up now" file that survives an uninstall, saved without the bubble.
-// offscreen: a short-lived page that makes that file's blob URL (a worker cannot). alarms: the
+// storage: the list. contextMenus: right-click marking under sites' hover cards. alarms: the
 // periodic Lorestep pull and sync retries (signed out, the alarm is cleared). identity:
 // launchWebAuthFlow for the Lorestep OAuth sign-in (core/auth.js).
-const ALLOWED = '["storage","contextMenus","downloads","downloads.ui","offscreen","alarms","identity"]';
+const ALLOWED = '["storage","contextMenus","alarms","identity"]';
 if (JSON.stringify(manifest.permissions) !== ALLOWED)
   fail(`permissions must be exactly ${ALLOWED}, got ${JSON.stringify(manifest.permissions)}`);
 if (manifest.background && Object.keys(manifest.background).join() !== "service_worker")
