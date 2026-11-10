@@ -9,7 +9,7 @@ import { setLibraryView } from "@/utils/log/library-view-store";
 /** Cards / List / Table toggle; the choice is kept in this browser. */
 export default function ViewSwitcher({ view }: { view: LibraryView }) {
   return (
-    <div aria-label={LIBRARY_COPY.viewGroup} className="flex gap-1" role="group">
+    <fieldset aria-label={LIBRARY_COPY.viewGroup} className="m-0 flex min-w-0 gap-1 border-0 p-0">
       {LIBRARY_VIEWS.map((option) => (
         <button
           aria-pressed={view === option.id}
@@ -37,6 +37,6 @@ export default function ViewSwitcher({ view }: { view: LibraryView }) {
           {option.label}
         </button>
       ))}
-    </div>
+    </fieldset>
   );
 }

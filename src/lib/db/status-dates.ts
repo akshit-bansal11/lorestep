@@ -1,4 +1,4 @@
-import { type SQL, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 
 import type { StatusDatesSet } from "@/types/db/db";
 
