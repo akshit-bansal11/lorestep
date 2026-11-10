@@ -1,3 +1,5 @@
+// @vitest-environment happy-dom
+// The store reads localStorage, which the node environment of *.test.ts files lacks.
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { LIBRARY_VIEW_STORAGE_KEY } from "@/constants/canon/storage";
 import {
