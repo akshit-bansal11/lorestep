@@ -94,7 +94,7 @@ export default function OrderDemo({ franchises, className }: OrderDemoProps) {
               key={row.id}
               aria-posinset={rank + 1}
               aria-setsize={size}
-              className="absolute inset-x-0 top-0 grid h-[54px] grid-cols-[28px_minmax(0,1fr)_48px] items-center gap-2.5 px-2 sm:grid-cols-[38px_minmax(0,1fr)_64px_auto] sm:gap-3.5 sm:px-3.5 transition-transform duration-(--dur-4) ease-out"
+              className="absolute inset-x-0 top-0 grid h-[54px] grid-cols-[28px_minmax(0,1fr)_48px] items-center gap-2.5 px-2 sm:grid-cols-[38px_minmax(0,1fr)_64px_92px] sm:gap-3.5 sm:px-3.5 transition-transform duration-(--dur-4) ease-out"
               style={{ transform: `translateY(${rank * DEMO_ROW_HEIGHT}px)` }}
             >
               <span className={cn(NUM_CLASS, "text-right text-[15px] text-muted")}>{rank + 1}</span>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { DISPLAY_CLASS, TITLE_CLASS } from "@/constants/canon/ui";
+import { DISPLAY_CLASS, PAGE_CLASS, TITLE_CLASS } from "@/constants/canon/ui";
 import {
   REEL_COPIES,
   REEL_LABELS,
@@ -81,14 +81,16 @@ export default function FranchiseReel({ names, className }: FranchiseReelProps) 
           </div>
         ))}
       </div>
-      <button
-        type="button"
-        aria-pressed={paused}
-        onClick={() => setPaused((value) => !value)}
-        className={cn(REEL_PAUSE_CLASS, "justify-self-start")}
-      >
-        {REEL_PAUSE_LABEL}
-      </button>
+      <div className={PAGE_CLASS}>
+        <button
+          type="button"
+          aria-pressed={paused}
+          onClick={() => setPaused((value) => !value)}
+          className={REEL_PAUSE_CLASS}
+        >
+          {REEL_PAUSE_LABEL}
+        </button>
+      </div>
     </div>
   );
 }

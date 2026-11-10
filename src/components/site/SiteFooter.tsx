@@ -35,7 +35,7 @@ export default function SiteFooter() {
         aria-hidden="true"
         className={cn(
           DISPLAY_CLASS,
-          "mt-16 select-none whitespace-nowrap text-center text-[clamp(5rem,25vw,30rem)] text-edge leading-[0.78] lg:mt-24",
+          "mt-16 select-none whitespace-nowrap text-center text-[clamp(5rem,25vw,30rem)] text-field leading-[0.78] lg:mt-24",
         )}
       >
         {SITE_NAME}
