@@ -42,7 +42,7 @@ export default function AuthField({
           aria-invalid={error === undefined ? undefined : true}
           autoCapitalize="none"
           autoComplete={autoComplete}
-          className={cn(AUTH_INPUT_CLASS, error !== undefined && "border-accent")}
+          className={cn(AUTH_INPUT_CLASS, error !== undefined && "border-danger")}
           disabled={disabled}
           name={name}
           spellCheck={false}
@@ -55,7 +55,7 @@ export default function AuthField({
         </p>
       )}
       {error !== undefined && (
-        <p className="text-[12px] text-accent" id={errorId}>
+        <p className="text-[12px] text-danger" id={errorId}>
           {error}
         </p>
       )}

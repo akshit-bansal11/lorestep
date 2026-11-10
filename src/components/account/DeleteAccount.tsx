@@ -63,7 +63,7 @@ export default function DeleteAccount({ email }: DeleteAccountProps) {
             value={typed}
           />
         </label>
-        <div role="alert">{error !== null && <p className="text-[13px] text-ink">{error}</p>}</div>
+        <div role="alert">{error !== null && <p className="text-[13px] text-danger">{error}</p>}</div>
         <button
           className={cn(LOG_DANGER_CLASS, "self-start")}
           disabled={!matches || pending}

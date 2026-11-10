@@ -4,7 +4,7 @@ import DevicesList from "@/components/account/DevicesList";
 import ExportButton from "@/components/account/ExportButton";
 import ProfileCard from "@/components/account/ProfileCard";
 import { ACCOUNT_COPY } from "@/constants/account/copy";
-import { PAGE_CLASS, PAGE_TITLE_CLASS } from "@/constants/canon/ui";
+import { APP_TITLE_CLASS, PAGE_CLASS } from "@/constants/canon/ui";
 import { pageSession } from "@/lib/auth/page-session";
 import { listDeviceSessions } from "@/services/account/sessions";
 import { cn } from "@/utils/cn";
@@ -25,7 +25,7 @@ export default async function Page() {
 
   return (
     <main className={cn(PAGE_CLASS, "flex max-w-3xl flex-1 flex-col gap-6 py-8 lg:py-10")}>
-      <h1 className={PAGE_TITLE_CLASS}>{ACCOUNT_COPY.title}</h1>
+      <h1 className={APP_TITLE_CLASS}>{ACCOUNT_COPY.title}</h1>
       <ProfileCard user={{ name: user.name, email: user.email, image: user.image ?? null }} />
       <DevicesList currentId={session.id} devices={devices} />
       <ExportButton />

@@ -108,7 +108,7 @@ export default function AccountMenu() {
 
       {open && (
         <div
-          className="absolute top-full right-0 z-40 mt-1.5 w-60 rounded-overlay border border-edge bg-canvas p-1 shadow-[var(--tone-cast)]"
+          className="absolute top-full right-0 z-40 mt-1.5 w-60 rounded-overlay bg-surface p-1 shadow-[var(--tone-cast)]"
           id="account-menu"
         >
           <p className="truncate px-2.5 py-2 text-[12px] text-muted">
@@ -133,7 +133,7 @@ export default function AccountMenu() {
             {signingOut ? copy.signingOut : copy.signOut}
           </button>
           <div role="alert">
-            {error !== null && <p className="px-2.5 py-2 text-[12px] text-accent">{error}</p>}
+            {error !== null && <p className="px-2.5 py-2 text-[12px] text-danger">{error}</p>}
           </div>
         </div>
       )}
