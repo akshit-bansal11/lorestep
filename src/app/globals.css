@@ -243,6 +243,12 @@ pre {
   }
 }
 
+@keyframes reel-slide {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
 /* ── Animation utilities ────────────────────────────────────────────────── */
 .anim-rise {
   animation: rise var(--dur-3) var(--ease-out) both;
@@ -290,6 +296,23 @@ pre {
   animation: sweep 1.2s linear infinite;
 }
 
+/* Home franchise reel (FranchiseReel.tsx). Each lane holds its list twice, so -50% loops
+   seamlessly. It pauses on hover, focus within, and data-paused (button or off-screen). */
+.reel-lane {
+  animation: reel-slide 90s linear infinite;
+}
+
+.reel-lane-reverse {
+  animation-direction: reverse;
+  animation-duration: 110s;
+}
+
+.reel:hover .reel-lane,
+.reel:focus-within .reel-lane,
+.reel[data-paused="true"] .reel-lane {
+  animation-play-state: paused;
+}
+
 /* ── Reduced motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   :root {
@@ -300,10 +323,11 @@ pre {
     scroll-behavior: auto;
   }
 
-  /* These two loop forever, so scaling their duration to zero would leave an
+  /* These loop forever, so scaling their duration to zero would leave an
      animation running at 0s rather than stopping it. Switch them off outright. */
   .anim-pulse,
-  .skeleton {
+  .skeleton,
+  .reel-lane {
     animation: none;
   }
 }
