@@ -21,8 +21,8 @@ import {
 import type { GamesSectionProps } from "@/types/home/games-section";
 import { groupArcs } from "@/utils/canon/group-arcs";
 
-const HEAD = "px-4 pb-2 text-left font-medium text-[14px] text-muted";
-const CELL = "border-line border-b px-4 py-4 align-top";
+const HEAD = "px-2 pb-2 sm:px-4 text-left font-medium text-[14px] text-muted";
+const CELL = "border-line border-b px-2 py-4 align-top sm:px-4";
 
 export default function GamesSection({ franchise }: GamesSectionProps) {
   const sections = groupArcs(
@@ -81,7 +81,7 @@ export default function GamesSection({ franchise }: GamesSectionProps) {
                   <th scope="row" className={`${CELL} text-left font-semibold`}>
                     {game.title}
                     {game.starter ? (
-                      <span className="ml-2.5 inline-block rounded-full bg-accent px-2.5 py-0.5 font-semibold text-[13px] text-accent-ink">
+                      <span className="mt-1.5 block w-fit rounded-full bg-accent px-2.5 py-0.5 font-semibold text-[13px] text-accent-ink sm:mt-0 sm:ml-2.5 sm:inline-block">
                         {GAMES_START}
                       </span>
                     ) : null}

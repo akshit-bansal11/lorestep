@@ -17,7 +17,7 @@ export const DISPLAY_CLASS =
 export const TITLE_CLASS = "font-title font-normal normal-case leading-none tracking-[-0.02em]";
 
 /** Marketing section heading (h2). */
-export const BLOCK_TITLE_CLASS = `${DISPLAY_CLASS} max-w-[16ch] text-[clamp(2.5rem,5.4vw,6.25rem)]`;
+export const BLOCK_TITLE_CLASS = `${DISPLAY_CLASS} self-start max-w-[16ch] text-[clamp(2.5rem,5.4vw,6.25rem)]`;
 
 /** An inline link inside running text. */
 export const TEXT_LINK_CLASS =
@@ -28,10 +28,10 @@ export const QUIET_LINK_CLASS =
   "rounded-control text-muted transition-colors duration-[160ms] hover:text-accent motion-reduce:transition-none";
 
 /** Document page h1. */
-export const PAGE_TITLE_CLASS = `${DISPLAY_CLASS} text-[44px] text-ink sm:text-[64px] lg:text-[88px]`;
+export const PAGE_TITLE_CLASS = `${DISPLAY_CLASS} self-start text-[44px] text-ink sm:text-[64px] lg:text-[88px]`;
 
 /** Tracker and account h1. */
-export const APP_TITLE_CLASS = `${DISPLAY_CLASS} text-[32px] text-ink lg:text-[40px]`;
+export const APP_TITLE_CLASS = `${DISPLAY_CLASS} self-start text-[32px] text-ink lg:text-[40px]`;
 
 /** Running text. Capped at a readable measure; wide screens get bigger type, not longer lines. */
 export const PROSE_CLASS = "max-w-prose text-[16px] text-muted leading-relaxed lg:text-[17px]";
@@ -60,4 +60,4 @@ export const FIELD_SECTION_CLASS = "bg-field text-field-ink";
  */
 export const PAGE_CLASS = "mx-auto w-full max-w-[1760px] px-5 sm:px-8 lg:px-12 2xl:px-16";
 
-export const SECTION_TITLE_CLASS = `${DISPLAY_CLASS} text-[28px] text-ink lg:text-[36px]`;
+export const SECTION_TITLE_CLASS = `${DISPLAY_CLASS} self-start text-[28px] text-ink lg:text-[36px]`;

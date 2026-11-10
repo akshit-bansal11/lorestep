@@ -6,6 +6,17 @@ const WCAG_TAGS = ["wcag2a", "wcag2aa"];
 
 /** Violations reduced to rule id + offending selectors, so a failure report names the defect. */
 async function scan(page: Page): Promise<{ id: string; targets: string[] }[]> {
+  // The franchise cards fade in with a stagger, and axe reads a half-faded card as low
+  // contrast. Wait for every finite animation to end; infinite ones (skeletons) never do.
+  await page.waitForFunction(() =>
+    document
+      .getAnimations()
+      .every(
+        (animation) =>
+          animation.playState === "finished" ||
+          animation.effect?.getComputedTiming().iterations === Number.POSITIVE_INFINITY,
+      ),
+  );
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   return results.violations.map((violation) => ({
     id: violation.id,
