@@ -1,5 +1,5 @@
 /** Section B of docs/design/PLAN.md: every line here has a proof row there. */
-export const EXTENSION_VERSION = "0.10.0";
+export const EXTENSION_VERSION = "0.10.1";
 
 export const EXTENSION_LIBRARY_ITEMS = [
   {

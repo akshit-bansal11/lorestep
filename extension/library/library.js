@@ -234,6 +234,8 @@
     $("account-status").textContent = s.message || text(s);
     const b = $("account-action");
     b.textContent = { "signed-in": "Sign out", waiting: "Cancel sign-in" }[s.state] || "Sign in to Lorestep";
+    // Signing in is the page's main action; signing out or cancelling is not, so it goes quiet.
+    b.className = s.state === "signed-in" || s.state === "waiting" ? "ghost" : "primary";
     b.disabled = false;
     $("sync-row").hidden = s.state !== "signed-in";
   }
