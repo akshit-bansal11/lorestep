@@ -2,7 +2,7 @@
 
 export const HERO_TITLE = "Every story, in the order it happened.";
 export const HERO_LEDE =
-  "Story order for movies, series and games. Browsing needs no account, and your marks stay in this browser.";
+  "Story-order guides for movies, series and games, a tracker that keeps your place, and an extension that marks what you watch.";
 export const HERO_ACTIONS = {
   primary: { label: "Browse watch orders", href: "/screen" },
   ghost: { label: "Open the games table", href: "/games" },
@@ -21,7 +21,7 @@ export const BOOKS_EMPTY = "No dataset yet";
 
 export const GAMES_TITLE = "Games, in story order.";
 export const GAMES_LEDE =
-  "The table below is one franchise as it ships on Lorestep, with a place to start and what each game is worth your time.";
+  "One franchise as it appears on Lorestep: where to start, how long each game takes and where to play it today.";
 export const GAMES_COLUMNS = {
   rank: "#",
   game: "Game",
