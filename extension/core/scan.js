@@ -190,10 +190,31 @@
     return null;
   };
 
+  /**
+   * Title info for a link-less card. With an adapter ID (Netflix's "More like this" cards carry
+   * one) it is a real title that can be marked; without one (JioHotstar rows) it only shows a
+   * mark made elsewhere for the same title, through title linking.
+   */
+  const cardInfo = (c) => {
+    const title = D.cleanTitle(A.cards.title(c) || "");
+    const id = A.cards.id?.(c);
+    if (id) {
+      const key = D.makeKey(A.platform, id);
+      remember(key, title);
+      return { key, title: title || titles.get(key) || "", kind: "", url: A.canonical(id, new URL(location.href)) };
+    }
+    return title ? { key: `~${title}`, title, kind: "", url: "", display: true } : null;
+  };
+
   const tileAt = (x, y) => {
     const info = linkAt(x, y);
     if (info) return info;
     const top = document.elementFromPoint(x, y);
+    const card = A.cards && top?.closest(A.cards.selector);
+    if (card) {
+      const c = cardInfo(card);
+      if (c && !c.display) return c;
+    }
     return top ? linkNear(top) : null;
   };
 
@@ -243,20 +264,19 @@
       fresh.push({ a, img, raw, href, rec, info });
     }
 
-    // Tiles that aren't links (JioHotstar rows) carry no ID to save under. They only show a mark
-    // made elsewhere for the same title, through title linking; marking happens on the title page.
+    // Tiles that aren't links: see cardInfo for which of them can be marked.
     if (A.cards) {
       for (const c of document.querySelectorAll(A.cards.selector)) {
         if (c.closest("a[href]") || c.querySelector("a[href]")) continue; // the link loop has it
         let rec = seen.get(c);
-        const title = D.cleanTitle(A.cards.title(c) || "");
+        const info = cardInfo(c);
+        const raw = info ? `${info.key}|${info.title}` : "";
         const lost = rec?.mount && !rec.mount.host.isConnected;
-        if (rec && rec.raw === title && !lost) continue;
+        if (rec && rec.raw === raw && !lost) continue;
         if (lost) rec = undefined;
         const img = c.querySelector("img");
-        if (!img || !title) continue;
-        const info = { key: `~${title}`, title, kind: "", url: "", display: true };
-        fresh.push({ a: c, img, raw: title, href: "", rec, info });
+        if (!img || !info?.title) continue;
+        fresh.push({ a: c, img, raw, href: "", rec, info });
       }
     }
 

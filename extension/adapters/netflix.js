@@ -1,7 +1,11 @@
 /* Netflix. Verified live on 2026-11-05: browse tiles (standard, Continue Watching, Top 10) are
    <a href="/browse?jbv={id}" aria-label="{title}" data-uia="standard-card|progress-card|ranked-card">.
    Title pages are /title/{id}, or any page with ?jbv={id} while the details modal is open.
-   The /watch/ page is the player, so it gets no panel. */
+   The /watch/ page is the player, so it gets no panel.
+   Verified live 2026-11-10: the details modal's "More like this" cards are not links. Each is
+   <div data-uia="titleCard--container" aria-label="{title}"> inside .moreLikeThis--container, with
+   the title ID as video_id in its .ptrack-content's URI-encoded JSON data-ui-tracking-context.
+   Episode cards share the container but sit elsewhere, so the selector leaves them out. */
 (() => {
   "use strict";
   const PATH = /\/(?:watch|title)\/(\d{5,12})(?:\/|$)/;
@@ -13,9 +17,26 @@
     return id && NUM.test(id) ? { id } : null;
   };
 
+  /** The title ID from a card's tracking data, or null when it is missing or malformed. */
+  const trackedId = (card) => {
+    const raw = card.querySelector("[data-ui-tracking-context]")?.getAttribute("data-ui-tracking-context");
+    if (!raw) return null;
+    try {
+      const id = String(JSON.parse(decodeURIComponent(raw)).video_id ?? "");
+      return NUM.test(id) ? id : null;
+    } catch {
+      return null;
+    }
+  };
+
   globalThis.Lorestep.adapter({
     platform: "netflix",
     links: 'a[href*="jbv="], a[href*="/title/"], a[href*="/watch/"]',
+    cards: {
+      selector: '.moreLikeThis--container [data-uia="titleCard--container"]',
+      title: (c) => c.getAttribute("aria-label") || c.querySelector("img[alt]")?.alt || "",
+      id: trackedId,
+    },
     match(url) {
       const j = jbv(url);
       if (j) return j;
