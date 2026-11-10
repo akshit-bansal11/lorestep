@@ -57,10 +57,15 @@ for (const width of [390, 1440] as const) {
     const lines = await page.locator("main h1, main h2").evaluateAll((headings) =>
       headings.map((heading) => {
         const style = getComputedStyle(heading);
-        const lineHeight = Number.parseFloat(style.lineHeight) || Number.parseFloat(style.fontSize) * 1.2;
-        return { text: heading.textContent, lines: heading.getBoundingClientRect().height / lineHeight };
+        const lineHeight =
+          Number.parseFloat(style.lineHeight) || Number.parseFloat(style.fontSize) * 1.2;
+        return {
+          text: heading.textContent,
+          lines: heading.getBoundingClientRect().height / lineHeight,
+        };
       }),
     );
-    for (const heading of lines) expect(heading.lines, heading.text ?? "").toBeLessThanOrEqual(2.05);
+    for (const heading of lines)
+      expect(heading.lines, heading.text ?? "").toBeLessThanOrEqual(2.05);
   });
 }
