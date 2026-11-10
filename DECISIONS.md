@@ -531,3 +531,27 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
 - Choice: remove it (0.10.0). Export and Import stay as explicit user actions (blob URL plus `<a download>` in the library page).
 - Consequence: a signed-out user's marks live only in this browser and are lost on uninstall unless exported. Three fewer permissions (`downloads`, `downloads.ui`, `offscreen`), no offscreen page.
 - Revisit when: signed-out use matters.
+
+## 2026-11-10 Metadata enrichment: exact titles only, guarded move to anime
+
+- Context: extension marks carry no year or poster, and Netflix sends every show as kind series,
+  anime included (Black Clover). The owner wants the year and poster filled and anime detected.
+- Options: take the provider's top search result; fuzzy-match titles; accept only an exact
+  normalised-title match (`normTitle`) and skip the rest.
+- Choice: exact match only. TMDB: the top `/search/movie` (movie) or `/search/tv` (series, anime)
+  result, when its title normalises to the entry's `title_norm`. MyAnimeList: the first of five
+  results whose main, English or synonym title does. Only an empty `year` and `image_url` are
+  filled (TMDB poster first, MAL picture as fallback). `ext_source` and `ext_id` are never set,
+  since list membership keys on them. A movie or series moves to kind anime when (a) MyAnimeList
+  lists the exact title, or (b) TMDB gives the Animation genre (16) and original language `ja`,
+  `ko` or `zh`, or origin country JP, KR or CN (the owner's rule). The move happens only when the
+  entry has no user edits (the `KEEP` test of D-15: rating, notes, shelf, list membership) and the
+  user has no other live anime entry with the same `title_norm`; the UPDATE re-checks both. Each
+  tried entry gets `enriched_at`, hit or miss; a provider failure leaves it unmarked for the next
+  run.
+- Consequence: an ambiguous title stays bare rather than wrong. The guard keeps the user's own
+  choices and avoids two library rows for one title. Risk under rule (a): a live-action show that
+  shares its exact title with an anime (One Piece, 2023) moves to anime, because MAL alone counts.
+  An entry tried while only one provider had a key is not retried for the other.
+- Revisit when: a wrong match or a wrong anime move is reported, or entries tried before a key
+  was added need a backfill (clear their `enriched_at`).
