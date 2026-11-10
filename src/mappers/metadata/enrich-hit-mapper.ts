@@ -45,6 +45,9 @@ export function malHit({ node }: MalMatchItem): EnrichHit {
 
 /** Every title MyAnimeList knows the result by: main, English and synonyms. */
 export function malTitles({ node }: MalMatchItem): string[] {
-  return [node.title, node.alternative_titles?.en, ...(node.alternative_titles?.synonyms ?? [])]
-    .filter((title): title is string => typeof title === "string" && title !== "");
+  return [
+    node.title,
+    node.alternative_titles?.en,
+    ...(node.alternative_titles?.synonyms ?? []),
+  ].filter((title): title is string => typeof title === "string" && title !== "");
 }

@@ -1,10 +1,6 @@
 import { and, asc, eq, inArray, isNull, or, type SQL, sql } from "drizzle-orm";
 
-import {
-  ENRICH_BATCH_SIZE,
-  ENRICH_CONCURRENCY,
-  ENRICH_KINDS,
-} from "@/constants/metadata/enrich";
+import { ENRICH_BATCH_SIZE, ENRICH_CONCURRENCY, ENRICH_KINDS } from "@/constants/metadata/enrich";
 import { ANIME_TWIN } from "@/lib/db/anime-twin";
 import { db } from "@/lib/db/client";
 import { entries } from "@/lib/db/schema";
