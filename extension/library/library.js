@@ -5,8 +5,8 @@
   const D = globalThis.Lorestep;
   const $ = (id) => document.getElementById(id);
   const root = document.documentElement;
-  // #welcome is the tab opened after install; both it and #tab are full pages, not the popup.
-  const isTab = location.hash === "#tab" || location.hash === "#welcome";
+  // #tab is a full page, not the popup.
+  const isTab = location.hash === "#tab";
   const LIMIT = 300; // rows drawn at once; search narrows the rest
   root.classList.toggle("tab", isTab);
   root.style.setProperty("--ink", D.INK);
@@ -165,13 +165,12 @@
     const shown = scoped.filter((g) => filter === "all" || g.e.s === filter).sort((a, b) => b.at - a.at);
     const list = $("list");
     if (!all.length) {
-      list.replaceChildren(
-        el(
-          "li",
-          "empty",
-          "Nothing marked yet. On Netflix or Prime Video, use the Lorestep button next to Play. On any supported service, right-click a poster and choose Lorestep.",
-        ),
+      const empty = el("li", "empty");
+      empty.append(
+        el("strong", "empty-h", "Nothing marked yet"),
+        "On Netflix or Prime Video, use the Lorestep button next to Play. On any supported service, right-click a poster and choose Lorestep.",
       );
+      list.replaceChildren(empty);
     } else if (!shown.length) {
       list.replaceChildren(el("li", "empty", "No titles match. Clear the search or pick another state."));
     } else {
@@ -182,7 +181,6 @@
 
     $("dim").checked = D.store.settings().dim;
     $("match").checked = D.store.settings().match;
-    renderBackup();
 
     if (focusKey) list.querySelector(`.row[data-key="${CSS.escape(focusKey)}"] select`)?.focus();
   }
@@ -208,67 +206,16 @@
     render();
   });
 
-  // ---------- backup file (written by background.js) ----------
-
-  let backupStatus = {};
   const when = (t) => new Date(t).toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
 
-  function renderBackup() {
-    const s = backupStatus;
-    $("welcome").hidden = !s.pending;
-    const line = $("backup-status");
-    const failed = s.error && (s.failedAt || 0) > (s.at || 0);
-    line.classList.toggle("warn", Boolean(failed));
-    line.textContent = s.pending
-      ? "Restore your list or choose Start fresh before backing up."
-      : failed
-        ? `Last backup failed: ${s.error}`
-        : s.at
-          ? `Backed up ${when(s.at)} · ${s.count} ${s.count === 1 ? "entry" : "entries"} · ${D.BACKUP_FILE}`
-          : "No backup yet. Uninstalling Lorestep for Chrome would lose your list.";
-    $("backup-now").disabled = Boolean(s.pending);
-  }
-
-  const loadBackupStatus = () =>
-    chrome.storage.local.get(D.BACKUP_STATUS_KEY).then((r) => {
-      backupStatus = r[D.BACKUP_STATUS_KEY] || {};
-      renderBackup();
-    });
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== "local") return;
-    if (D.BACKUP_STATUS_KEY in changes) loadBackupStatus();
     if (D.AUTH_STATUS_KEY in changes) loadAccount();
     if (D.SYNC_STATUS_KEY in changes) loadSync();
   });
 
   const ask = (type, extra = {}) =>
     chrome.runtime.sendMessage({ type, ...extra }).catch((err) => ({ ok: false, error: String(err?.message || err) }));
-
-  $("backup-now").addEventListener("click", async () => {
-    $("backup-now").disabled = true;
-    const r = await ask("lorestep:backup-now");
-    $("backup-now").disabled = false;
-    if (r?.ok) say(`Saved ${D.BACKUP_FILE} in your Downloads folder.`);
-    else if (r?.skipped === "empty") say("Nothing to back up yet: mark a title first.");
-    else if (r?.skipped === "pending") say("Restore your list or choose Start fresh first.");
-    else if (r?.canceled) say("Backup cancelled. Nothing was saved.");
-    else say(`Couldn't save the backup: ${r?.error || "unknown error"}.`, { warn: true });
-  });
-
-  // After a fresh install: restore from the backup file, or start fresh. Either one releases the
-  // hold on backups, so the new list never overwrites the old file before the user decides.
-  $("restore").addEventListener("click", () => {
-    if (!isTab) {
-      chrome.tabs.create({ url: chrome.runtime.getURL("library/library.html#welcome") });
-      window.close();
-      return;
-    }
-    $("file").click();
-  });
-  $("fresh").addEventListener("click", async () => {
-    await ask("lorestep:restore-decided");
-    say("Starting fresh. Click Back up now whenever you want a backup file.");
-  });
 
   // ---------- Lorestep account (background.js signs in; this page never sees the token) ----------
 
@@ -403,7 +350,6 @@
       });
       return;
     }
-    if (backupStatus.pending) await ask("lorestep:restore-decided"); // restored: backups may resume
     const parts = [`Imported ${n} ${n === 1 ? "entry" : "entries"}.`];
     if (plan.older) parts.push(`Kept ${plan.older} where your copy was newer.`);
     if (plan.skipped) parts.push(`Skipped ${plan.skipped} that weren't valid.`);
@@ -423,7 +369,6 @@
   D.store
     .load()
     .then(render)
-    .then(loadBackupStatus)
     .then(loadAccount)
     .then(loadSync)
     .then(() => {

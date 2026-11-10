@@ -1,10 +1,10 @@
 /** Section B of docs/design/PLAN.md: every line here has a proof row there. */
-export const EXTENSION_VERSION = "0.9.0";
+export const EXTENSION_VERSION = "0.10.0";
 
 export const EXTENSION_LIBRARY_ITEMS = [
   {
     title: "A library in the toolbar",
-    body: "Search your marks, filter by service and state, export, import, or press Back up now.",
+    body: "Search your marks, filter by service and state, export or import a file.",
   },
   {
     title: "Two switches",

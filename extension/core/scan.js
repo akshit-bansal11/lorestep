@@ -42,7 +42,21 @@
       el = box;
       cs = getComputedStyle(el);
     }
-    return { el, relative: cs.position === "static" };
+    return { el, relative: cs.position === "static", radius: radiusOf(img, box) };
+  };
+
+  /**
+   * The artwork's rounded corners, so the outline and the fold follow them instead of poking
+   * out square. Netflix rounds a wrapper, others round the <img> itself: the first non-zero
+   * radius from the image up to the tile wins, "" when the artwork is square.
+   */
+  const radiusOf = (img, box) => {
+    for (let el = img; el; el = el.parentElement) {
+      const r = getComputedStyle(el).borderRadius;
+      if (r && !/^0(px)?$/.test(r)) return r;
+      if (el === box) break;
+    }
+    return "";
   };
 
   // "Netflix", "Prime Video", "Watch on Crunchyroll", "Netflix Official Site": yes.
@@ -190,28 +204,53 @@
     return null;
   };
 
+  /**
+   * Title info for a link-less card. With an adapter ID (Netflix's "More like this" cards carry
+   * one) it is a real title that can be marked; without one (JioHotstar rows) it only shows a
+   * mark made elsewhere for the same title, through title linking.
+   */
+  const cardInfo = (c) => {
+    const title = D.cleanTitle(A.cards.title(c) || "");
+    const id = A.cards.id?.(c);
+    if (id) {
+      const key = D.makeKey(A.platform, id);
+      remember(key, title);
+      return { key, title: title || titles.get(key) || "", kind: "", url: A.canonical(id, new URL(location.href)) };
+    }
+    return title ? { key: `~${title}`, title, kind: "", url: "", display: true } : null;
+  };
+
   const tileAt = (x, y) => {
     const info = linkAt(x, y);
     if (info) return info;
     const top = document.elementFromPoint(x, y);
+    const card = A.cards && top?.closest(A.cards.selector);
+    if (card) {
+      const c = cardInfo(card);
+      if (c && !c.display) return c;
+    }
     return top ? linkNear(top) : null;
   };
 
   // ---------- the Lorestep button in the site's own control rows ----------
 
-  const helpers = Object.freeze({ describe, linkNear, tileUnder, detail: detailInfo });
+  const helpers = Object.freeze({ describe, linkNear, tileUnder, detail: detailInfo, card: cardInfo });
+
+  // One placement or several (Netflix: the hover card and details row, plus its modal's cards).
+  const actionSpots = A.actions ? [A.actions].flat() : [];
 
   /** Cheap enough to run on every mutation batch, so the button appears with the hover card. */
   const scanActions = () => {
-    if (!A.actions) return;
-    for (const anchor of document.querySelectorAll(A.actions.anchor)) {
-      const spot = A.actions.place(anchor);
-      if (!spot?.after?.parentElement || !spot.like) continue;
-      if (spot.after.nextElementSibling?.localName === "lorestep-action") continue;
-      // Rows inside a link are fine (Netflix's hover card is one): the button cancels the
-      // link's navigation for its own clicks.
-      const m = D.mountAction(spot.after, spot.like, () => A.actions.resolve(anchor, helpers));
-      actionMounts.add(m);
+    for (const act of actionSpots) {
+      for (const anchor of document.querySelectorAll(act.anchor)) {
+        const spot = act.place(anchor);
+        if (!spot?.after?.parentElement || !spot.like) continue;
+        if (spot.after.nextElementSibling?.localName === "lorestep-action") continue;
+        // Rows inside a link or a clickable card are fine: the button stops its own clicks
+        // from reaching them.
+        const m = D.mountAction(spot.after, spot.like, () => act.resolve(anchor, helpers), spot.fit);
+        actionMounts.add(m);
+      }
     }
   };
 
@@ -243,20 +282,19 @@
       fresh.push({ a, img, raw, href, rec, info });
     }
 
-    // Tiles that aren't links (JioHotstar rows) carry no ID to save under. They only show a mark
-    // made elsewhere for the same title, through title linking; marking happens on the title page.
+    // Tiles that aren't links: see cardInfo for which of them can be marked.
     if (A.cards) {
       for (const c of document.querySelectorAll(A.cards.selector)) {
         if (c.closest("a[href]") || c.querySelector("a[href]")) continue; // the link loop has it
         let rec = seen.get(c);
-        const title = D.cleanTitle(A.cards.title(c) || "");
+        const info = cardInfo(c);
+        const raw = info ? `${info.key}|${info.title}` : "";
         const lost = rec?.mount && !rec.mount.host.isConnected;
-        if (rec && rec.raw === title && !lost) continue;
+        if (rec && rec.raw === raw && !lost) continue;
         if (lost) rec = undefined;
         const img = c.querySelector("img");
-        if (!img || !title) continue;
-        const info = { key: `~${title}`, title, kind: "", url: "", display: true };
-        fresh.push({ a: c, img, raw: title, href: "", rec, info });
+        if (!img || !info?.title) continue;
+        fresh.push({ a: c, img, raw, href: "", rec, info });
       }
     }
 
@@ -266,7 +304,7 @@
       let mount = f.rec?.mount;
       if (!mount) {
         if (f.target.relative) f.target.el.style.position = "relative";
-        mount = D.mountCard(f.target.el);
+        mount = D.mountCard(f.target.el, f.target.radius);
         mounts.add(mount);
       }
       // Same key as before the recycle, or a new one: either way it repaints from the store.

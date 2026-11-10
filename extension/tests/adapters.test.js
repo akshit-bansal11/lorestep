@@ -23,6 +23,21 @@ test("netflix", () => {
   keyOk("netflix", "80057281");
 });
 
+test("netflix More like this cards read the title ID from their tracking data", () => {
+  const { cards } = A("netflix");
+  const card = (ctx) => ({
+    querySelector: () => (ctx === undefined ? null : { getAttribute: () => ctx }),
+    getAttribute: () => "Lesson Plan",
+  });
+  const encoded = (o) => encodeURIComponent(JSON.stringify(o));
+  assert.equal(cards.id(card(encoded({ video_id: 81498377, row: 0 }))), "81498377");
+  assert.equal(cards.title(card(encoded({}))), "Lesson Plan");
+  assert.equal(cards.id(card(encoded({ row: 0 }))), null); // no video_id
+  assert.equal(cards.id(card(encoded({ video_id: "12" }))), null); // not a title ID
+  assert.equal(cards.id(card("%E0%A4%A")), null); // malformed encoding
+  assert.equal(cards.id(card(undefined)), null); // no tracking element
+});
+
 test("primevideo", () => {
   const a = A("primevideo");
   const id = "0QSNMFLV8AJOZAK2TDMYD8RCXW";

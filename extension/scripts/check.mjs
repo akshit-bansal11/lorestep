@@ -23,10 +23,7 @@ const walk = (dir) =>
         return statSync(p).isDirectory() ? walk(p) : [p];
       });
 
-const shipped = [
-  ...["core", "adapters", "library", "offscreen"].flatMap((d) => walk(join(root, d))),
-  join(root, "background.js"),
-];
+const shipped = [...["core", "adapters", "library"].flatMap((d) => walk(join(root, d))), join(root, "background.js")];
 const js = [...shipped, ...walk(join(root, "tests")), ...walk(join(root, "scripts"))].filter((f) =>
   /\.(m?js)$/.test(f),
 );
@@ -50,12 +47,10 @@ const named = [
   ...manifest.content_scripts.flatMap((c) => [...(c.js ?? []), ...(c.css ?? [])]),
 ].filter(Boolean);
 for (const f of named) if (!existsSync(join(root, f))) fail(`manifest.json names ${f}, which does not exist`);
-// storage: the list. contextMenus: right-click marking under sites' hover cards. downloads +
-// downloads.ui: the "Back up now" file that survives an uninstall, saved without the bubble.
-// offscreen: a short-lived page that makes that file's blob URL (a worker cannot). alarms: the
+// storage: the list. contextMenus: right-click marking under sites' hover cards. alarms: the
 // periodic Lorestep pull and sync retries (signed out, the alarm is cleared). identity:
 // launchWebAuthFlow for the Lorestep OAuth sign-in (core/auth.js).
-const ALLOWED = '["storage","contextMenus","downloads","downloads.ui","offscreen","alarms","identity"]';
+const ALLOWED = '["storage","contextMenus","alarms","identity"]';
 if (JSON.stringify(manifest.permissions) !== ALLOWED)
   fail(`permissions must be exactly ${ALLOWED}, got ${JSON.stringify(manifest.permissions)}`);
 if (manifest.background && Object.keys(manifest.background).join() !== "service_worker")
@@ -85,13 +80,6 @@ const declared = new Set(
 );
 for (const h of expected) if (!declared.has(h)) fail(`PLATFORMS host ${h} has no content_scripts match`);
 for (const h of declared) if (!expected.has(h)) fail(`content_scripts matches ${h}, which PLATFORMS does not list`);
-// The icon script can't read states.js (it runs in PowerShell), so pin its copy of the colours.
-const iconColours = /^\$states = (.*?) \|/m.exec(readFileSync(join(root, "scripts/make-icons.ps1"), "utf8"))?.[1];
-const stateColours = D.ORDER.map((s) => `'${D.STATES[s].color}'`).join(", ");
-if (iconColours !== stateColours)
-  fail(
-    `scripts/make-icons.ps1 colours (${iconColours}) differ from core/states.js (${stateColours}); update the script and rerun it`,
-  );
 for (const c of manifest.content_scripts) {
   const order = c.js.join(",");
   if (!/^core\/states\.js,core\/store\.js,core\/ui\.js,adapters\/[a-z0-9]+\.js,core\/scan\.js$/.test(order)) {
