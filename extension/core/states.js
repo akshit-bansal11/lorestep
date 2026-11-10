@@ -55,8 +55,9 @@
     ],
   });
 
-  // One icon set, drawn on a 24×24 grid: [path data, filled?]. Shapes differ per state so the
-  // meaning never depends on colour alone.
+  // One icon set, drawn on a 24×24 grid: [path data, paint]. Paint false is a stroke, true a
+  // filled stroke, "solid" a fill with no stroke, "accent" a fill in the brand accent. Shapes
+  // differ per state so the meaning never depends on colour alone.
   D.ICONS = Object.freeze({
     plan: [["M6 3.5h12v17l-6-4.2-6 4.2z", false]],
     watching: [["M7.5 4.5l12 7.5-12 7.5z", true]],
@@ -68,11 +69,17 @@
       ["M4.5 9H14a5.5 5.5 0 0 1 0 11h-3", false],
     ],
     more: [["M5 12h.01M12 12h.01M19 12h.01", false]],
-    // The brand mark: a play triangle whose top corner is dog-eared, folded down like a page
-    // corner marking your place. The flap is the corner reflected across the fold line.
-    dogear: [
-      ["M6 8.5V20L20 12L10.5 6.57Z", false],
-      ["M6 8.5L10.5 6.57L9.26 11.6Z", true],
+    // The Lorestep mark (src/components/site/Logo.tsx at half scale): two staircases locked into
+    // one square, the story so far in ink and the next step in the accent.
+    lorestep: [
+      [
+        "M3 5.5A2.5 2.5 0 0 1 5.5 3H7.25A1 1 0 0 1 8.25 4V9.75H13.25A1 1 0 0 1 14.25 10.75V15.75H20A1 1 0 0 1 21 16.75V18.5A2.5 2.5 0 0 1 18.5 21H5.5A2.5 2.5 0 0 1 3 18.5Z",
+        "solid",
+      ],
+      [
+        "M9.75 4A1 1 0 0 1 10.75 3H18.5A2.5 2.5 0 0 1 21 5.5V13.25A1 1 0 0 1 20 14.25H16.75A1 1 0 0 1 15.75 13.25V8.25H10.75A1 1 0 0 1 9.75 7.25Z",
+        "accent",
+      ],
     ],
     minimise: [["M5 12h14", false]],
   });
@@ -86,14 +93,20 @@
     svg.setAttribute("viewBox", "0 0 24 24");
     svg.setAttribute("aria-hidden", "true");
     svg.setAttribute("focusable", "false");
-    for (const [d, filled] of D.ICONS[name]) {
+    for (const [d, paint] of D.ICONS[name]) {
       const p = document.createElementNS(SVG_NS, "path");
       p.setAttribute("d", d);
-      p.setAttribute("fill", filled ? "currentColor" : "none");
-      p.setAttribute("stroke", "currentColor");
-      p.setAttribute("stroke-width", "2.4");
-      p.setAttribute("stroke-linecap", "round");
-      p.setAttribute("stroke-linejoin", "round");
+      if (paint === "solid" || paint === "accent") {
+        p.setAttribute("fill", "currentColor");
+        // A style, not the attribute: presentation attributes can't read a custom property.
+        if (paint === "accent") p.style.fill = "var(--accent, #60A5FA)";
+      } else {
+        p.setAttribute("fill", paint ? "currentColor" : "none");
+        p.setAttribute("stroke", "currentColor");
+        p.setAttribute("stroke-width", "2.4");
+        p.setAttribute("stroke-linecap", "round");
+        p.setAttribute("stroke-linejoin", "round");
+      }
       svg.append(p);
     }
     return svg;

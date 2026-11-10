@@ -268,18 +268,21 @@ ${SHARED}
    * (the site's own neighbouring button). resolve() names the title; it runs lazily because a
    * hover card can mount before its title is readable. Returns { host, paint }.
    */
-  D.mountAction = (after, like, resolve) => {
+  D.mountAction = (after, like, resolve, fit = {}) => {
     const host = document.createElement("lorestep-action");
     // Copy the neighbour's box so ours reads as part of the row. These are plain style values
-    // (the same for every title), never anything about the user's list.
+    // (the same for every title), never anything about the user's list. An adapter may fix the
+    // size and margin instead (fit), where the neighbour is not a button.
     const cs = getComputedStyle(like);
-    const side = Math.round(Math.min(Number.parseFloat(cs.height) || 40, Number.parseFloat(cs.width) || 40));
+    const side =
+      fit.size ?? Math.round(Math.min(Number.parseFloat(cs.height) || 40, Number.parseFloat(cs.width) || 40));
     host.style.setProperty("--size", `${side}px`);
     host.style.setProperty("--radius", cs.borderRadius === "0px" ? "50%" : cs.borderRadius);
     if (Number.parseFloat(cs.borderTopWidth))
       host.style.setProperty("--border", `${cs.borderTopWidth} ${cs.borderTopStyle} ${cs.borderTopColor}`);
     if (cs.backgroundColor !== "rgba(0, 0, 0, 0)") host.style.setProperty("--fill", cs.backgroundColor);
-    host.style.margin = getComputedStyle(after).margin; // same spacing as the site's own slots
+    host.style.margin = fit.margin ?? getComputedStyle(after).margin; // same spacing as the site's slots
+    if (fit.order !== undefined) host.style.order = String(fit.order);
 
     const root = host.attachShadow({ mode: "closed" });
     adopt(root, ACTION_CSS);
@@ -313,7 +316,7 @@ ${SHARED}
       painted = sig;
       if (state) t.dataset.s = state;
       else delete t.dataset.s;
-      t.replaceChildren(D.icon(state || "dogear"));
+      t.replaceChildren(D.icon(state || "lorestep"));
       const name = state ? D.STATES[state].name : "Not marked";
       t.setAttribute("aria-label", `Lorestep${title ? ` for ${title}` : ""}: ${name}`);
       t.title = state ? `Lorestep: ${name}` : "Mark with Lorestep";

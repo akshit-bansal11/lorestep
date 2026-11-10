@@ -34,22 +34,34 @@
   const CARDS =
     '.moreLikeThis--container [data-uia="titleCard--container"], .titleGroup--container [data-uia="titleCard--container"]';
 
+  const notOurs = (el) => [...el.children].filter((c) => c.localName !== "lorestep-action");
+
   /**
-   * Our button in a card's metadata row: beside My List where the card has it ("More like this"),
-   * else at the row's end (collection cards), sized from the metadata line.
+   * Our button on a card. Verified live 2026-11-10: the card's metadata row wraps, so a third
+   * item there drops onto its own line. "More like this" cards: it goes inside My List's own
+   * slot, which is made a flex row, so it sits right beside the + at the same size. Collection
+   * cards have no button: it ends the year and rating line, pushed right, at a fixed size.
    */
   const placeOnCard = (card) => {
-    const row = card.querySelector(".titleCard--metadataWrapper > div");
-    if (!row) return null;
-    const own = [...row.children].filter((c) => c.localName !== "lorestep-action");
-    const plus = row.querySelector('[data-uia="add-to-my-list"]');
+    const plus = card.querySelector('.titleCard--metadataWrapper [data-uia="add-to-my-list"]');
     if (plus) {
-      const after = own.find((c) => c.contains(plus));
-      return after ? { after, like: plus } : null;
+      const slot = plus.closest(".ptrack-content") || plus;
+      const holder = slot.parentElement;
+      if (!holder) return null;
+      if (holder.style.display !== "flex") {
+        holder.style.display = "flex";
+        holder.style.alignItems = "center";
+        holder.style.gap = "8px";
+      }
+      return { after: slot, like: plus, fit: { margin: "0" } };
     }
-    const line = row.querySelector(".videoMetadata--line");
-    const after = own.at(-1);
-    return line && after ? { after, like: line } : null;
+    // The line orders its items with CSS order (the year is order 2) and only spans its badges,
+    // so ours takes a later order and the line spans the card, putting it at the right edge.
+    const line = card.querySelector(".titleCard--metadataWrapper .videoMetadata--line");
+    const after = line && notOurs(line).at(-1);
+    if (!after) return null;
+    if (line.style.width !== "100%") line.style.width = "100%";
+    return { after, like: line, fit: { size: 36, margin: "0 0 0 auto", order: 99 } };
   };
 
   globalThis.Lorestep.adapter({

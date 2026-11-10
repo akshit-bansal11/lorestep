@@ -248,7 +248,7 @@
         if (spot.after.nextElementSibling?.localName === "lorestep-action") continue;
         // Rows inside a link or a clickable card are fine: the button stops its own clicks
         // from reaching them.
-        const m = D.mountAction(spot.after, spot.like, () => act.resolve(anchor, helpers));
+        const m = D.mountAction(spot.after, spot.like, () => act.resolve(anchor, helpers), spot.fit);
         actionMounts.add(m);
       }
     }
