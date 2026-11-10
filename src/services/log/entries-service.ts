@@ -109,8 +109,8 @@ export async function createEntry(userId: string, input: EntryCreate): Promise<E
         ${JSON.stringify(input.progress ?? {})}::jsonb, ${input.repeatCount ?? 0}::integer,
         ${input.device ?? null}, ${input.storefront ?? null}, ${input.gameId ?? null},
         ${input.ext?.source ?? null}, ${input.ext?.id ?? null}, ${input.imageUrl ?? null},
-        ${iso(input.startedAt ?? dates.startedAt)}::timestamptz,
-        ${iso(input.completedAt ?? dates.completedAt)}::timestamptz
+        ${iso(input.startedAt === undefined ? dates.startedAt : input.startedAt)}::timestamptz,
+        ${iso(input.completedAt === undefined ? dates.completedAt : input.completedAt)}::timestamptz
       WHERE (SELECT count(*) FROM entries WHERE user_id = ${userId} AND deleted_at IS NULL)
         < ${ENTRY_LIMITS.perUser}
       RETURNING id`);
