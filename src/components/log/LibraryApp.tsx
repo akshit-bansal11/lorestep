@@ -20,12 +20,12 @@ import type { Entry } from "@/types/log/entry";
 import type { LocalPatch, Notice } from "@/types/log/library";
 import { cn } from "@/utils/cn";
 import { failureMessage } from "@/utils/log/failure-message";
-import { isMediaKind } from "@/utils/log/media-kind";
 import {
   getLibraryViewSnapshot,
   getServerLibraryViewSnapshot,
   subscribeLibraryView,
 } from "@/utils/log/library-view-store";
+import { isMediaKind } from "@/utils/log/media-kind";
 import { pick } from "@/utils/log/pick";
 
 const copy = LIBRARY_COPY;
