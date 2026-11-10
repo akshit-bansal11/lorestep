@@ -10,7 +10,8 @@
       "!next-env.d.ts",
       "!**/test-results",
       "!**/playwright-report",
-      "!**/scripts/.cache"
+      "!**/scripts/.cache",
+      "!docs/design/v2-reference.html"
     ]
   },
   "formatter": {
