@@ -13,6 +13,6 @@ Closes #
 - [ ] `npm run check` is clean
 - [ ] Tests added or changed for new logic, a new branch or a bug fix
 - [ ] Data change: `npm run data:check` is clean, and the source is linked above
-- [ ] UI change: checked in light and dark, and at phone width
+- [ ] UI change: checked at phone width
 - [ ] A line under Unreleased in `CHANGELOG.md`
 - [ ] Docs updated if behaviour or setup changed

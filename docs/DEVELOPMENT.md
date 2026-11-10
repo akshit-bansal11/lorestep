@@ -55,7 +55,7 @@ src/
 │   │   └── page.tsx     # landing page
 │   ├── api/             # route handlers: prices, auth (Better-Auth), v1 (docs/ROUTE-REGISTER.md)
 │   ├── games/           # the canon tracker, a fixed full-height shell
-│   ├── globals.css      # warm token spine with one accent, motion scale, both themes
+│   ├── globals.css      # dark token spine with one accent, motion scale
 │   ├── icon.svg         # favicon
 │   ├── layout.tsx       # root metadata: metadataBase, Open Graph
 │   ├── opengraph-image.png  # the link-preview card, same as assets/social-preview.png
@@ -78,7 +78,7 @@ src/
 │   └── screen.json      # movies and series snapshot, same role
 ├── hooks/
 │   ├── auth/            # session, providers lookup, shared form submit flow
-│   └── canon/           # tracked entries, theme, prices, hotkeys, chunked rendering
+│   └── canon/           # tracked entries, prices, hotkeys, chunked rendering
 ├── lib/
 │   ├── auth/            # Better-Auth server (lazy), Argon2id, hooks, guards, auth env; browser client, call wrapper, providers lookup
 │   ├── db/              # Neon clients (HTTP + auth Pool), Drizzle schema, reads, rate limiter
@@ -87,7 +87,7 @@ src/
 ├── types/
 │   ├── auth/            # auth, password and auth-form types
 │   ├── http/            # limiter result
-│   └── canon/           # franchise, game, arc, table, user, price, theme, view types
+│   └── canon/           # franchise, game, arc, table, user, price, view types
 └── utils/
     ├── auth/            # form validation, failure messages, initials
     └── canon/           # pure helpers + the localStorage stores
@@ -138,7 +138,7 @@ A franchise may declare `arcs` — named storylines that stand alone within it. 
 
 The content pages are server components that read the database at build time and revalidate hourly, so the dataset is editable without a redeploy while the page stays statically generated. Filtering, sorting and search all still run on the client against the full dataset — that is what keeps the table instant, and it is why the read query returns everything rather than paginating.
 
-Three things are written to `localStorage`: your input (status, device and store per game, under `isitcanon/entries/v1`), the fetched price cache (`isitcanon/prices/v1`), and the theme choice (`isitcanon/theme/v1`). The keys keep the `isitcanon/` prefix from before the rename on purpose: they are never shown, and changing them would drop every visitor's saved progress. All are exposed through `useSyncExternalStore`, so two open tabs stay in sync. Clearing a game's status clears its device and store with it.
+Two things are written to `localStorage`: your input (status, device and store per game, under `isitcanon/entries/v1`), and the fetched price cache (`isitcanon/prices/v1`). The keys keep the `isitcanon/` prefix from before the rename on purpose: they are never shown, and changing them would drop every visitor's saved progress. All are exposed through `useSyncExternalStore`, so two open tabs stay in sync. Clearing a game's status clears its device and store with it.
 
 ## Deployment
 

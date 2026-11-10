@@ -57,6 +57,10 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
   `scripts/migrate.mjs` prints every user-id table and its FK delete rule. Closes when
   e2e/account.spec.ts passes on the CI branch. Revisit (switch back to the API) when Neon exposes
   delete-user or an admin delete API.
+- README screenshots, the `assets/*` logos and `src/app/opengraph-image.png` still show the old warm palette. Closes when they are regenerated in the dark Plotline palette.
+- No skip link exists (UI-25; spotted, not fixed). Closes when a skip link is added and tested.
+- Like/dislike, per-item detail panels, and the extension showing a title's place in story order are planned and not built. Closes when each is built or dropped from the plan.
+- TMDB and IGDB keys are needed for synopses and posters. Closes when both are provisioned.
 
 ## Accepted
 

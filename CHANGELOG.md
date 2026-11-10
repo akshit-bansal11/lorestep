@@ -14,6 +14,7 @@ All notable changes to Lorestep. The format follows [Keep a Changelog](https://k
 
 ### Changed
 
+- **Dark only.** The site and Lorestep for Chrome 0.9.0 use Plotline's palette, with Big Shoulders Display, Gloock and Hanken Grotesk, and the light/dark switch is gone. The home page is rebuilt, and `/extension` is new.
 - **The site lives at lorestep.akshitbansal.dev.** Its canonical address, sitemap, `robots.txt` and link-preview card all name it, and is-it-canon.vercel.app redirects to it, path for path, whenever that host is attached to the project.
 - **Every page uses the width of the screen**, up to 1760px, rather than a 768px column. Wide screens fill with columns and grids instead of longer lines: the home page's headline sits beside its numbers, About flows into two or three columns, Docs gets a sticky contents sidebar with its sections in two columns, a chronology's notes sit beside their titles, and card grids grow to three, four or five across. Type steps up on large screens.
 - **A warm palette with one accent colour**, in both themes. The accent marks what is active, current or a link, and the focus ring is drawn in it.
