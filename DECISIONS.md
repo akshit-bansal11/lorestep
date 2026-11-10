@@ -566,3 +566,23 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
   entry, whatever MAL says. Rule (b) is unchanged. This replaces the One Piece caveat above.
 - Consequence: an anime TMDB files without the Animation genre stays kind series.
 - Revisit when: a real anime is reported stuck as series because of TMDB's genres.
+
+## 2026-11-10 Enrichment moves only untouched extension entries; ambiguous titles are skipped
+
+- Context: review of PR #12. The PATCH schema has no `kind`, so a wrong move to anime cannot be
+  undone by the user; `KEEP` alone missed hand-made entries and entries with progress. Without a
+  TMDB key, "TMDB found nothing" was read as a miss and MAL alone could move One Piece (2023).
+- Options: keep the `KEEP` guard; require an extension-created, untouched entry.
+- Choice: a kind moves only when the entry has an `entry_links` row, no `ext_source`, empty
+  `progress` and a false `KEEP`, with no anime twin, checked in the candidate read and again in
+  the UPDATE. MAL counts as an anime signal only when TMDB is configured; without a TMDB key no
+  entry gets `enriched_at`, so it is looked up again once the key exists. A match must also be the
+  only exact-title result after narrowing by the entry's year (when it has one); several = skip.
+  Movie marks now match anime entries (`COMPATIBLE_KINDS`), so a moved movie is not duplicated by
+  its next mark. Each run starts no entry after 20 s, sends no retries, marks an entry refused
+  with a 4xx (not 429), and stops at the first 429, 5xx or network error.
+- Consequence: fewer moves to anime (an entry the user opened on the site and edited stays). Some
+  real anime stay bare when TMDB lists two shows of one title. Candidates are read in random order
+  so unmarked rows cannot hold the head of the queue.
+- Revisit when: the owner wants a way to change an entry's kind on the site (then the guard can
+  relax), or the candidate sort shows up in slow queries.

@@ -41,8 +41,9 @@ export interface EnrichCandidate {
   kind: string;
   title: string;
   titleNorm: string;
-  /** Has a rating, notes, a shelf or a list membership (`KEEP`). */
-  keep: boolean;
+  year: number | null;
+  /** Created by the extension and never touched by the user (`ANIME_MOVABLE`). */
+  movable: boolean;
   /** Another live entry of the same user is already kind anime with this `title_norm`. */
   twin: boolean;
 }

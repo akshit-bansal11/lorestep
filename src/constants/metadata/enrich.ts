@@ -5,6 +5,12 @@ export const ENRICH_KINDS = ["movie", "series", "anime"] as const;
 export const ENRICH_BATCH_SIZE = 20;
 export const ENRICH_CONCURRENCY = 2;
 
+/** No new entry is started after this much of a run: Vercel Hobby functions stop at 60 s. */
+export const ENRICH_TIME_BUDGET_MS = 20_000;
+
+/** Enrichment requests are not retried: a 429 or 5xx ends the run, the next one resumes. */
+export const ENRICH_FETCH_RETRIES = 0;
+
 /** TMDB's Animation genre id, the same on movie and tv. */
 export const TMDB_ANIMATION_GENRE = 16;
 
