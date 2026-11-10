@@ -15,9 +15,10 @@ const candidate = (over: Partial<SyncCandidate>): SyncCandidate => ({
 });
 
 describe("compatibleKinds", () => {
-  it("pairs movie with movie and series with series or anime; no kind matches all three", () => {
-    expect(compatibleKinds("movie")).toEqual(["movie"]);
+  it("pairs movie and series each with itself or anime; no kind matches all three", () => {
+    expect(compatibleKinds("movie")).toEqual(["movie", "anime"]);
     expect(compatibleKinds("series")).toEqual(["series", "anime"]);
+    expect(compatibleKinds("anime")).toEqual(["movie", "series", "anime"]);
     expect(compatibleKinds(undefined)).toEqual(["movie", "series", "anime"]);
   });
 });
@@ -42,6 +43,11 @@ describe("matchEntry", () => {
     expect(matchEntry([hit, candidate({ id: "e2", titleNorm: "other" })], input)).toBe(hit);
   });
 
+  it("lands a movie mark on the entry enrichment moved to anime, never a duplicate", () => {
+    const moved = candidate({ id: "e1", kind: "anime" });
+    expect(matchEntry([moved], { ...input, kind: "movie" })).toBe(moved);
+  });
+
   it("never guesses between two candidates", () => {
     expect(matchEntry([candidate({ id: "e1" }), candidate({ id: "e2" })], input)).toBeNull();
   });
@@ -49,6 +55,7 @@ describe("matchEntry", () => {
   it("rejects an incompatible kind and a different known year", () => {
     expect(matchEntry([candidate({ kind: "series" })], { ...input, kind: "movie" })).toBeNull();
     expect(matchEntry([candidate({ kind: "game" })], input)).toBeNull();
+    expect(matchEntry([candidate({ kind: "movie" })], { ...input, kind: "series" })).toBeNull();
     expect(matchEntry([candidate({ year: 2019 })], { ...input, year: 2024 })).toBeNull();
     expect(matchEntry([candidate({ year: null })], { ...input, year: 2024 })).not.toBeNull();
   });
