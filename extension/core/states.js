@@ -8,16 +8,15 @@
 
   D.ORDER = Object.freeze(["watching", "plan", "completed", "hold", "dropped"]);
 
-  // Colours chosen by the product owner: blue watching, cream plan, green completed, amber hold,
-  // red dropped. All are light enough that INK glyphs on them pass 4.5:1, and all pass 3:1
-  // against the near-black backgrounds the services use. Cream and amber differ in saturation
-  // and glyph shape, so they stay apart for colour-blind users too.
+  // Colours set by the product owner: white watching, grey plan, green completed, yellow on hold,
+  // red dropped. INK `#0E1015` on each passes 4.5:1 (17.3, 7.4, 10.1, 12.4, 6.8). The glyph
+  // shapes keep white and grey apart, so the two never rely on colour alone.
   D.INK = "#0E1015";
   D.STATES = Object.freeze({
-    watching: Object.freeze({ name: "Watching", short: "Watch", color: "#5B9DFF" }),
-    plan: Object.freeze({ name: "Plan to Watch", short: "Plan", color: "#EFE3C6" }),
+    watching: Object.freeze({ name: "Watching", short: "Watch", color: "#F4F4F5" }),
+    plan: Object.freeze({ name: "Plan to Watch", short: "Plan", color: "#A1A1AA" }),
     completed: Object.freeze({ name: "Completed", short: "Done", color: "#3DD68C" }),
-    hold: Object.freeze({ name: "On Hold", short: "Hold", color: "#F5A83B" }),
+    hold: Object.freeze({ name: "On Hold", short: "Hold", color: "#FACC15" }),
     dropped: Object.freeze({ name: "Dropped", short: "Drop", color: "#FF6B5E" }),
   });
 
