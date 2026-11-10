@@ -26,6 +26,7 @@ const MUST_BE_PRERENDERED = [
   "/books",
   "/about",
   "/docs",
+  "/extension",
   "/screen/mcu",
   "/screen/star-wars",
   "/screen/dceu",

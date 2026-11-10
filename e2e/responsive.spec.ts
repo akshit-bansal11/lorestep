@@ -2,7 +2,7 @@ import { expect, type Page, test } from "@playwright/test";
 
 /** Phone, large phone, tablet, laptop, desktop and wide desktop. */
 const WIDTHS = [360, 390, 768, 1024, 1440, 1920] as const;
-const CONTENT_PAGES = ["/", "/screen", "/screen/mcu", "/about", "/docs"] as const;
+const CONTENT_PAGES = ["/", "/screen", "/screen/mcu", "/about", "/docs", "/extension"] as const;
 
 const overflowsSideways = (page: Page) =>
   page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);

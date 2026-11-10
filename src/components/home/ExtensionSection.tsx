@@ -9,7 +9,8 @@ import {
   SECTION_GAP_CLASS,
   TITLE_CLASS,
 } from "@/constants/canon/ui";
-import { EXTENSION_FEATURES, EXTENSION_SERVICES } from "@/constants/home/extension-section";
+import { EXTENSION_SERVICES } from "@/constants/extension/services";
+import { EXTENSION_FEATURES } from "@/constants/home/extension-section";
 import type { HomeSectionProps } from "@/types/home/section-props";
 import { cn } from "@/utils/cn";
 

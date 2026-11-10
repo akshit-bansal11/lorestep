@@ -9,7 +9,7 @@ export const SITE_DESCRIPTION =
   "Story order for connected franchises — what to play, watch and read in in-universe chronology rather than release order.";
 
 /** Every route that exists independently of the dataset. Per-chronology pages are added from the database. */
-export const STATIC_ROUTES = ["/", "/games", "/screen", "/books", "/about", "/docs"] as const;
+export const STATIC_ROUTES = ["/", "/games", "/screen", "/books", "/about", "/docs", "/extension"] as const;
 
 export const REPO_URL = "https://github.com/akshit-bansal11/lorestep";
 

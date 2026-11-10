@@ -1,13 +1,4 @@
 /** Section B of docs/design/PLAN.md: only what the extension does today. */
-export const EXTENSION_SERVICES = [
-  "Netflix",
-  "Prime Video",
-  "JioHotstar",
-  "ZEE5",
-  "HBO Max",
-  "Crunchyroll",
-] as const;
-
 export const EXTENSION_FEATURES = [
   {
     title: "Marks on poster tiles",

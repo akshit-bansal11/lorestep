@@ -6,7 +6,7 @@ const WCAG_TAGS = ["wcag2a", "wcag2aa"];
 // The home page and the screen routes read the database at build time, like the games view;
 // /about and /docs do not. The home page is here because its empty Books card once failed
 // contrast with no spec to notice.
-for (const path of ["/", "/screen", "/screen/mcu", "/about", "/docs"]) {
+for (const path of ["/", "/screen", "/screen/mcu", "/about", "/docs", "/extension"]) {
   test(`${path} has no WCAG A/AA violations`, async ({ page }) => {
     await page.goto(path);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
@@ -45,6 +45,26 @@ test("the header marks the current section", async ({ page }) => {
     "page",
   );
   await expect(sections.getByRole("link", { name: "Games" })).not.toHaveAttribute("aria-current");
+});
+
+test("the extension page marks its nav link and keeps headings to two lines", async ({ page }) => {
+  await page.goto("/extension");
+  await expect(
+    page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: "Extension" }),
+  ).toHaveAttribute("aria-current", "page");
+
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const ratios = await page
+      .locator("main h1, main h2")
+      .evaluateAll((nodes) =>
+        nodes.map(
+          (node) =>
+            node.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(node).lineHeight),
+        ),
+      );
+    for (const ratio of ratios) expect(ratio).toBeLessThanOrEqual(2.05);
+  }
 });
 
 test("the home demo reorders to release order", async ({ page }) => {
