@@ -20,13 +20,13 @@ export default function GameCell({ game, onOpen }: GameCellProps) {
       onClick={onOpen}
       type="button"
     >
+      <span className="flex items-baseline gap-1.5">
         <span
           className={cn(
             TITLE_CLASS,
             "text-[14px] text-ink underline decoration-transparent underline-offset-2 transition-[text-decoration-color] duration-[160ms] group-hover/title:decoration-accent motion-reduce:transition-none",
           )}
         >
-        <span className={cn(TITLE_CLASS, "text-[14px] text-ink underline decoration-transparent underline-offset-2 transition-[text-decoration-color] duration-[160ms] group-hover/title:decoration-accent motion-reduce:transition-none")}>
           {game.title}
         </span>
 
