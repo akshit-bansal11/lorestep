@@ -21,7 +21,7 @@ export default function Page() {
         dataset exists, so rather than show a placeholder list of invented titles, this section says
         so plainly.
       </p>
-      <p className="max-w-prose text-[12px] text-faint leading-relaxed">
+      <p className="max-w-prose text-[16px] text-faint leading-relaxed">
         The games and screen sections are built from real datasets: 690 games across 126 franchises,
         and 322 titles across six chronologies.
       </p>

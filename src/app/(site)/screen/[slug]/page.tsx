@@ -56,7 +56,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           ← Movies &amp; Series
         </Link>
         <h1 className={PAGE_TITLE_CLASS}>{franchise.title}</h1>
-        <p className={cn(NUM_CLASS, "flex flex-wrap items-center gap-x-2 text-[10px] text-faint")}>
+        <p className={cn(NUM_CLASS, "flex flex-wrap items-center gap-x-2 text-[14px] text-faint")}>
           <span>{titles} titles</span>
           {markers > 0 ? (
             <>

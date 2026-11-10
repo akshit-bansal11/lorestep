@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { CARD_CLASS, NUM_CLASS } from "@/constants/canon/ui";
+import { CARD_CLASS, NUM_CLASS, TITLE_CLASS } from "@/constants/canon/ui";
 import { cn } from "@/utils/cn";
 
 interface SectionCardProps {
   href: string;
   title: string;
   blurb: string;
-  /** Rendered in order as a mono metadata row. Empty means the section has no
+  /** Rendered in order as a tabular metadata row. Empty means the section has no
    *  content yet, which the card states plainly rather than hiding. */
   facts: readonly string[];
   /** A section with no dataset is still listed, but must not look clickable-
@@ -24,9 +24,7 @@ export default function SectionCard({
   const body = (
     <>
       <span className="flex items-baseline gap-2">
-        <span className="flex-1 font-medium text-[15px] text-ink leading-tight tracking-[-0.01em]">
-          {title}
-        </span>
+        <span className={cn(TITLE_CLASS, "flex-1 text-[24px] text-ink")}>{title}</span>
         {empty ? null : (
           <span
             aria-hidden="true"
@@ -37,7 +35,7 @@ export default function SectionCard({
         )}
       </span>
 
-      <span className={cn(NUM_CLASS, "flex flex-wrap items-center gap-x-2 text-[10px] text-faint")}>
+      <span className={cn(NUM_CLASS, "flex flex-wrap items-center gap-x-2 text-[14px] text-faint")}>
         {facts.length === 0 ? (
           <span>nothing here yet</span>
         ) : (
@@ -50,7 +48,7 @@ export default function SectionCard({
         )}
       </span>
 
-      <span className="text-[11px] text-muted leading-relaxed">{blurb}</span>
+      <span className="text-[16px] text-muted leading-relaxed">{blurb}</span>
     </>
   );
 
@@ -58,11 +56,11 @@ export default function SectionCard({
 
   if (empty) {
     return (
-      // Dashed and untinted rather than faded: lowering opacity took its text
-      // below 4.5:1, and the card has to stay readable to say it is empty.
-      <div className={cn(CARD_CLASS, shape, "border-dashed bg-transparent")}>
+      // Flat on the canvas, with no hover step, rather than faded: lowering opacity took
+      // its text below 4.5:1, and the card has to stay readable to say it is empty.
+      <div className={cn(CARD_CLASS, shape, "bg-canvas hover:bg-canvas")}>
         {body}
-        <span className={cn(NUM_CLASS, "text-[10px] text-faint")}>not started</span>
+        <span className={cn(NUM_CLASS, "text-[14px] text-faint")}>not started</span>
       </div>
     );
   }
@@ -72,8 +70,8 @@ export default function SectionCard({
       className={cn(
         CARD_CLASS,
         shape,
-        "group hover:-translate-y-0.5 hover:border-accent-line hover:shadow-[var(--tone-cast)]",
-        "focus-visible:border-accent",
+        "group hover:-translate-y-0.5",
+        "focus-visible:bg-raise",
         "active:translate-y-0 motion-reduce:hover:translate-y-0",
       )}
       href={href}
