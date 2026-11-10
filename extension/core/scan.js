@@ -234,19 +234,23 @@
 
   // ---------- the Lorestep button in the site's own control rows ----------
 
-  const helpers = Object.freeze({ describe, linkNear, tileUnder, detail: detailInfo });
+  const helpers = Object.freeze({ describe, linkNear, tileUnder, detail: detailInfo, card: cardInfo });
+
+  // One placement or several (Netflix: the hover card and details row, plus its modal's cards).
+  const actionSpots = A.actions ? [A.actions].flat() : [];
 
   /** Cheap enough to run on every mutation batch, so the button appears with the hover card. */
   const scanActions = () => {
-    if (!A.actions) return;
-    for (const anchor of document.querySelectorAll(A.actions.anchor)) {
-      const spot = A.actions.place(anchor);
-      if (!spot?.after?.parentElement || !spot.like) continue;
-      if (spot.after.nextElementSibling?.localName === "lorestep-action") continue;
-      // Rows inside a link are fine (Netflix's hover card is one): the button cancels the
-      // link's navigation for its own clicks.
-      const m = D.mountAction(spot.after, spot.like, () => A.actions.resolve(anchor, helpers));
-      actionMounts.add(m);
+    for (const act of actionSpots) {
+      for (const anchor of document.querySelectorAll(act.anchor)) {
+        const spot = act.place(anchor);
+        if (!spot?.after?.parentElement || !spot.like) continue;
+        if (spot.after.nextElementSibling?.localName === "lorestep-action") continue;
+        // Rows inside a link or a clickable card are fine: the button stops its own clicks
+        // from reaching them.
+        const m = D.mountAction(spot.after, spot.like, () => act.resolve(anchor, helpers));
+        actionMounts.add(m);
+      }
     }
   };
 
