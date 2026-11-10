@@ -8,5 +8,8 @@
       "permanent": true
     }
   ],
-  "crons": [{ "path": "/api/cron/purge", "schedule": "0 4 * * *" }]
+  "crons": [
+    { "path": "/api/cron/purge", "schedule": "0 4 * * *" },
+    { "path": "/api/cron/enrich", "schedule": "0 5 * * *" }
+  ]
 }
