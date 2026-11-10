@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import Logo from "@/components/site/Logo";
-import { CONTROL_CLASS, QUIET_LINK_CLASS } from "@/constants/canon/ui";
-import { PAGE_LINKS } from "@/constants/site";
+import { CONTROL_CLASS, DISPLAY_CLASS, NUM_CLASS, QUIET_LINK_CLASS } from "@/constants/canon/ui";
+import { PAGE_LINKS, SITE_NAV } from "@/constants/site";
 import { cn } from "@/utils/cn";
 
 interface AppHeaderProps {
@@ -38,7 +38,7 @@ export default function AppHeader({
         type="button"
       >
         <Logo className="size-5 text-ink" />
-        <span className="font-medium text-[15px] text-ink tracking-[-0.02em]">Lorestep</span>
+        <span className={cn(DISPLAY_CLASS, "text-[18px] text-ink")}>Lorestep</span>
         <span className="hidden text-[10px] text-faint uppercase tracking-[0.14em] sm:inline">
           story order
         </span>
@@ -55,8 +55,12 @@ export default function AppHeader({
 
       <div className={cn("flex items-center gap-1.5", crumb === "" ? "ml-auto" : "")}>
         <nav aria-label="Site" className="hidden items-center gap-3 px-1.5 text-[12px] sm:flex">
-          {PAGE_LINKS.map((link) => (
-            <Link className={QUIET_LINK_CLASS} href={link.href} key={link.href}>
+          {[...SITE_NAV.filter((link) => link.href !== "/games"), ...PAGE_LINKS].map((link) => (
+            <Link
+              className={cn(QUIET_LINK_CLASS, "rounded-full px-2.5 py-1 hover:bg-surface")}
+              href={link.href}
+              key={link.href}
+            >
               {link.label}
             </Link>
           ))}
@@ -68,7 +72,7 @@ export default function AppHeader({
           type="button"
         >
           <span className="text-muted">Jump to…</span>
-          <span className="font-mono text-[10px] text-faint">⌘K</span>
+          <span className={cn(NUM_CLASS, "text-[10px] text-faint")}>⌘K</span>
         </button>
 
         <button

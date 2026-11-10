@@ -16,7 +16,7 @@ export default function SiteNav() {
           <Link
             aria-current={current ? "page" : undefined}
             className={cn(
-              "shrink-0 rounded-control px-2 py-1.5 text-[12px] transition-colors duration-[160ms] motion-reduce:transition-none",
+              "shrink-0 rounded-full px-4 py-2 text-[15px] transition-colors duration-[160ms] motion-reduce:transition-none",
               current ? "bg-accent-soft text-ink" : "text-muted hover:bg-surface hover:text-ink",
             )}
             href={link.href}

@@ -37,12 +37,12 @@ test("the footer links to About and Docs", async ({ page }) => {
 });
 
 test("the header marks the current section", async ({ page }) => {
-  await page.goto("/docs");
+  await page.goto("/screen");
   const sections = page.getByRole("navigation", { name: "Sections" });
 
-  await expect(sections.getByRole("link", { name: "Docs" })).toHaveAttribute(
+  await expect(sections.getByRole("link", { name: "Watch orders" })).toHaveAttribute(
     "aria-current",
     "page",
   );
-  await expect(sections.getByRole("link", { name: "About" })).not.toHaveAttribute("aria-current");
+  await expect(sections.getByRole("link", { name: "Games" })).not.toHaveAttribute("aria-current");
 });

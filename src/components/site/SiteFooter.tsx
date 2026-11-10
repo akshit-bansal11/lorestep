@@ -1,32 +1,45 @@
 import Link from "next/link";
-import { PAGE_CLASS, QUIET_LINK_CLASS } from "@/constants/canon/ui";
-import { EXTERNAL_LINKS, PAGE_LINKS, SITE_NAME } from "@/constants/site";
+import { DISPLAY_CLASS, PAGE_CLASS, QUIET_LINK_CLASS } from "@/constants/canon/ui";
+import { FOOTER_COLUMNS, SITE_NAME } from "@/constants/site";
 import { cn } from "@/utils/cn";
 
 export default function SiteFooter() {
   return (
-    <footer className="border-line border-t">
+    <footer className="overflow-hidden bg-canvas pt-16 lg:pt-24">
       <nav
         aria-label="Site"
-        className={cn(
-          PAGE_CLASS,
-          "flex flex-wrap items-center gap-x-4 gap-y-2 py-5 text-[11px] lg:text-[12px]",
-        )}
+        className={cn(PAGE_CLASS, "grid grid-cols-2 gap-x-6 gap-y-10 text-[15px] lg:grid-cols-4")}
       >
-        <Link className={QUIET_LINK_CLASS} href="/">
-          {SITE_NAME}
-        </Link>
-        {PAGE_LINKS.map((link) => (
-          <Link className={QUIET_LINK_CLASS} href={link.href} key={link.href}>
-            {link.label}
-          </Link>
-        ))}
-        {EXTERNAL_LINKS.map((link) => (
-          <a className={QUIET_LINK_CLASS} href={link.href} key={link.href}>
-            {link.label}
-          </a>
+        {FOOTER_COLUMNS.map((column) => (
+          <div key={column.heading}>
+            <h2 className="mb-4 font-semibold text-[15px] text-ink">{column.heading}</h2>
+            <ul className="flex flex-col gap-2.5">
+              {column.links.map((link) => (
+                <li key={link.href}>
+                  {link.href.startsWith("http") ? (
+                    <a className={QUIET_LINK_CLASS} href={link.href}>
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link className={QUIET_LINK_CLASS} href={link.href}>
+                      {link.label}
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
         ))}
       </nav>
+      <p
+        aria-hidden="true"
+        className={cn(
+          DISPLAY_CLASS,
+          "mt-16 select-none whitespace-nowrap text-center text-[clamp(5rem,25vw,30rem)] text-raise leading-[0.78] lg:mt-24",
+        )}
+      >
+        {SITE_NAME}
+      </p>
     </footer>
   );
 }
