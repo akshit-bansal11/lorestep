@@ -31,7 +31,7 @@ export default function Page() {
     <main
       className={cn(
         PAGE_CLASS,
-        "grid flex-1 grid-cols-1 content-start gap-10 py-12 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-14 lg:py-16 2xl:grid-cols-[15rem_minmax(0,1fr)]",
+        "grid flex-1 grid-cols-1 content-start gap-12 py-16 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-14 lg:py-24 2xl:grid-cols-[15rem_minmax(0,1fr)]",
       )}
     >
       <header className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
@@ -50,7 +50,7 @@ export default function Page() {
       </header>
 
       <div className="gap-x-14 xl:columns-2">
-        <ProseSection className="mb-10 break-inside-avoid" id="using" title="Using the site">
+        <ProseSection className="mb-14 break-inside-avoid" id="using" title="Using the site">
           <p className={PROSE_CLASS}>
             The home page lists three sections: Games, Movies &amp; Series, and Books. Books is
             empty for now.
@@ -89,7 +89,7 @@ export default function Page() {
         </ProseSection>
 
         <ProseSection
-          className="mb-10 break-inside-avoid"
+          className="mb-14 break-inside-avoid"
           id="shortcuts"
           title="Keyboard shortcuts"
         >
@@ -101,7 +101,7 @@ export default function Page() {
         </ProseSection>
 
         <ProseSection
-          className="mb-10 break-inside-avoid"
+          className="mb-14 break-inside-avoid"
           id="data"
           title="Where the data comes from"
         >
@@ -117,7 +117,7 @@ export default function Page() {
         </ProseSection>
 
         <ProseSection
-          className="mb-10 break-inside-avoid"
+          className="mb-14 break-inside-avoid"
           id="report"
           title="Reporting a wrong entry"
         >
@@ -135,7 +135,7 @@ export default function Page() {
           </p>
         </ProseSection>
 
-        <ProseSection className="mb-10 break-inside-avoid" id="developers" title="Developers">
+        <ProseSection className="mb-14 break-inside-avoid" id="developers" title="Developers">
           <p className={PROSE_CLASS}>
             Lorestep is a Next.js app in TypeScript, styled with Tailwind CSS, reading a Neon
             Postgres database through Drizzle. The content pages read the database when they are
