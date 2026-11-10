@@ -39,10 +39,9 @@ export default function OrderDemo({ franchises, className }: OrderDemoProps) {
   return (
     <div className={cn("min-w-0 rounded-overlay bg-surface p-[clamp(18px,2vw,28px)]", className)}>
       {mounted ? (
-        <div
-          role="group"
+        <fieldset
           aria-label={DEMO_FRANCHISE_GROUP_LABEL}
-          className="flex flex-wrap gap-1.5"
+          className="m-0 flex min-w-0 flex-wrap gap-1.5 border-0 p-0"
         >
           {franchises.map((candidate) => (
             <button
@@ -55,7 +54,7 @@ export default function OrderDemo({ franchises, className }: OrderDemoProps) {
               {candidate.name}
             </button>
           ))}
-        </div>
+        </fieldset>
       ) : null}
 
       <div className="mt-5 mb-3.5 flex flex-wrap items-end justify-between gap-4">
@@ -68,10 +67,9 @@ export default function OrderDemo({ franchises, className }: OrderDemoProps) {
           </p>
         </div>
         {mounted ? (
-          <div
-            role="group"
+          <fieldset
             aria-label={DEMO_ORDER_GROUP_LABEL}
-            className="inline-flex rounded-full bg-canvas p-1"
+            className="m-0 inline-flex min-w-0 rounded-full border-0 bg-canvas p-1"
           >
             {DEMO_ORDER_OPTIONS.map((option) => (
               <button
@@ -84,7 +82,7 @@ export default function OrderDemo({ franchises, className }: OrderDemoProps) {
                 {DEMO_ORDER_LABEL[option]}
               </button>
             ))}
-          </div>
+          </fieldset>
         ) : null}
       </div>
 
