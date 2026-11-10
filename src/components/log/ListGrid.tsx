@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CARD_CLASS } from "@/constants/canon/ui";
+import { CARD_CLASS, TITLE_CLASS } from "@/constants/canon/ui";
 import { LOG_SECONDARY_CLASS } from "@/constants/log/classes";
 import { LISTS_COPY } from "@/constants/log/lists-copy";
 import type { ApiFailure } from "@/types/api/api";
@@ -28,7 +28,7 @@ export default function ListGrid({ lists, loading, failure, onRetry, onNew }: Li
         <div aria-hidden="true" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {SKELETON_CARDS.map((id) => (
             <div
-              className="h-28 animate-pulse rounded-card border border-line bg-surface/60 motion-reduce:animate-none"
+              className="h-28 animate-pulse rounded-card bg-surface/60 motion-reduce:animate-none"
               key={id}
             />
           ))}
@@ -68,10 +68,10 @@ export default function ListGrid({ lists, loading, failure, onRetry, onNew }: Li
       {lists.map((list) => (
         <li key={list.id}>
           <Link
-            className={cn(CARD_CLASS, "flex min-h-28 flex-col gap-1 p-4 hover:border-accent-line")}
+            className={cn(CARD_CLASS, "flex min-h-28 flex-col gap-1 p-4")}
             href={`/lists/${list.id}`}
           >
-            <span className="font-medium text-[15px] text-ink">{list.name}</span>
+            <span className={cn(TITLE_CLASS, "text-[18px] text-ink")}>{list.name}</span>
             <span className="text-[12px] text-muted">
               {countLabel(list.itemCount)} · {kindsLabel(list.kinds)}
             </span>

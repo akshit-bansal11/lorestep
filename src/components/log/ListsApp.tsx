@@ -5,7 +5,7 @@ import ListFormDialog from "@/components/log/ListFormDialog";
 import ListGrid from "@/components/log/ListGrid";
 import NoticeBar from "@/components/log/NoticeBar";
 import OfflineNote from "@/components/log/OfflineNote";
-import { PAGE_CLASS, PAGE_TITLE_CLASS } from "@/constants/canon/ui";
+import { PAGE_CLASS, APP_TITLE_CLASS } from "@/constants/canon/ui";
 import { LOG_PRIMARY_CLASS } from "@/constants/log/classes";
 import { LIST_LIMITS } from "@/constants/log/lists";
 import { LISTS_COPY } from "@/constants/log/lists-copy";
@@ -35,7 +35,7 @@ export default function ListsApp() {
   return (
     <main className={cn(PAGE_CLASS, "flex flex-1 flex-col gap-4 py-8 lg:py-10")}>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className={PAGE_TITLE_CLASS}>{copy.title}</h1>
+        <h1 className={APP_TITLE_CLASS}>{copy.title}</h1>
         <button
           className={LOG_PRIMARY_CLASS}
           disabled={lists.loading || atCap}

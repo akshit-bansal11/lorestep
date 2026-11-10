@@ -67,10 +67,10 @@ export default function ListLibraryPicker({ existing, onAdd }: ListLibraryPicker
       </div>
 
       <div role="alert">
-        {failure !== "" && <p className="text-[13px] text-accent">{failure}</p>}
+        {failure !== "" && <p className="text-[13px] text-danger">{failure}</p>}
         {library.failure !== null && (
           <div className="flex flex-col items-start gap-2">
-            <p className="text-[13px] text-accent">{failureMessage(library.failure)}</p>
+            <p className="text-[13px] text-danger">{failureMessage(library.failure)}</p>
             <button className={LOG_SECONDARY_CLASS} onClick={library.reload} type="button">
               {LISTS_COPY.retry}
             </button>
@@ -94,7 +94,7 @@ export default function ListLibraryPicker({ existing, onAdd }: ListLibraryPicker
             return (
               <li key={entry.id}>
                 <button
-                  className="flex min-h-11 w-full flex-col items-start justify-center rounded-control px-1 py-2 text-left transition-colors duration-[160ms] hover:bg-surface disabled:opacity-60 motion-reduce:transition-none"
+                  className="flex min-h-11 w-full flex-col items-start justify-center rounded-control px-1 py-2 text-left transition-colors duration-[160ms] hover:bg-raise disabled:opacity-60 motion-reduce:transition-none"
                   disabled={inList || adding !== null}
                   onClick={() => add(entry)}
                   type="button"
