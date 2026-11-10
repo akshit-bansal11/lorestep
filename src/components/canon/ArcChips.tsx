@@ -20,18 +20,14 @@ export default function ArcChips({ arcs, activeId, countFor, onSelect }: ArcChip
           "group flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1",
           "text-[11px] transition-[color,background-color,transform] duration-[160ms] ease-out",
           "active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100",
-          active
-            ? "bg-accent text-accent-ink"
-            : "bg-raise text-muted hover:bg-line hover:text-ink",
+          active ? "bg-accent text-accent-ink" : "bg-raise text-muted hover:bg-line hover:text-ink",
         )}
         key={id}
         onClick={() => onSelect(id)}
         type="button"
       >
         {label}
-        <span className={cn("text-[10px] tabular-nums", active ? "" : "text-faint")}>
-          {count}
-        </span>
+        <span className={cn("text-[10px] tabular-nums", active ? "" : "text-faint")}>{count}</span>
       </button>
     );
   };

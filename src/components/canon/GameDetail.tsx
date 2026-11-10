@@ -71,9 +71,7 @@ export default function GameDetail({ entry, quote, onClose }: GameDetailProps) {
             <span className="text-[10px] text-faint uppercase tracking-[0.14em]">
               {franchise.name} · #{game.order} in story order
             </span>
-            <h2 className={cn(TITLE_CLASS, "text-[22px] text-ink")}>
-              {game.title}
-            </h2>
+            <h2 className={cn(TITLE_CLASS, "text-[22px] text-ink")}>{game.title}</h2>
             {arc === undefined ? null : (
               <span className="text-[11px] text-muted">Storyline: {arc.name}</span>
             )}
@@ -135,9 +133,7 @@ export default function GameDetail({ entry, quote, onClose }: GameDetailProps) {
                         {edition.recommended ? "✓ " : ""}
                         {edition.name}
                       </span>
-                      <span className="text-[10px] text-faint tabular-nums">
-                        {edition.year}
-                      </span>
+                      <span className="text-[10px] text-faint tabular-nums">{edition.year}</span>
                     </span>
                     <span className="mt-0.5 block text-[11px] text-faint leading-relaxed">
                       {edition.platforms} — {edition.note}

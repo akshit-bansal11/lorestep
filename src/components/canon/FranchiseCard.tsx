@@ -31,9 +31,7 @@ export default function FranchiseCard({ franchise, stats, index, onSelect }: Fra
       type="button"
     >
       <span className="flex items-baseline gap-2">
-        <span className={cn(TITLE_CLASS, "flex-1 text-[16px] text-ink")}>
-          {franchise.name}
-        </span>
+        <span className={cn(TITLE_CLASS, "flex-1 text-[16px] text-ink")}>{franchise.name}</span>
         <span
           aria-hidden="true"
           className="text-faint transition-[color,transform] duration-[160ms] ease-out group-hover:translate-x-0.5 group-hover:text-accent motion-reduce:transition-none"
