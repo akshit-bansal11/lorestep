@@ -1,11 +1,14 @@
 "use client";
 
 import EntryRow from "@/components/log/EntryRow";
+import LibraryCards from "@/components/log/LibraryCards";
+import LibraryList from "@/components/log/LibraryList";
 import { CARD_CLASS, TITLE_CLASS } from "@/constants/canon/ui";
 import { LOG_SECONDARY_CLASS, LOG_TH_CLASS } from "@/constants/log/classes";
 import { KIND_NAMES, LIBRARY_COPY } from "@/constants/log/copy";
 import type { ApiFailure } from "@/types/api/api";
 import type { Entry } from "@/types/log/entry";
+import type { LibraryView } from "@/types/log/library";
 import type { MediaKind } from "@/types/metadata/metadata";
 import { cn } from "@/utils/cn";
 import { failureMessage } from "@/utils/log/failure-message";
@@ -15,6 +18,7 @@ const copy = LIBRARY_COPY;
 
 interface LibraryTableProps {
   kind: MediaKind;
+  view: LibraryView;
   items: readonly Entry[];
   loading: boolean;
   /** Why the load failed, or null. */
@@ -39,6 +43,7 @@ interface LibraryTableProps {
  */
 export default function LibraryTable({
   kind,
+  view,
   items,
   loading,
   failure,
@@ -105,35 +110,48 @@ export default function LibraryTable({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <caption className="sr-only">{copy.tableCaption}</caption>
-          <thead>
-            <tr>
-              <th className={LOG_TH_CLASS} scope="col">
-                {copy.columns.title}
-              </th>
-              <th className={cn(LOG_TH_CLASS, "hidden sm:table-cell")} scope="col">
-                {copy.columns.year}
-              </th>
-              <th className={LOG_TH_CLASS} scope="col">
-                {copy.columns.status}
-              </th>
-              <th className={LOG_TH_CLASS} scope="col">
-                {copy.columns.rating}
-              </th>
-              <th className={cn(LOG_TH_CLASS, "hidden sm:table-cell")} scope="col">
-                {copy.columns.progress}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((entry) => (
-              <EntryRow entry={entry} key={entry.id} onOpen={onOpen} />
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {view === "cards" && <LibraryCards items={items} onOpen={onOpen} />}
+      {view === "list" && <LibraryList items={items} onOpen={onOpen} />}
+      {view === "table" && (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <caption className="sr-only">{copy.tableCaption}</caption>
+            <thead>
+              <tr>
+                <th className={LOG_TH_CLASS} scope="col">
+                  {copy.columns.title}
+                </th>
+                <th className={cn(LOG_TH_CLASS, "hidden sm:table-cell")} scope="col">
+                  {copy.columns.year}
+                </th>
+                <th className={LOG_TH_CLASS} scope="col">
+                  {copy.columns.status}
+                </th>
+                <th className={LOG_TH_CLASS} scope="col">
+                  {copy.columns.rating}
+                </th>
+                <th className={cn(LOG_TH_CLASS, "hidden sm:table-cell")} scope="col">
+                  {copy.columns.progress}
+                </th>
+                <th className={cn(LOG_TH_CLASS, "hidden md:table-cell")} scope="col">
+                  {copy.columns.completed}
+                </th>
+                <th className={cn(LOG_TH_CLASS, "hidden lg:table-cell")} scope="col">
+                  {copy.columns.started}
+                </th>
+                <th className={cn(LOG_TH_CLASS, "hidden lg:table-cell")} scope="col">
+                  {copy.columns.updated}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((entry) => (
+                <EntryRow entry={entry} key={entry.id} onOpen={onOpen} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <div aria-live="polite" role="status">
         {loadingMore && <p className="text-[13px] text-muted">{copy.loadingMore}</p>}

@@ -21,6 +21,7 @@ export const entryResponseSchema: z.ZodType<Entry> = z.object({
   gameId: z.string().nullable(),
   ext: z.object({ source: z.string(), id: z.string() }).nullable(),
   imageUrl: z.string().nullable(),
+  statusAt: z.string().nullable(),
   startedAt: z.string().nullable(),
   completedAt: z.string().nullable(),
   createdAt: z.string(),

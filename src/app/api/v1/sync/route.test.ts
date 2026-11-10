@@ -19,6 +19,11 @@ vi.mock("@/lib/auth/neon-auth", () => ({ neonAuth: () => ({ getSession }) }));
 vi.mock("@/lib/db/rate-limit", () => ({ rateLimit }));
 vi.mock("@/services/sync/pull", () => ({ pullChanges }));
 vi.mock("@/services/sync/push", () => ({ pushMarks }));
+vi.mock("@/services/metadata/enrich-entries", () => ({ enrichEntries: vi.fn() }));
+vi.mock("next/server", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next/server")>()),
+  after: vi.fn(),
+}));
 
 const USER_ID = "3f2b8c1e-9a4d-4e6f-8b7a-1c2d3e4f5a6b";
 const URL_BASE = "https://lorestep.test/api/v1/sync";

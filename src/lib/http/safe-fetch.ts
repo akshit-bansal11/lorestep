@@ -31,7 +31,7 @@ export async function safeFetchJson<T = unknown>(
         await sleep(FETCH_RETRY_DELAY_MS * 2 ** attempt);
         continue;
       }
-      return { ok: false, error: `Provider answered ${res.status}` };
+      return { ok: false, error: `Provider answered ${res.status}`, status: res.status };
     } catch {
       if (last) return { ok: false, error: "Provider request failed" };
       await sleep(FETCH_RETRY_DELAY_MS * 2 ** attempt);

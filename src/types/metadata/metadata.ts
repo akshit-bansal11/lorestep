@@ -50,4 +50,5 @@ export interface ParsedMediaUrl {
   cleanUrl: string;
 }
 
-export type FetchResult<T> = { ok: true; data: T } | { ok: false; error: string };
+/** `status` is the provider's HTTP status; absent for a timeout or network error. */
+export type FetchResult<T> = { ok: true; data: T } | { ok: false; error: string; status?: number };

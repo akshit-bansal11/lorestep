@@ -1,22 +1,28 @@
 "use client";
 
-import StatusChip from "@/components/log/StatusChip";
-import { CELL_CLASS, NUM_CLASS } from "@/constants/canon/ui";
-import { LIBRARY_COPY, STATUS_LABELS } from "@/constants/log/copy";
-import { CANONICAL_STATUSES } from "@/constants/log/statuses";
+import Blank from "@/components/log/Blank";
+import ProgressCell from "@/components/log/ProgressCell";
+import StatusCell from "@/components/log/StatusCell";
+import { NUM_CLASS } from "@/constants/canon/ui";
+import { LIBRARY_COPY } from "@/constants/log/copy";
+import { LIBRARY_CELL_CLASS as CELL_CLASS } from "@/constants/log/library";
 import type { Entry } from "@/types/log/entry";
 import { cn } from "@/utils/cn";
+import { formatDate } from "@/utils/log/format-date";
 import { formatProgress } from "@/utils/log/format-progress";
 import { isMediaKind } from "@/utils/log/media-kind";
-import { pick } from "@/utils/log/pick";
-import { statusLabel } from "@/utils/log/status-label";
 
 interface EntryRowProps {
   entry: Entry;
   onOpen: (entry: Entry) => void;
 }
 
-const FAINT = <span className="text-faint">{LIBRARY_COPY.noValue}</span>;
+const FAINT = <Blank />;
+
+function dateCell(iso: string | null) {
+  const text = formatDate(iso);
+  return text === "" ? FAINT : text;
+}
 
 /**
  * One library row. The title is the row's button (it opens the editor), so the row is reached and
@@ -25,21 +31,11 @@ const FAINT = <span className="text-faint">{LIBRARY_COPY.noValue}</span>;
  */
 export default function EntryRow({ entry, onOpen }: EntryRowProps) {
   const progress = isMediaKind(entry.kind) ? formatProgress(entry.kind, entry.progress) : "";
-  const status = statusLabel(entry);
-  const chipStatus = pick(CANONICAL_STATUSES, entry.status ?? "");
-  const statusCell =
-    isMediaKind(entry.kind) &&
-    chipStatus !== null &&
-    status === STATUS_LABELS[entry.kind][chipStatus] ? (
-      <StatusChip kind={entry.kind} status={chipStatus} />
-    ) : status === "" ? (
-      FAINT
-    ) : (
-      status
-    );
   const secondary = [entry.year === null ? "" : String(entry.year), progress]
     .filter(Boolean)
     .join(" · ");
+
+  const completedAt = entry.completedAt ?? (entry.status === "completed" ? entry.statusAt : null);
 
   return (
     <tr>
@@ -59,10 +55,21 @@ export default function EntryRow({ entry, onOpen }: EntryRowProps) {
       <td className={cn(CELL_CLASS, NUM_CLASS, "hidden text-muted sm:table-cell")}>
         {entry.year ?? FAINT}
       </td>
-      <td className={CELL_CLASS}>{statusCell}</td>
+      <td className={CELL_CLASS}>
+        <StatusCell entry={entry} />
+      </td>
       <td className={cn(CELL_CLASS, NUM_CLASS)}>{entry.rating ?? FAINT}</td>
       <td className={cn(CELL_CLASS, NUM_CLASS, "hidden text-muted sm:table-cell")}>
-        {progress === "" ? FAINT : progress}
+        <ProgressCell entry={entry} />
+      </td>
+      <td className={cn(CELL_CLASS, NUM_CLASS, "hidden text-muted md:table-cell")}>
+        {dateCell(completedAt)}
+      </td>
+      <td className={cn(CELL_CLASS, NUM_CLASS, "hidden text-muted lg:table-cell")}>
+        {dateCell(entry.startedAt)}
+      </td>
+      <td className={cn(CELL_CLASS, NUM_CLASS, "hidden text-muted lg:table-cell")}>
+        {dateCell(entry.statusAt ?? entry.updatedAt)}
       </td>
     </tr>
   );

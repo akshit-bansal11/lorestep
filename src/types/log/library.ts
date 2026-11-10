@@ -41,3 +41,5 @@ export interface Notice {
   text: string;
   onUndo?: () => void;
 }
+
+export type LibraryView = "cards" | "list" | "table";

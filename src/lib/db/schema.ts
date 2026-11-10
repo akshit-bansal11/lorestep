@@ -220,6 +220,8 @@ export const entries = pgTable(
     startedAt: timestamp("started_at", { withTimezone: true }),
     /** @classification personal */
     completedAt: timestamp("completed_at", { withTimezone: true }),
+    /** @classification neither — metadata lookup attempted, hit or miss (migration 0003). */
+    enrichedAt: timestamp("enriched_at", { withTimezone: true }),
     /** @classification neither */
     createdAt: createdAt(),
     /** @classification neither */

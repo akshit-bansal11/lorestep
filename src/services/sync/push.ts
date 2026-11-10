@@ -5,6 +5,7 @@ import { ENTRY_LIMITS } from "@/constants/log/entries";
 import { SYNC_KINDS } from "@/constants/sync/sync";
 import { db } from "@/lib/db/client";
 import { entries, entryLinks } from "@/lib/db/schema";
+import { statusDatesInsert, statusDatesSet } from "@/lib/db/status-dates";
 import { HttpError } from "@/lib/http/http-error";
 import { planPush } from "@/services/sync/plan-push";
 import type { DbClient } from "@/types/db/db";
@@ -80,6 +81,7 @@ function toStatement(client: DbClient, userId: string, op: SyncOp, now: Date): B
         year: op.year,
         status: op.status,
         statusAt: new Date(op.statusAt),
+        ...statusDatesInsert(op.status, new Date(op.statusAt)),
       });
     case "status": {
       const at = new Date(op.statusAt);
@@ -88,6 +90,7 @@ function toStatement(client: DbClient, userId: string, op: SyncOp, now: Date): B
         .set({
           status: op.status,
           statusAt: at,
+          ...statusDatesSet(op.status, at),
           updatedAt: now,
           ...(op.remove ? { deletedAt: now } : {}),
         })

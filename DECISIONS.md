@@ -531,3 +531,58 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
 - Choice: remove it (0.10.0). Export and Import stay as explicit user actions (blob URL plus `<a download>` in the library page).
 - Consequence: a signed-out user's marks live only in this browser and are lost on uninstall unless exported. Three fewer permissions (`downloads`, `downloads.ui`, `offscreen`), no offscreen page.
 - Revisit when: signed-out use matters.
+
+## 2026-11-10 Metadata enrichment: exact titles only, guarded move to anime
+
+- Context: extension marks carry no year or poster, and Netflix sends every show as kind series,
+  anime included (Black Clover). The owner wants the year and poster filled and anime detected.
+- Options: take the provider's top search result; fuzzy-match titles; accept only an exact
+  normalised-title match (`normTitle`) and skip the rest.
+- Choice: exact match only. TMDB: the top `/search/movie` (movie) or `/search/tv` (series, anime)
+  result, when its title normalises to the entry's `title_norm`. MyAnimeList: the first of five
+  results whose main, English or synonym title does. Only an empty `year` and `image_url` are
+  filled (TMDB poster first, MAL picture as fallback). `ext_source` and `ext_id` are never set,
+  since list membership keys on them. A movie or series moves to kind anime when (a) MyAnimeList
+  lists the exact title, or (b) TMDB gives the Animation genre (16) and original language `ja`,
+  `ko` or `zh`, or origin country JP, KR or CN (the owner's rule). The move happens only when the
+  entry has no user edits (the `KEEP` test of D-15: rating, notes, shelf, list membership) and the
+  user has no other live anime entry with the same `title_norm`; the UPDATE re-checks both. Each
+  tried entry gets `enriched_at`, hit or miss; a provider failure leaves it unmarked for the next
+  run.
+- Consequence: an ambiguous title stays bare rather than wrong. The guard keeps the user's own
+  choices and avoids two library rows for one title. Risk under rule (a): a live-action show that
+  shares its exact title with an anime (One Piece, 2023) moves to anime, because MAL alone counts.
+  An entry tried while only one provider had a key is not retried for the other.
+- Revisit when: a wrong match or a wrong anime move is reported, or entries tried before a key
+  was added need a backfill (clear their `enriched_at`).
+
+## 2026-11-10 MyAnimeList's anime signal defers to TMDB's genre
+
+- Context: the entry above accepted that a live-action show sharing an anime's exact title (One
+  Piece, 2023) would move to anime, because a MyAnimeList match alone counted (rule a).
+- Options: keep MAL alone sufficient; let TMDB's genre veto MAL.
+- Choice: a MyAnimeList match counts only when TMDB has no exact-title match for the entry, or
+  TMDB's match includes the Animation genre (16). A TMDB match without Animation never moves the
+  entry, whatever MAL says. Rule (b) is unchanged. This replaces the One Piece caveat above.
+- Consequence: an anime TMDB files without the Animation genre stays kind series.
+- Revisit when: a real anime is reported stuck as series because of TMDB's genres.
+
+## 2026-11-10 Enrichment moves only untouched extension entries; ambiguous titles are skipped
+
+- Context: review of PR #12. The PATCH schema has no `kind`, so a wrong move to anime cannot be
+  undone by the user; `KEEP` alone missed hand-made entries and entries with progress. Without a
+  TMDB key, "TMDB found nothing" was read as a miss and MAL alone could move One Piece (2023).
+- Options: keep the `KEEP` guard; require an extension-created, untouched entry.
+- Choice: a kind moves only when the entry has an `entry_links` row, no `ext_source`, empty
+  `progress` and a false `KEEP`, with no anime twin, checked in the candidate read and again in
+  the UPDATE. MAL counts as an anime signal only when TMDB is configured; without a TMDB key no
+  entry gets `enriched_at`, so it is looked up again once the key exists. A match must also be the
+  only exact-title result after narrowing by the entry's year (when it has one); several = skip.
+  Movie marks now match anime entries (`COMPATIBLE_KINDS`), so a moved movie is not duplicated by
+  its next mark. Each run starts no entry after 20 s, sends no retries, marks an entry refused
+  with a 4xx (not 429), and stops at the first 429, 5xx or network error.
+- Consequence: fewer moves to anime (an entry the user opened on the site and edited stays). Some
+  real anime stay bare when TMDB lists two shows of one title. Candidates are read in random order
+  so unmarked rows cannot hold the head of the queue.
+- Revisit when: the owner wants a way to change an entry's kind on the site (then the guard can
+  relax), or the candidate sort shows up in slow queries.

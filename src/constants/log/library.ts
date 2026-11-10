@@ -1,4 +1,4 @@
-import type { SortKey } from "@/types/log/library";
+import type { LibraryView, SortKey } from "@/types/log/library";
 import type { MediaKind } from "@/types/metadata/metadata";
 
 export const KIND_TABS: readonly { id: MediaKind; label: string }[] = [
@@ -56,3 +56,19 @@ export const PROGRESS_FIELDS: Record<
 };
 
 export const PAGE_SIZE = 50;
+
+/** Library cell: `CELL_CLASS` with the content centred vertically instead of top-aligned. */
+export const LIBRARY_CELL_CLASS = "border-line border-b px-2 py-[7px] align-middle";
+
+/** The layouts of `/library`, in switcher order; `path` is a 24px stroke icon. */
+export const LIBRARY_VIEWS: readonly { id: LibraryView; label: string; path: string }[] = [
+  {
+    id: "cards",
+    label: "Cards",
+    path: "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z",
+  },
+  { id: "list", label: "List", path: "M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" },
+  { id: "table", label: "Table", path: "M3 5h18v14H3zM3 10h18M3 15h18M9 5v14" },
+];
+
+export const DEFAULT_LIBRARY_VIEW: LibraryView = "table";

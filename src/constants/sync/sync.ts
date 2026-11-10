@@ -15,12 +15,13 @@ export const SYNC_KINDS = ["movie", "series", "anime"] as const;
 
 /**
  * D-14 kind compatibility: which stored kinds a mark of this kind may match. A mark with no kind
- * matches any of `SYNC_KINDS`.
+ * matches any of `SYNC_KINDS`. Anime pairs with both, since enrichment moves a movie or series to
+ * anime (DECISIONS.md) while the extension keeps sending the old kind; movie and series never pair.
  */
 export const COMPATIBLE_KINDS: Readonly<Record<SyncKind, readonly SyncKind[]>> = {
-  movie: ["movie"],
+  movie: ["movie", "anime"],
   series: ["series", "anime"],
-  anime: ["series", "anime"],
+  anime: ["movie", "series", "anime"],
 };
 
 /** Mirrors `entry_links_platform_id_check`. */

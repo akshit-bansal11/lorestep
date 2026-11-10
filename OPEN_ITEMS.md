@@ -22,6 +22,12 @@ Register: deferred, accepted, unprovisioned. Delete an entry when it closes.
   reading `@neon/auth` 0.8.2's proxy (`redirect: "follow"`). Also UNVERIFIED: that the server
   `neonAuth().oauth2.publicClient` forwards the session cookie. Closes when the user spike lands on
   the redirect with a `code`.
+- `TMDB_BEARER_TOKEN` (or `TMDB_API_KEY`) and `MAL_CLIENT_ID` in Vercel production. Without them
+  the enrichment after a push and the `/api/cron/enrich` sweep do nothing, so synced entries get no
+  year or poster and Netflix anime stays kind series. Closes when a cron run reports `filled > 0`.
+- Migration `0003_entries_enriched_at` on production: run the gated "Migrate production" workflow
+  before or with the deploy that ships `entries.enriched_at`, or every whole-row read of `entries`
+  (account export, enrichment) fails on the missing column. Closes when the workflow run is green.
 
 ## Deferred
 

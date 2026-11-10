@@ -20,6 +20,7 @@ export const ENTRY_COLUMNS = {
   extSource: entries.extSource,
   extId: entries.extId,
   imageUrl: entries.imageUrl,
+  statusAt: entries.statusAt,
   startedAt: entries.startedAt,
   completedAt: entries.completedAt,
   createdAt: entries.createdAt,
@@ -48,6 +49,7 @@ export function toEntry(row: EntryRow): Entry {
         ? { source: row.extSource, id: row.extId }
         : null,
     imageUrl: row.imageUrl,
+    statusAt: row.statusAt?.toISOString() ?? null,
     startedAt: row.startedAt?.toISOString() ?? null,
     completedAt: row.completedAt?.toISOString() ?? null,
     createdAt: row.createdAt.toISOString(),

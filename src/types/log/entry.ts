@@ -36,6 +36,8 @@ export interface Entry {
   gameId: string | null;
   ext: { source: string; id: string } | null;
   imageUrl: string | null;
+  /** When the status last changed (synced marks carry only this). */
+  statusAt: string | null;
   startedAt: string | null;
   completedAt: string | null;
   createdAt: string;
