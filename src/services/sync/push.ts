@@ -15,12 +15,17 @@ import { normTitle } from "@/utils/log/norm-title";
  * D-15's "keep" test, in SQL: a rating, notes, a shelf, or a live list item with the entry's
  * external id. List items carry no entry id, so an extension-created entry (no external id) is never
  * a list member.
+ *
+ * The subquery's references to the outer row name the table outright: drizzle renders
+ * `${entries.userId}` as a bare "user_id" in a one-table select, which inside this subquery is
+ * ambiguous (list_items and lists both have it, so Postgres refused every push) and "ext_source"
+ * would bind to list_items' own column, comparing the item with itself.
  */
-const KEEP = sql<boolean>`(${entries.rating} IS NOT NULL OR ${entries.notes} <> ''
+export const KEEP = sql<boolean>`(${entries.rating} IS NOT NULL OR ${entries.notes} <> ''
   OR ${entries.shelf} IS NOT NULL
   OR EXISTS (SELECT 1 FROM list_items li JOIN lists l ON l.id = li.list_id AND l.deleted_at IS NULL
-    WHERE li.user_id = ${entries.userId} AND li.ext_source = ${entries.extSource}
-      AND li.ext_id = ${entries.extId}))`;
+    WHERE li.user_id = "entries"."user_id" AND li.ext_source = "entries"."ext_source"
+      AND li.ext_id = "entries"."ext_id"))`;
 
 /** The caller's links for these platform ids and the live entries they or the titles could hit. */
 async function readState(client: DbClient, userId: string, marks: readonly SyncMark[]) {

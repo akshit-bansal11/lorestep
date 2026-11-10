@@ -3,7 +3,7 @@ import { PgDialect } from "drizzle-orm/pg-core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ENTRY_LIMITS } from "@/constants/log/entries";
-import { pushMarks } from "@/services/sync/push";
+import { KEEP, pushMarks } from "@/services/sync/push";
 import type { SyncMark } from "@/types/sync/sync";
 
 // Each `select` answers the next queued result and `where` records its condition. Writes are
@@ -107,5 +107,16 @@ describe("pushMarks", () => {
     expect(outcome).toMatchObject({ applied: 0, skipped: 1 });
     expect(outcome.results[0]).toMatchObject({ entryId, status: "completed" });
     expect(state.batches).toHaveLength(0);
+  });
+});
+
+describe("KEEP", () => {
+  it("names the outer entries row in its list subquery, so no column is ambiguous", () => {
+    // Every push failed in production with 'column reference "user_id" is ambiguous'.
+    const { sql: text } = new PgDialect().sqlToQuery(KEEP);
+    expect(text).toContain('li.user_id = "entries"."user_id"');
+    expect(text).toContain('li.ext_source = "entries"."ext_source"');
+    expect(text).toContain('li.ext_id = "entries"."ext_id"');
+    expect(text).not.toMatch(/= "(user_id|ext_source|ext_id)"/);
   });
 });

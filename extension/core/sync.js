@@ -312,7 +312,7 @@
           rejected,
           failures,
           retryAt: now() + wait,
-          error: "Couldn't reach Lorestep. It will try again.",
+          error: "Couldn't sync with Lorestep. It will try again.",
         };
         await alarm.set(next.retryAt);
       } else if (out?.error) {
