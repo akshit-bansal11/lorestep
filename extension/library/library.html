@@ -9,13 +9,12 @@
 <body>
   <main id="main">
     <header class="top">
-      <svg class="logo" viewBox="0 0 128 128" aria-hidden="true" focusable="false">
-        <rect x="4" y="4" width="120" height="120" rx="28" class="logo-tile"/>
-        <path d="M46 52V98L106 64L66 41.3Z" class="logo-play"/>
-        <path d="M46 52L66 41.3L64.3 64.2Z" class="logo-flap"/>
+      <svg class="logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+        <path class="logo-ink" d="M6 11A5 5 0 0 1 11 6L14.5 6A2 2 0 0 1 16.5 8L16.5 19.5L26.5 19.5A2 2 0 0 1 28.5 21.5L28.5 31.5L40 31.5A2 2 0 0 1 42 33.5L42 37A5 5 0 0 1 37 42L11 42A5 5 0 0 1 6 37Z"/>
+        <path class="logo-step" d="M19.5 8A2 2 0 0 1 21.5 6L37 6A5 5 0 0 1 42 11L42 26.5A2 2 0 0 1 40 28.5L33.5 28.5A2 2 0 0 1 31.5 26.5L31.5 16.5L21.5 16.5A2 2 0 0 1 19.5 14.5Z"/>
       </svg>
-      <h1>Lorestep for Chrome</h1>
-      <span class="count" id="count"></span>
+      <h1>Lorestep</h1>
+      <p class="tag"><span>for Chrome</span><span class="count" id="count"></span></p>
       <button type="button" class="ghost" id="open-tab">Open in a tab</button>
     </header>
 
@@ -28,43 +27,53 @@
       </div>
     </div>
 
-    <div class="filters">
-      <label class="field grow"><span class="sr">Search titles</span>
-        <input id="q" type="search" placeholder="Search titles" autocomplete="off" spellcheck="false">
-      </label>
-      <label class="field"><span class="sr">Service</span>
-        <select id="platform"><option value="">All services</option></select>
-      </label>
-    </div>
-
-    <fieldset class="tabs" id="tabs" aria-label="Show titles by state"></fieldset>
-
-    <ul class="list" id="list" aria-label="Marked titles"></ul>
-    <p class="more" id="more" hidden></p>
-
-    <footer class="foot">
-      <div class="toggles">
-        <label class="toggle"><input type="checkbox" id="dim"> Dim finished and dropped titles</label>
-        <label class="toggle"><input type="checkbox" id="match"> Link the same title across services</label>      </div>
-      <div class="backup-row">
-        <p class="backup-status" id="backup-status"></p>
-        <button type="button" class="ghost" id="backup-now">Back up now</button>
+    <section class="panel" aria-labelledby="h-list">
+      <h2 id="h-list">Your list</h2>
+      <div class="filters">
+        <label class="field grow"><span class="sr">Search titles</span>
+          <input id="q" type="search" placeholder="Search titles" autocomplete="off" spellcheck="false">
+        </label>
+        <label class="field"><span class="sr">Service</span>
+          <select id="platform"><option value="">All services</option></select>
+        </label>
       </div>
-      <div class="backup-row">
-        <p class="backup-status" id="account-status">Checking your Lorestep sign-in…</p>
-        <button type="button" class="ghost" id="account-action" disabled>Sign in to Lorestep</button>
+      <fieldset class="tabs" id="tabs" aria-label="Show titles by state"></fieldset>
+      <ul class="list" id="list" aria-label="Marked titles"></ul>
+      <p class="more" id="more" hidden></p>
+    </section>
+
+    <section class="panel" aria-labelledby="h-account">
+      <h2 id="h-account">Account and sync</h2>
+      <div class="line">
+        <p class="note" id="account-status">Checking your Lorestep sign-in…</p>
+        <button type="button" class="primary" id="account-action" disabled>Sign in to Lorestep</button>
       </div>
-      <div class="backup-row" id="sync-row" hidden>
-        <p class="backup-status" id="sync-status"></p>
+      <div class="line" id="sync-row" hidden>
+        <p class="note" id="sync-status"></p>
         <button type="button" class="ghost" id="sync-now">Sync now</button>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-backup">
+      <h2 id="h-backup">Backup</h2>
+      <div class="line">
+        <p class="note" id="backup-status"></p>
+        <button type="button" class="ghost" id="backup-now">Back up now</button>
       </div>
       <div class="actions">
         <button type="button" class="ghost" id="export">Export</button>
         <button type="button" class="ghost" id="import">Import</button>
         <label class="sr">Choose a Lorestep for Chrome export file <input type="file" id="file" accept="application/json,.json"></label>
       </div>
-      <p class="privacy">Stored in this browser, and in a backup file on your computer when you save one. Nothing leaves this browser unless you sign in to Lorestep; then your marks sync with your Lorestep account.</p>
-    </footer>
+    </section>
+
+    <section class="panel" aria-labelledby="h-settings">
+      <h2 id="h-settings">Settings</h2>
+      <label class="toggle"><input type="checkbox" id="dim"> Dim finished and dropped titles</label>
+      <label class="toggle"><input type="checkbox" id="match"> Link the same title across services</label>
+    </section>
+
+    <p class="privacy">Stored in this browser, and in a backup file on your computer when you save one. Nothing leaves this browser unless you sign in to Lorestep; then your marks sync with your Lorestep account.</p>
     <div class="status" id="status" role="status" aria-live="polite"></div>
   </main>
   <script src="../core/states.js"></script>

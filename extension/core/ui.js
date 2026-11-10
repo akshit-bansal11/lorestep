@@ -7,7 +7,7 @@
   const D = globalThis.Lorestep;
 
   const FONT = `system-ui,-apple-system,"Segoe UI",Roboto,sans-serif`;
-  const TOKENS = `--bar:#0a0a0a;--panel:#121212;--edge:#262626;--fg:#f4f4f5;--muted:#a1a1aa;--hover:#1a1a1a;--accent:#60a5fa;--ink:${D.INK};--on:#FFFFFF;--line:rgba(255,255,255,.5);--soft:rgba(42,42,42,.6);--shadow:rgba(0,0,0,.5);--fast:140ms`;
+  const TOKENS = `--bar:#0a0a0a;--panel:#121212;--fg:#f4f4f5;--muted:#a1a1aa;--hover:#1a1a1a;--accent:#60a5fa;--ink:${D.INK};--on:#FFFFFF;--line:rgba(255,255,255,.5);--soft:rgba(42,42,42,.6);--shadow:rgba(0,0,0,.5);--fast:140ms`;
   const STATE_VARS = D.ORDER.map((s) => `[data-s="${s}"]{--st:${D.STATES[s].color}}`).join("");
 
   const SHARED = `
@@ -18,7 +18,9 @@ ${STATE_VARS}
 .b{all:unset;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:40px;padding:5px 2px;border-radius:999px;color:var(--muted);font:500 11px/1 ${FONT};text-align:center;cursor:pointer;transition:background var(--fast),color var(--fast)}
 .b svg{width:16px;height:16px;flex:none;color:var(--c)}
 .b span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
-.b:hover,.b[aria-pressed="true"]{background:var(--hover);color:var(--fg)}
+.b:hover{background:var(--hover);color:var(--fg)}
+.b[aria-pressed="true"]{background:var(--accent);color:var(--ink)}
+.b[aria-pressed="true"] svg{color:var(--ink)}
 .b:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .fold{position:absolute;top:0;right:0;aspect-ratio:1;color:var(--ink);background:linear-gradient(225deg,var(--bar) 0 50%,var(--st,var(--muted)) 50%);filter:drop-shadow(-2px 3px 3px var(--shadow))}
 .fold svg{position:absolute;left:12%;bottom:12%;width:38%;height:38%}
@@ -54,9 +56,9 @@ ${SHARED}
 .t:focus-visible{outline:2px solid var(--on);outline-offset:2px}
 .t[data-s]{background:var(--st);border-color:var(--st);color:var(--ink)}
 .t svg{width:50%;height:50%}
-.menu{inset:auto;margin:0;padding:6px;width:236px;max-width:calc(100vw - 16px);border-radius:20px;background:var(--panel);border:1px solid var(--edge);box-shadow:0 18px 44px var(--shadow);color:var(--fg);font:400 14px/1.3 ${FONT}}
+.menu{inset:auto;margin:0;padding:6px;width:236px;max-width:calc(100vw - 16px);border-radius:20px;background:var(--panel);box-shadow:0 18px 44px var(--shadow);color:var(--fg);font:400 14px/1.3 ${FONT}}
 .menu:popover-open{display:grid;gap:2px}
-.mt{padding:6px 8px 8px;margin-bottom:2px;border-bottom:1px solid var(--edge);color:var(--muted);font:600 12px/1.3 ${FONT};overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mt{padding:6px 8px 8px;margin-bottom:2px;color:var(--muted);font:600 12px/1.3 ${FONT};overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mi{all:unset;box-sizing:border-box;display:grid;grid-template-columns:26px 1fr 16px;align-items:center;gap:10px;padding:6px 8px;border-radius:999px;cursor:pointer;color:var(--fg);font:500 14px/1.3 ${FONT}}
 .mi:hover,.mi:focus-visible{background:var(--hover)}
 .mi:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
@@ -67,14 +69,14 @@ ${SHARED}
 .mi[aria-checked="true"] .ok{visibility:visible}
 .mi.rm{color:var(--muted)}
 .mi.rm .c{background:none;color:var(--muted)}
-.sep{height:1px;margin:4px 2px;background:var(--edge)}`;
+.sep{height:6px}`;
 
   // Title-page panel, fixed to the corner of the viewport, so it never depends on page layout.
   const DOCK_CSS = `
 :host{all:initial;position:fixed!important;right:max(20px,env(safe-area-inset-right,0px));bottom:max(20px,env(safe-area-inset-bottom,0px));z-index:2147483646;${TOKENS}}
 :host([hidden]){display:none!important}
 ${SHARED}
-.dk{display:grid;gap:10px;width:min(300px,calc(100vw - 40px));padding:12px;border-radius:20px;background:var(--panel);border:1px solid var(--edge);box-shadow:0 12px 32px var(--shadow);color:var(--fg);font:400 13px/1.4 ${FONT}}
+.dk{display:grid;gap:10px;width:min(300px,calc(100vw - 40px));padding:12px;border-radius:20px;background:var(--panel);box-shadow:0 12px 32px var(--shadow);color:var(--fg);font:400 13px/1.4 ${FONT}}
 .top{display:flex;align-items:center;gap:8px;min-width:0}
 .t{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chip{display:inline-flex;align-items:center;gap:5px;flex:none;padding:4px 9px 4px 6px;border-radius:999px;font:600 12px/1 ${FONT};background:var(--hover);color:var(--muted);white-space:nowrap}
@@ -85,7 +87,7 @@ ${SHARED}
 .ic:focus-visible,.fab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .ic svg{width:16px;height:16px}
 .dk .g{grid-template-columns:repeat(4,minmax(0,1fr))}
-.fab{all:unset;box-sizing:border-box;position:relative;display:block;width:48px;height:48px;border-radius:20px;background:var(--panel);border:1px solid var(--edge);box-shadow:0 8px 24px var(--shadow);cursor:pointer;overflow:hidden}
+.fab{all:unset;box-sizing:border-box;position:relative;display:block;width:48px;height:48px;border-radius:20px;background:var(--panel);box-shadow:0 8px 24px var(--shadow);cursor:pointer;overflow:hidden}
 .fab .fold{width:26px}
 .w[data-min] .dk,.w:not([data-min]) .fab{display:none}`;
 
@@ -94,7 +96,7 @@ ${SHARED}
 :host{all:initial;position:fixed!important;left:50%;bottom:max(24px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:2147483647;pointer-events:none;${TOKENS}}
 :host([hidden]){display:none!important}
 ${SHARED}
-.toast{display:flex;align-items:center;gap:8px;max-width:min(440px,calc(100vw - 40px));padding:8px 14px 8px 8px;border-radius:999px;background:var(--panel);border:1px solid var(--edge);box-shadow:0 12px 32px var(--shadow);color:var(--fg);font:500 13px/1.3 ${FONT}}
+.toast{display:flex;align-items:center;gap:8px;max-width:min(440px,calc(100vw - 40px));padding:8px 14px 8px 8px;border-radius:999px;background:var(--panel);box-shadow:0 12px 32px var(--shadow);color:var(--fg);font:500 13px/1.3 ${FONT}}
 .ico{display:grid;place-items:center;flex:none;width:24px;height:24px;border-radius:999px;background:var(--st,var(--hover));color:var(--ink)}
 .toast:not([data-s]) .ico{color:var(--muted)}
 .ico svg{width:14px;height:14px}

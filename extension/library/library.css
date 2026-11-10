@@ -1,10 +1,17 @@
 /* Lorestep for Chrome library: the toolbar popup, and the same page opened in a tab (html.tab).
+   Matches the site: filled panels and pills, no hairlines, three font roles.
    State colours (--s-*) and --ink are set from core/states.js at load: one source of truth.
    Status colours are only ever fills behind --ink glyphs, never text on the page background. */
 @font-face {
   font-family: "Big Shoulders Display";
   src: url("../fonts/big-shoulders-display-latin.woff2") format("woff2");
   font-weight: 700 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gloock";
+  src: url("../fonts/gloock-latin.woff2") format("woff2");
+  font-weight: 400;
   font-display: swap;
 }
 @font-face {
@@ -16,15 +23,14 @@
 :root {
   --bg: #0a0a0a;
   --surface: #121212;
+  --raise: #1a1a1a;
+  --line: #262626;
   --fg: #f4f4f5;
   --muted: #a1a1aa;
-  --line: #262626;
-  --chip: #1a1a1a;
-  --focus: #f4f4f5;
+  --accent: #60a5fa;
+  --accent-ink: #0a0a0a;
   --warn-bg: #2a1210;
   --warn-fg: #ff6b5e;
-  --logo-tile: #14161b; /* the icon's tile, like the toolbar icon */
-  --r-control: 10px;
   --r-card: 20px;
   --r-pill: 999px;
   --sp-1: 4px;
@@ -35,12 +41,25 @@
   --t-xs: 12px;
   --t-sm: 13px;
   --t-md: 14px;
-  --t-lg: 22px;
+  --h2: 22px;
+  --wordmark: 26px;
+  --pad: var(--sp-4);
+  --gap: var(--sp-3);
   --font: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --display: "Big Shoulders Display", "Arial Narrow", system-ui, sans-serif;
+  --title: "Gloock", Georgia, serif;
   --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
   --fast: 140ms;
   color-scheme: dark;
+}
+html.tab {
+  --t-xs: 13px;
+  --t-sm: 15px;
+  --t-md: 15px;
+  --h2: 32px;
+  --wordmark: 40px;
+  --pad: var(--sp-6);
+  --gap: var(--sp-6);
 }
 @media (prefers-reduced-motion: reduce) {
   :root {
@@ -66,15 +85,17 @@ html.tab body {
 }
 main {
   display: grid;
+  gap: var(--gap);
+  padding: var(--sp-4);
 }
 html.tab main {
-  max-width: 720px;
+  max-width: 960px;
   margin: 0 auto;
-  padding-block: var(--sp-6);
+  padding: var(--sp-6) var(--sp-4) 48px;
 }
 
 :focus-visible {
-  outline: 2px solid var(--focus);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 .sr {
@@ -89,37 +110,43 @@ html.tab main {
 .top {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
-  padding: var(--sp-3) var(--sp-4);
-  border-bottom: 1px solid var(--line);
+  gap: var(--sp-3);
 }
-/* The mark: a dog-eared play button, the same drawing as icons/*.png. */
+/* The staircase mark, the same drawing as the site's Logo. */
 .logo {
-  width: 24px;
-  height: 24px;
+  width: calc(var(--wordmark) * 0.9);
+  height: calc(var(--wordmark) * 0.9);
   flex: none;
 }
-.logo-tile {
-  fill: var(--logo-tile);
-  stroke: var(--line);
-  stroke-width: 3;
+.logo-ink {
+  fill: var(--fg);
 }
-.logo-play {
-  fill: var(--s-plan);
-}
-.logo-flap {
-  fill: var(--s-watching);
+.logo-step {
+  fill: var(--accent);
 }
 h1 {
   margin: 0;
-  font: 900 var(--t-lg) / 0.9 var(--display);
+  font: 900 var(--wordmark) / 0.9 var(--display);
   text-transform: uppercase;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.01em;
 }
-.count {
+h2 {
+  margin: 0;
+  font: 900 var(--h2) / 0.9 var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+.tag {
+  margin: 0;
   color: var(--muted);
   font-size: var(--t-xs);
   font-variant-numeric: tabular-nums;
+}
+.count::before {
+  content: " · ";
+}
+.count:empty::before {
+  content: "";
 }
 #open-tab {
   margin-left: auto;
@@ -128,25 +155,47 @@ html.tab #open-tab {
   display: none;
 }
 
-button.ghost {
+.panel {
+  display: grid;
+  gap: var(--gap);
+  padding: var(--pad);
+  border-radius: var(--r-card);
+  background: var(--surface);
+}
+
+button.ghost,
+button.primary {
   font: 500 var(--t-xs) / 1 var(--font);
-  color: var(--fg);
-  background: transparent;
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: var(--r-pill);
-  padding: var(--sp-2) var(--sp-3);
-  min-height: 28px;
+  padding: var(--sp-2) var(--sp-4);
+  min-height: 32px;
   cursor: pointer;
   transition: background var(--fast);
 }
+button.ghost {
+  color: var(--fg);
+  background: var(--raise);
+}
 button.ghost:hover {
-  background: var(--chip);
+  background: var(--line);
+}
+button.primary {
+  font-weight: 600;
+  color: var(--accent-ink);
+  background: var(--accent);
+}
+button.primary:hover {
+  filter: brightness(1.1);
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .filters {
   display: flex;
   gap: var(--sp-2);
-  padding: var(--sp-3) var(--sp-4) 0;
 }
 .field {
   display: block;
@@ -161,22 +210,24 @@ select {
   font: inherit;
   font-size: var(--t-sm);
   color: var(--fg);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--r-control);
-  padding: 6px var(--sp-2);
-  min-height: 32px;
+  background: var(--raise);
+  border: 0;
+  border-radius: var(--r-pill);
+  padding: 6px var(--sp-4);
+  min-height: 34px;
+}
+input[type="search"]::placeholder {
+  color: var(--muted);
 }
 
 .tabs {
   border: 0;
   margin: 0;
+  padding: 0;
   min-width: 0;
   display: flex;
   gap: var(--sp-1);
-  padding: var(--sp-3) var(--sp-4);
   overflow-x: auto;
-  border-bottom: 1px solid var(--line);
 }
 .tabs button {
   flex: none;
@@ -184,18 +235,17 @@ select {
   align-items: center;
   gap: 6px;
   font: 500 var(--t-xs) / 1 var(--font);
-  color: var(--muted);
-  background: transparent;
-  border: 1px solid var(--line);
+  color: var(--fg);
+  background: var(--raise);
+  border: 0;
   border-radius: var(--r-pill);
-  padding: 6px 10px;
-  min-height: 28px;
+  padding: 8px 12px;
+  min-height: 30px;
   cursor: pointer;
 }
 .tabs button[aria-pressed="true"] {
   background: var(--fg);
   color: var(--bg);
-  border-color: var(--fg);
 }
 .tabs .dot {
   width: 8px;
@@ -210,7 +260,7 @@ select {
 .list {
   list-style: none;
   margin: 0;
-  padding: var(--sp-1) 0;
+  padding: 0;
   min-height: 180px;
   max-height: 360px;
   overflow-y: auto;
@@ -220,31 +270,30 @@ html.tab .list {
 }
 .row {
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) auto;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
   gap: var(--sp-3);
   align-items: center;
-  padding: var(--sp-2) var(--sp-4);
+  padding: var(--sp-2) 0;
 }
 .glyph {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--r-control);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-pill);
   display: grid;
   place-items: center;
   background: var(--c);
   color: var(--ink);
 }
 .glyph svg {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
 }
 .meta {
   min-width: 0;
   display: grid;
 }
 .title {
-  font-weight: 600;
-  font-size: var(--t-sm);
+  font: 400 calc(var(--t-md) + 2px) / 1.2 var(--title);
   color: var(--fg);
   text-decoration: none;
   overflow: hidden;
@@ -261,31 +310,46 @@ a.title:hover {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* The state picker is the chip: filled with the status colour, ink text. */
 .row select {
   width: auto;
   font-size: var(--t-xs);
+  font-weight: 600;
   min-height: 28px;
+  padding: 4px var(--sp-3);
+  background: var(--c);
+  color: var(--ink);
+  cursor: pointer;
+}
+.row select option {
+  background: var(--raise);
+  color: var(--fg);
 }
 .empty {
-  padding: var(--sp-6) var(--sp-4);
+  padding: var(--sp-6) 0;
   color: var(--muted);
   font-size: var(--t-sm);
 }
+.empty-h {
+  display: block;
+  margin-bottom: var(--sp-2);
+  font: 400 calc(var(--t-md) + 8px) / 1.1 var(--title);
+  color: var(--fg);
+}
 .more {
   margin: 0;
-  padding: 0 var(--sp-4) var(--sp-2);
   color: var(--muted);
   font-size: var(--t-xs);
 }
 
-.foot {
-  display: grid;
+.line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--sp-3);
-  padding: var(--sp-3) var(--sp-4);
-  border-top: 1px solid var(--line);
 }
-.toggles {
-  display: grid;
+.actions {
+  display: flex;
   gap: var(--sp-2);
 }
 .toggle {
@@ -299,11 +363,7 @@ a.title:hover {
   width: 16px;
   height: 16px;
   margin: 0;
-  accent-color: var(--fg);
-}
-.actions {
-  display: flex;
-  gap: var(--sp-2);
+  accent-color: var(--accent);
 }
 .privacy {
   margin: 0;
@@ -314,9 +374,7 @@ a.title:hover {
 .banner {
   display: grid;
   gap: var(--sp-3);
-  margin: var(--sp-3) var(--sp-4) 0;
-  padding: var(--sp-3) var(--sp-4);
-  border: 1px solid var(--line);
+  padding: var(--pad);
   border-radius: var(--r-card);
   background: var(--surface);
   font-size: var(--t-sm);
@@ -332,33 +390,17 @@ a.title:hover {
 .banner .actions {
   flex-wrap: wrap;
 }
-button.primary {
-  font: 600 var(--t-xs) / 1 var(--font);
-  color: var(--bg);
-  background: var(--fg);
-  border: 1px solid var(--fg);
-  border-radius: var(--r-pill);
-  padding: var(--sp-2) var(--sp-3);
-  min-height: 28px;
-  cursor: pointer;
-}
-.backup-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-3);
-}
 .banner[hidden],
-.backup-row[hidden] {
+.line[hidden] {
   display: none;
 }
-.backup-status {
+.note {
   margin: 0;
   color: var(--muted);
   font-size: var(--t-xs);
   min-width: 0;
 }
-.backup-status.warn {
+.note.warn {
   color: var(--warn-fg);
 }
 
@@ -370,10 +412,9 @@ button.primary {
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-3);
-  margin: 0 var(--sp-4) var(--sp-3);
-  padding: var(--sp-2) var(--sp-3);
-  border-radius: var(--r-control);
-  background: var(--chip);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--r-pill);
+  background: var(--raise);
   font-size: var(--t-sm);
   position: sticky;
   bottom: 0;

@@ -165,13 +165,12 @@
     const shown = scoped.filter((g) => filter === "all" || g.e.s === filter).sort((a, b) => b.at - a.at);
     const list = $("list");
     if (!all.length) {
-      list.replaceChildren(
-        el(
-          "li",
-          "empty",
-          "Nothing marked yet. On Netflix or Prime Video, use the Lorestep button next to Play. On any supported service, right-click a poster and choose Lorestep.",
-        ),
+      const empty = el("li", "empty");
+      empty.append(
+        el("strong", "empty-h", "Nothing marked yet"),
+        "On Netflix or Prime Video, use the Lorestep button next to Play. On any supported service, right-click a poster and choose Lorestep.",
       );
+      list.replaceChildren(empty);
     } else if (!shown.length) {
       list.replaceChildren(el("li", "empty", "No titles match. Clear the search or pick another state."));
     } else {
