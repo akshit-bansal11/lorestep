@@ -8,7 +8,7 @@ import LibraryTable from "@/components/log/LibraryTable";
 import NoticeBar from "@/components/log/NoticeBar";
 import SearchAddDialog from "@/components/log/SearchAddDialog";
 import StatusSelect from "@/components/log/StatusSelect";
-import { PAGE_CLASS, PAGE_TITLE_CLASS } from "@/constants/canon/ui";
+import { APP_TITLE_CLASS, PAGE_CLASS } from "@/constants/canon/ui";
 import { LOG_CONTROL_CLASS, LOG_PRIMARY_CLASS } from "@/constants/log/classes";
 import { KIND_NAMES, LIBRARY_COPY } from "@/constants/log/copy";
 import { SORT_CHOICES, SORT_DEFAULT_LABEL, UNDO_WINDOW_SEC } from "@/constants/log/library";
@@ -87,7 +87,7 @@ export default function LibraryApp() {
   return (
     <main className={cn(PAGE_CLASS, "flex flex-1 flex-col gap-4 py-8 lg:py-10")}>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className={PAGE_TITLE_CLASS}>{copy.title}</h1>
+        <h1 className={APP_TITLE_CLASS}>{copy.title}</h1>
         <button className={LOG_PRIMARY_CLASS} onClick={() => setAdding(true)} type="button">
           {copy.add}
         </button>
@@ -126,7 +126,7 @@ export default function LibraryApp() {
 
       <div aria-live="polite" role="status">
         {!online && (
-          <p className="rounded-card border border-accent-line bg-accent-soft px-4 py-2 text-[13px] text-ink">
+          <p className="rounded-card bg-accent-soft px-4 py-2 text-[13px] text-ink">
             {copy.offline.banner}
           </p>
         )}

@@ -96,10 +96,10 @@ function SearchPane({ onAdd }: SearchPaneProps) {
       </div>
 
       <div role="alert">
-        {failure !== "" && <p className="text-[13px] text-accent">{failure}</p>}
+        {failure !== "" && <p className="text-[13px] text-danger">{failure}</p>}
         {search.failure !== null && (
           <div className="flex flex-col items-start gap-2">
-            <p className="text-[13px] text-accent">{failureMessage(search.failure)}</p>
+            <p className="text-[13px] text-danger">{failureMessage(search.failure)}</p>
             <button className={LOG_SECONDARY_CLASS} onClick={search.retry} type="button">
               {LISTS_COPY.retry}
             </button>
@@ -116,7 +116,7 @@ function SearchPane({ onAdd }: SearchPaneProps) {
           {search.results.map((result) => (
             <li key={`${result.type}-${result.id}`}>
               <button
-                className="flex min-h-11 w-full flex-col items-start justify-center rounded-control px-1 py-2 text-left transition-colors duration-[160ms] hover:bg-surface disabled:opacity-60 motion-reduce:transition-none"
+                className="flex min-h-11 w-full flex-col items-start justify-center rounded-control px-1 py-2 text-left transition-colors duration-[160ms] hover:bg-raise disabled:opacity-60 motion-reduce:transition-none"
                 disabled={adding !== null}
                 onClick={() => add(result)}
                 type="button"

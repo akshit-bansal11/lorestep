@@ -1,14 +1,14 @@
 # Draws the Dogear toolbar icons: a play triangle whose top corner is dog-eared (folded down like
-# a page corner marking your place), cream with a blue fold, on a dark rounded tile.
+# a page corner marking your place), grey body with a white fold, on a dark rounded tile.
 # Windows only (System.Drawing). Run from the repo root:
 #   pwsh -File scripts/make-icons.ps1
 Add-Type -AssemblyName System.Drawing
 
 $tile = [System.Drawing.ColorTranslator]::FromHtml('#14161B')
 # Order and hex values from core/states.js D.ORDER / D.STATES; scripts/check.mjs keeps them equal.
-$states = '#5B9DFF', '#EFE3C6', '#3DD68C', '#F5A83B', '#FF6B5E' | ForEach-Object { [System.Drawing.ColorTranslator]::FromHtml($_) }
-$cream = $states[1] # Plan to Watch
-$blue = $states[0]  # Watching: the fold is the part "in progress"
+$states = '#F4F4F5', '#A1A1AA', '#3DD68C', '#FACC15', '#FF6B5E' | ForEach-Object { [System.Drawing.ColorTranslator]::FromHtml($_) }
+$body = $states[1] # Plan to Watch: the play triangle
+$fold = $states[0] # Watching: the fold is the part "in progress"
 
 New-Item -ItemType Directory -Force -Path 'icons' | Out-Null
 
@@ -37,10 +37,10 @@ foreach ($size in 16, 32, 48, 128) {
 
   # Shift the triangle right a little so it sits optically centred, as play icons do.
   $dx = 6
-  $body = [System.Drawing.PointF[]]@((& $pt (40 + $dx) 52), (& $pt (40 + $dx) 98), (& $pt (100 + $dx) 64), (& $pt (60 + $dx) 41.3))
+  $triangle = [System.Drawing.PointF[]]@((& $pt (40 + $dx) 52), (& $pt (40 + $dx) 98), (& $pt (100 + $dx) 64), (& $pt (60 + $dx) 41.3))
   $flap = [System.Drawing.PointF[]]@((& $pt (40 + $dx) 52), (& $pt (60 + $dx) 41.3), (& $pt (58.3 + $dx) 64.2))
-  $g.FillPolygon([System.Drawing.SolidBrush]::new($cream), $body)
-  $g.FillPolygon([System.Drawing.SolidBrush]::new($blue), $flap)
+  $g.FillPolygon([System.Drawing.SolidBrush]::new($body), $triangle)
+  $g.FillPolygon([System.Drawing.SolidBrush]::new($fold), $flap)
 
   $bmp.Save((Join-Path 'icons' "$size.png"), [System.Drawing.Imaging.ImageFormat]::Png)
   $g.Dispose(); $bmp.Dispose()

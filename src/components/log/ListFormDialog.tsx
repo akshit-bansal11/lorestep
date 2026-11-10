@@ -90,7 +90,7 @@ function ListForm({ initial, onClose, onSubmit, onDone }: FormProps) {
           value={name}
         />
         {nameError !== "" && (
-          <span className="text-[12px] text-accent" id={errorId}>
+          <span className="text-[12px] text-danger" id={errorId}>
             {nameError}
           </span>
         )}
@@ -123,7 +123,7 @@ function ListForm({ initial, onClose, onSubmit, onDone }: FormProps) {
       </fieldset>
 
       <div role="alert">
-        {failure !== "" && <p className="text-[13px] text-accent">{failure}</p>}
+        {failure !== "" && <p className="text-[13px] text-danger">{failure}</p>}
       </div>
 
       <div className="flex flex-wrap gap-2">

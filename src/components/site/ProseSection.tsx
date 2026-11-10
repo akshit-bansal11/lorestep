@@ -16,7 +16,7 @@ export default function ProseSection({ id, title, children, className }: ProseSe
   return (
     <section
       aria-labelledby={headingId}
-      className={cn("flex scroll-mt-20 flex-col gap-3", className)}
+      className={cn("flex scroll-mt-20 flex-col gap-4", className)}
       id={id}
     >
       <h2 className={SECTION_TITLE_CLASS} id={headingId}>

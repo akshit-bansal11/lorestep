@@ -469,3 +469,57 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
 - Consequence: the earlier D-9 trade-off is closed; the displayed email is still readable by
   content scripts.
 - Revisit when: Chrome gives `chrome.storage.local` a trusted-contexts access level.
+
+## 2026-11-10 Dark only
+
+- Context: the Plotline redesign (`docs/design/PLAN.md`) is a dark look. The site shipped a light
+  theme, a dark theme, a toggle in both headers, and a pre-hydration script (`public/theme.js`).
+- Options: keep both themes and restyle each; keep both but default to dark; dark only.
+- Choice: dark only. The owner chose a dark-only Plotline look on 2026-11-10. The light theme, the
+  toggle (`ThemeToggle`, `use-theme`, `theme-store`), the theme script and `THEME_STORAGE_KEY` were
+  removed; `:root` holds the dark tones with `color-scheme: dark`.
+- Consequence: no light mode, no `prefers-color-scheme` handling, one set of contrast pairs to
+  maintain. A stale `isitcanon/theme/v1` in a visitor's storage is harmless and never read.
+- Revisit when: the owner asks for a light theme, or a measured share of visitors needs one.
+
+## 2026-11-10 Palette from Plotline
+
+- Context: the Plotline redesign (`docs/design/PLAN.md` section A, `docs/design/v2-reference.html`)
+  replaces the warm orange-on-brown tones with a neutral near-black scale and a blue accent.
+- Options: retune the old warm tones; take the reference's raw values as they are; take the
+  reference values and adjust any that miss WCAG 2.2 AA on the four grounds.
+- Choice: the reference values, kept under the existing `--tone-*` names, plus `field`,
+  `field-ink`, `danger` and the status tones. `faint` is `#8f8f98` because `#8b8b94` measures 4.48
+  on `line`. `edge` `#71717a` gives control outlines 3:1 on every ground. `--tone-invert` and
+  `--color-invert` were deleted (no consumer). Every pair is recorded in `globals.css` and
+  re-asserted by `src/app/tokens.test.ts`.
+- Consequence: `text-accent` is blue now, so alert messages move to `danger` in a later step. Text,
+  muted and accent fail on `field`; only `field-ink` text is used there.
+- Revisit when: a light theme returns, or a new ground or text tone is added.
+
+## 2026-11-10 Fonts
+
+- Context: the Plotline look pairs a condensed display face, a serif for titles and figures, and a
+  grotesque for running text. DESIGN-SPEC DES-D09 prefers one variable family over three.
+- Options: one variable family (DES-D09); two families (display + text); three families.
+- Choice: three, loaded with `next/font/google` in `src/lib/fonts.ts`: Big Shoulders Display
+  700/800/900 (display, uppercase), Gloock 400 (titles, names, figures), Hanken Grotesk 400/500/600
+  (everything else). The owner chose the three-family look; each family has one role, so the
+  hierarchy reads from the face rather than from size alone, which one family could not give
+  condensed caps and a serif together. Variables are `--nf-*`, mapped to `--font-display`,
+  `--font-title` and `--font-sans` with system fallbacks.
+- Consequence: three font payloads on every route (self-hosted by next/font, `display: swap`).
+  Mono stays for real `code` and `pre` only.
+- Revisit when: font payload shows up in a Core Web Vitals regression.
+
+## 2026-11-10 Status colours
+
+- Context: the five library states had no colour on the site, and the extension used its own set.
+- Options: one accent tint per state; hue only; five distinct fills set by the owner, each with a
+  shape and a label (DES-11).
+- Choice: the owner's set, fills behind glyph ink `#0e1015`: watching (in progress) white
+  `#f4f4f5`, plan grey `#a1a1aa`, completed green `#3dd68c`, on hold yellow `#facc15`, dropped red
+  `#ff6b5e` (all above 4.5:1 against the ink). Site tokens `--tone-st-*` and `--color-status-*`;
+  the same values are applied in `extension/core/states.js`. Dropped red doubles as `danger`.
+- Consequence: status hue is never the only signal; a shape and a label always go with it.
+- Revisit when: the owner changes a state colour (update both the site tokens and the extension).

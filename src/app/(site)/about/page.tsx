@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <main className={cn(PAGE_CLASS, "flex flex-1 flex-col gap-10 py-12 lg:py-16")}>
+    <main className={cn(PAGE_CLASS, "flex flex-1 flex-col gap-12 py-16 lg:py-24")}>
       <header className="flex flex-col gap-3">
         <h1 className={PAGE_TITLE_CLASS}>About Lorestep</h1>
         <p className={PROSE_CLASS}>
@@ -29,13 +29,19 @@ export default function Page() {
           . Books are listed too, but no dataset has been written for them, so that section says so
           rather than showing invented titles.
         </p>
+        <p className={PROSE_CLASS}>
+          <Link className={TEXT_LINK_CLASS} href="/extension">
+            Lorestep for Chrome
+          </Link>{" "}
+          marks what you watch on six streaming services.
+        </p>
       </header>
 
       {/* Sections flow into columns on wide screens, each kept whole, so the
           width is used without stretching any line past a readable measure. */}
       <div className="gap-x-14 lg:columns-2 2xl:columns-3">
         <ProseSection
-          className="mb-10 break-inside-avoid"
+          className="mb-14 break-inside-avoid"
           id="order"
           title="How story order is decided"
         >
@@ -66,7 +72,7 @@ export default function Page() {
           </p>
         </ProseSection>
 
-        <ProseSection className="mb-10 break-inside-avoid" id="limits" title="What it does not do">
+        <ProseSection className="mb-14 break-inside-avoid" id="limits" title="What it does not do">
           <ul className={cn(PROSE_CLASS, "flex list-disc flex-col gap-2 pl-5")}>
             <li>
               There are no accounts and no sync. What you track is kept in this browser only:
@@ -87,7 +93,7 @@ export default function Page() {
         </ProseSection>
 
         <ProseSection
-          className="mb-10 break-inside-avoid"
+          className="mb-14 break-inside-avoid"
           id="sources"
           title="Data sources and credits"
         >

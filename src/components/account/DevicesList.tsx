@@ -80,7 +80,7 @@ export default function DevicesList({ devices, currentId }: DevicesListProps) {
       {devices.every((device) => device.id === currentId) && (
         <p className={ACCOUNT_BODY_CLASS}>{copy.none}</p>
       )}
-      <div role="alert">{error !== null && <p className="text-[13px] text-ink">{error}</p>}</div>
+      <div role="alert">{error !== null && <p className="text-[13px] text-danger">{error}</p>}</div>
     </section>
   );
 }

@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import FranchiseCard from "@/components/canon/FranchiseCard";
 import { CHUNK_SIZE, STAGGER_LIMIT } from "@/constants/canon/motion";
+import { APP_TITLE_CLASS } from "@/constants/canon/ui";
 import { useChunked } from "@/hooks/canon/use-chunked";
 import type { Franchise } from "@/types/canon/canon";
 import type { UserEntries } from "@/types/canon/user";
@@ -42,9 +43,7 @@ export default function FranchiseGrid({
     <div className="h-full overflow-y-auto">
       <div className="anim-lift flex flex-col gap-5 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 2xl:px-10">
         <header className="flex flex-col gap-3">
-          <h1 className="font-medium text-[22px] text-ink leading-tight tracking-[-0.02em] sm:text-[26px]">
-            Every franchise, in story order
-          </h1>
+          <h1 className={APP_TITLE_CLASS}>Every franchise, in story order</h1>
           <p className="max-w-prose text-[13px] text-muted leading-relaxed">
             {franchises.length} connected series and {games} games, each sorted by in-universe
             chronology rather than release date. Series that split into separate storylines are
@@ -53,9 +52,9 @@ export default function FranchiseGrid({
           <input
             aria-label="Search franchises"
             className={cn(
-              "h-10 w-full max-w-md rounded-control border border-line bg-surface px-3",
+              "h-10 w-full max-w-md rounded-control bg-surface px-3",
               "text-[13px] text-ink placeholder:text-faint",
-              "transition-colors duration-[160ms] ease-out hover:border-edge focus-visible:border-edge",
+              "transition-colors duration-[160ms] ease-out hover:bg-raise focus-visible:bg-raise",
               "motion-reduce:transition-none",
             )}
             onChange={(event) => onQueryChange(event.target.value)}

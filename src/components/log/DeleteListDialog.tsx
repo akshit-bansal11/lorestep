@@ -39,7 +39,7 @@ function ConfirmBody({ name, onClose, onConfirm, onDeleted }: ConfirmBodyProps) 
     <div className="flex flex-col gap-4">
       <p className="text-[13px] text-muted">{copy.body}</p>
       <div role="alert">
-        {failure !== "" && <p className="text-[13px] text-accent">{failure}</p>}
+        {failure !== "" && <p className="text-[13px] text-danger">{failure}</p>}
       </div>
       <div className="flex flex-wrap gap-2">
         <button className={LOG_SECONDARY_CLASS} onClick={onClose} type="button">

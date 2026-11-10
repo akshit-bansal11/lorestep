@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PAGE_TITLE_CLASS } from "@/constants/canon/ui";
+import { APP_TITLE_CLASS } from "@/constants/canon/ui";
 import { LOG_DANGER_CLASS, LOG_PRIMARY_CLASS, LOG_SECONDARY_CLASS } from "@/constants/log/classes";
 import { LIST_LIMITS } from "@/constants/log/lists";
 import { LISTS_COPY } from "@/constants/log/lists-copy";
@@ -26,7 +26,7 @@ export default function ListHeader({ list, onRename, onDelete, onAdd }: ListHead
       >
         {copy.back}
       </Link>
-      <h1 className={PAGE_TITLE_CLASS}>{list.name}</h1>
+      <h1 className={APP_TITLE_CLASS}>{list.name}</h1>
       <p className="text-[12px] text-muted">
         {countLabel(list.itemCount)} · {kindsLabel(list.kinds)}
       </p>

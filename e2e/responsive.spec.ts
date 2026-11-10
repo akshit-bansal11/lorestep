@@ -2,7 +2,7 @@ import { expect, type Page, test } from "@playwright/test";
 
 /** Phone, large phone, tablet, laptop, desktop and wide desktop. */
 const WIDTHS = [360, 390, 768, 1024, 1440, 1920] as const;
-const CONTENT_PAGES = ["/", "/screen", "/screen/mcu", "/about", "/docs"] as const;
+const CONTENT_PAGES = ["/", "/screen", "/screen/mcu", "/about", "/docs", "/extension"] as const;
 
 const overflowsSideways = (page: Page) =>
   page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
@@ -48,3 +48,24 @@ test.describe("on a wide screen", () => {
     }
   });
 });
+
+/** The home headings were once three or four lines on a phone. */
+for (const width of [390, 1440] as const) {
+  test(`home headings are at most two lines at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    const lines = await page.locator("main h1, main h2").evaluateAll((headings) =>
+      headings.map((heading) => {
+        const style = getComputedStyle(heading);
+        const lineHeight =
+          Number.parseFloat(style.lineHeight) || Number.parseFloat(style.fontSize) * 1.2;
+        return {
+          text: heading.textContent,
+          lines: heading.getBoundingClientRect().height / lineHeight,
+        };
+      }),
+    );
+    for (const heading of lines)
+      expect(heading.lines, heading.text ?? "").toBeLessThanOrEqual(2.05);
+  });
+}

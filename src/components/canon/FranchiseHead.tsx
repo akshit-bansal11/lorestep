@@ -2,6 +2,7 @@
 
 import ArcChips from "@/components/canon/ArcChips";
 import ProgressMeter from "@/components/canon/ProgressMeter";
+import { TITLE_CLASS } from "@/constants/canon/ui";
 import type { Franchise } from "@/types/canon/canon";
 import type { FranchiseStats } from "@/types/canon/stats";
 import { cn } from "@/utils/cn";
@@ -26,10 +27,8 @@ export default function FranchiseHead({
   return (
     <div className="anim-rise flex shrink-0 flex-col gap-2.5 border-line border-b px-3 py-3">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h1 className="font-medium text-[17px] text-ink leading-tight tracking-[-0.02em]">
-          {franchise.name}
-        </h1>
-        <span className="font-mono text-[10px] text-faint tabular-nums">
+        <h1 className={cn(TITLE_CLASS, "text-[22px] text-ink")}>{franchise.name}</h1>
+        <span className="text-[10px] text-faint tabular-nums">
           {stats.total} games
           {stats.hours > 0 ? ` · ${stats.hours}h` : ""}
         </span>
@@ -42,7 +41,7 @@ export default function FranchiseHead({
               label={`${stats.completed} of ${stats.total} completed`}
               total={stats.total}
             />
-            <span className="font-mono text-[10px] text-faint tabular-nums">
+            <span className="text-[10px] text-faint tabular-nums">
               {stats.completed}/{stats.total} done
             </span>
           </span>
@@ -67,7 +66,7 @@ export default function FranchiseHead({
           </span>
           How this order was decided
         </summary>
-        <p className="anim-rise mt-1.5 border-edge border-l pl-2.5 text-[11px] text-faint leading-relaxed">
+        <p className="anim-rise mt-1.5 border-line border-l pl-2.5 text-[11px] text-faint leading-relaxed">
           {franchise.caveat}
         </p>
       </details>

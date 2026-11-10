@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import Backdrop from "@/components/canon/Backdrop";
 import { TIER_LABEL } from "@/constants/canon/tiers";
-import { CONTROL_CLASS } from "@/constants/canon/ui";
+import { CONTROL_CLASS, TITLE_CLASS } from "@/constants/canon/ui";
 import type { Entry } from "@/types/canon/canon";
 import type { PriceQuote } from "@/types/canon/price";
 import { storeUrl } from "@/utils/canon/store-url";
@@ -23,7 +23,7 @@ interface FieldProps {
 function Field({ label, value }: FieldProps) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-[9px] text-faint uppercase tracking-[0.14em]">{label}</span>
+      <span className="text-[11px] text-faint">{label}</span>
       <span className="text-[12px] text-ink">{value}</span>
     </div>
   );
@@ -62,18 +62,16 @@ export default function GameDetail({ entry, quote, onClose }: GameDetailProps) {
         aria-modal="true"
         className={cn(
           "anim-slide-right relative flex h-full w-full max-w-md flex-col",
-          "border-edge border-l bg-canvas shadow-[var(--tone-cast)]",
+          "bg-surface shadow-[var(--tone-cast)]",
         )}
         role="dialog"
       >
         <header className="flex shrink-0 items-start gap-3 border-line border-b p-4">
           <div className="flex flex-1 flex-col gap-1">
-            <span className="font-mono text-[10px] text-faint uppercase tracking-[0.14em]">
+            <span className="text-[10px] text-faint uppercase tracking-[0.14em]">
               {franchise.name} · #{game.order} in story order
             </span>
-            <h2 className="font-medium text-[18px] text-ink leading-tight tracking-[-0.01em]">
-              {game.title}
-            </h2>
+            <h2 className={cn(TITLE_CLASS, "text-[22px] text-ink")}>{game.title}</h2>
             {arc === undefined ? null : (
               <span className="text-[11px] text-muted">Storyline: {arc.name}</span>
             )}
@@ -102,26 +100,26 @@ export default function GameDetail({ entry, quote, onClose }: GameDetailProps) {
           </div>
 
           <section className="flex flex-col gap-1.5">
-            <h3 className="text-[9px] text-faint uppercase tracking-[0.14em]">Why here</h3>
+            <h3 className="text-[11px] text-faint">Why here</h3>
             <p className="text-[12px] text-muted leading-relaxed">{game.note}</p>
           </section>
 
           {genres.length === 0 ? null : (
             <section className="flex flex-col gap-1.5">
-              <h3 className="text-[9px] text-faint uppercase tracking-[0.14em]">Genres</h3>
+              <h3 className="text-[11px] text-faint">Genres</h3>
               <p className="text-[12px] text-muted">{genres.join(" · ")}</p>
             </section>
           )}
 
           {game.editions.length === 0 ? null : (
             <section className="flex flex-col gap-2">
-              <h3 className="text-[9px] text-faint uppercase tracking-[0.14em]">Editions</h3>
+              <h3 className="text-[11px] text-faint">Editions</h3>
               <ul className="flex flex-col gap-2">
                 {game.editions.map((edition) => (
                   <li
                     className={cn(
-                      "rounded-card border p-2.5",
-                      edition.recommended ? "border-edge bg-surface" : "border-line",
+                      "rounded-card p-2.5",
+                      edition.recommended ? "bg-raise" : "bg-canvas",
                     )}
                     key={`${edition.name}-${edition.year}`}
                   >
@@ -135,9 +133,7 @@ export default function GameDetail({ entry, quote, onClose }: GameDetailProps) {
                         {edition.recommended ? "✓ " : ""}
                         {edition.name}
                       </span>
-                      <span className="font-mono text-[10px] text-faint tabular-nums">
-                        {edition.year}
-                      </span>
+                      <span className="text-[10px] text-faint tabular-nums">{edition.year}</span>
                     </span>
                     <span className="mt-0.5 block text-[11px] text-faint leading-relaxed">
                       {edition.platforms} — {edition.note}

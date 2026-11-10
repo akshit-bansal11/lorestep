@@ -1,4 +1,4 @@
-import { NUM_CLASS, SECTION_TITLE_CLASS } from "@/constants/canon/ui";
+import { NUM_CLASS, SECTION_TITLE_CLASS, TITLE_CLASS } from "@/constants/canon/ui";
 import type { ScreenEntry, ScreenFranchise, ScreenGroup } from "@/types/canon/screen";
 import { cn } from "@/utils/cn";
 
@@ -22,7 +22,7 @@ function Meta({ entry }: { entry: ScreenEntry }) {
   if (bits.length === 0) return null;
 
   return (
-    <span className={cn(NUM_CLASS, "flex flex-wrap items-center gap-x-2 text-[10px] text-faint")}>
+    <span className={cn(NUM_CLASS, "flex flex-wrap items-center gap-x-2 text-[14px] text-faint")}>
       {bits.map((bit, index) => (
         <span className="flex items-center gap-2" key={bit}>
           {index > 0 ? <span aria-hidden="true">·</span> : null}
@@ -40,7 +40,7 @@ function Row({ entry, position }: { entry: ScreenEntry; position: number }) {
   if (entry.kind === "marker") {
     return (
       <li className="flex gap-3 py-1.5 pl-11">
-        <span className="text-[11px] text-faint italic leading-relaxed">↳ {entry.name}</span>
+        <span className="text-[16px] text-faint italic leading-relaxed">↳ {entry.name}</span>
       </li>
     );
   }
@@ -49,8 +49,9 @@ function Row({ entry, position }: { entry: ScreenEntry; position: number }) {
     <li className="group flex gap-3 rounded-card py-2 pr-2 transition-colors duration-[160ms] hover:bg-surface motion-reduce:transition-none">
       <span
         className={cn(
+          TITLE_CLASS,
           NUM_CLASS,
-          "relative z-10 flex size-7 shrink-0 items-center justify-center rounded-full border border-line bg-canvas text-[10px] text-faint",
+          "relative z-10 flex size-7 shrink-0 items-center justify-center rounded-full border border-line bg-canvas text-[14px] text-faint",
           "transition-colors duration-[160ms] group-hover:border-accent group-hover:text-accent motion-reduce:transition-none",
         )}
       >
@@ -60,13 +61,11 @@ function Row({ entry, position }: { entry: ScreenEntry; position: number }) {
           wide screen spreads each row across instead of leaving it empty. */}
       <span className="grid flex-1 grid-cols-1 gap-1 pt-1 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] lg:gap-x-10 2xl:grid-cols-[minmax(0,30rem)_minmax(0,1fr)]">
         <span className="flex flex-col gap-1">
-          <span className="text-[13px] text-ink leading-tight lg:text-[14px]">{entry.name}</span>
+          <span className="text-[16px] text-ink leading-tight">{entry.name}</span>
           <Meta entry={entry} />
         </span>
         {entry.note === "" ? null : (
-          <span className="max-w-prose text-[11px] text-muted leading-relaxed lg:text-[12px]">
-            {entry.note}
-          </span>
+          <span className="max-w-prose text-[16px] text-muted leading-relaxed">{entry.note}</span>
         )}
       </span>
     </li>
@@ -100,7 +99,7 @@ export default function ScreenTimeline({ franchise }: ScreenTimelineProps) {
             <header className="flex flex-col gap-1">
               <h2 className={SECTION_TITLE_CLASS}>{block.group.name}</h2>
               {block.group.blurb === "" ? null : (
-                <p className="max-w-prose text-[11px] text-muted leading-relaxed">
+                <p className="max-w-prose text-[16px] text-muted leading-relaxed">
                   {block.group.blurb}
                 </p>
               )}

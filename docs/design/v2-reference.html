@@ -1,0 +1,712 @@
+<title>Lorestep v2 mockup</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Geist:wght@400;500;600&family=Big+Shoulders+Display:wght@700;800;900&family=Hanken+Grotesk:wght@400;500;600&family=Gloock&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one 12-column grid with equal tight margins. Each section has its own composition;
+   one section per page flips to a full field colour. Committed to dark: three looks, chosen
+   with the switcher, each a full palette and a display + text pairing. */
+:root {
+  color-scheme: dark;
+  --bg: #05060a; --s1: #0c0e16; --s2: #151927; --s3: #1f2436;
+  --ink: #e9edf7; --muted: #8f97ae;
+  --acc: #3fe0e8; --acc-ink: #04161a;
+  --field: #ff2e7e; --field-ink: #0a0306; --field-s: #e0186a;
+  --display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --text: "Geist", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --dw: 700; --dls: -0.045em; --dlh: 0.92; --dcase: none; --dsize: 1;
+  --st-watching: #5b9dff; --st-plan: #efe3c6; --st-completed: #3dd68c; --st-hold: #f5a83b; --st-dropped: #ff6b5e; --st-ink: #0e1015;
+  --g: clamp(16px, 3.2vw, 48px);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+.site[data-look="marquee"] {
+  --bg: #080706; --s1: #12100e; --s2: #1c1916; --s3: #29241f;
+  --ink: #f4efe6; --muted: #a39b8f;
+  --acc: #ffc53d; --acc-ink: #1a1200;
+  --field: #b3141f; --field-ink: #fff3e6; --field-s: #8f0f18;
+  --display: "Big Shoulders Display", "Arial Narrow", system-ui, sans-serif;
+  --text: "Hanken Grotesk", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --dw: 900; --dls: -0.01em; --dlh: 0.84; --dcase: uppercase; --dsize: 1.32;
+}
+.site[data-look="grimoire"] {
+  --bg: #0b0a0d; --s1: #141218; --s2: #1e1b24; --s3: #2a2631;
+  --ink: #ece4d4; --muted: #a59c8c;
+  --acc: #d9ae62; --acc-ink: #1a1205;
+  --field: #1d3a32; --field-ink: #ece4d4; --field-s: #16302a;
+  --display: "Gloock", Georgia, "Times New Roman", serif;
+  --text: "Instrument Sans", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --dw: 400; --dls: -0.025em; --dlh: 0.98; --dcase: none; --dsize: 1.08;
+}
+
+/* Hybrid: Marquee's condensed poster capitals for the big headlines, Grimoire's serif for
+   names, titles and figures, Hanken for text. Warm ink black, a gold between marquee and
+   gold leaf, and an oxblood field between curtain red and old leather. */
+.site[data-look="hybrid"] {
+  --bg: #0a0908; --s1: #14110f; --s2: #1f1a16; --s3: #2c251f;
+  --ink: #f1e8d8; --muted: #a89e8e;
+  --acc: #e8b84a; --acc-ink: #1a1203;
+  --field: #6e1620; --field-ink: #f3e9d8; --field-s: #57111a;
+  --display: "Big Shoulders Display", "Arial Narrow", system-ui, sans-serif;
+  --serif: "Gloock", Georgia, "Times New Roman", serif;
+  --text: "Hanken Grotesk", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --dw: 900; --dls: -0.01em; --dlh: 0.84; --dcase: uppercase; --dsize: 1.32;
+}
+/* Plotline's colours (its neutral-950/#121212/#1a1a1a grounds, zinc text, blue-400 links and
+   its design primary #135bec as the one field) under the Hybrid type. */
+.site[data-look="plotline"] {
+  --bg: #0a0a0a; --s1: #121212; --s2: #1a1a1a; --s3: #262626;
+  --ink: #f4f4f5; --muted: #a1a1aa;
+  --acc: #60a5fa; --acc-ink: #0a0a0a;
+  --field: #135bec; --field-ink: #ffffff; --field-s: #0f49bd;
+  --display: "Big Shoulders Display", "Arial Narrow", system-ui, sans-serif;
+  --serif: "Gloock", Georgia, "Times New Roman", serif;
+  --text: "Hanken Grotesk", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --dw: 900; --dls: -0.01em; --dlh: 0.84; --dcase: uppercase; --dsize: 1.32;
+}
+.site:is([data-look="hybrid"], [data-look="plotline"]) :is(.prod h3, .body h3, .card .t, .order-bar h2, .stats dd, .pf strong, .fact b, .ovl .stepno, .gtable caption, .gtable .arc-row td, .card .big, .tile:nth-child(even), .how li::before, details summary) {
+  --dsize: 1.04;
+  font-family: var(--serif); font-weight: 400; text-transform: none; letter-spacing: -0.02em; line-height: 1;
+}
+.site:is([data-look="hybrid"], [data-look="plotline"]) details summary { font-size: 22px; }
+.site:is([data-look="hybrid"], [data-look="plotline"]) .card .big { color: var(--s1); }
+.site:is([data-look="hybrid"], [data-look="plotline"]) .bigname { font-size: clamp(80px, 25vw, 480px); }
+
+* { box-sizing: border-box; }
+html { background: #05060a; }
+body { margin: 0; background: var(--bg); }
+.site { background: var(--bg); color: var(--ink); font-family: var(--text); font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; transition: background-color 300ms var(--ease); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 40; background: #05060a; }
+.wrap { padding-left: max(var(--g), env(safe-area-inset-left, 0px)); padding-right: max(var(--g), env(safe-area-inset-right, 0px)); max-width: 1720px; margin: 0 auto; }
+.d { font-family: var(--display); font-weight: var(--dw); letter-spacing: var(--dls); line-height: var(--dlh); text-transform: var(--dcase); }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+a { color: inherit; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; }
+.num { font-variant-numeric: tabular-nums; }
+
+.btn { display: inline-flex; align-items: center; gap: 10px; height: 52px; padding: 0 26px; border: 0; border-radius: 999px; background: var(--acc); color: var(--acc-ink); font-weight: 600; font-size: 16px; text-decoration: none; transition: transform 180ms var(--ease), filter 180ms; }
+.btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+.btn:active { transform: scale(0.97); }
+.btn.ghost { background: var(--s2); color: var(--ink); }
+.btn .arr { transition: transform 180ms var(--ease); }
+.btn:hover .arr { transform: translateX(3px); }
+.tl { text-decoration: none; font-weight: 500; transition: color 160ms; }
+.tl:hover { color: var(--acc); }
+
+/* look switcher */
+.looks { position: fixed; z-index: 50; right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px)); display: flex; gap: 4px; padding: 6px; background: #000; border-radius: 999px; box-shadow: 0 12px 40px rgb(0 0 0 / 60%); font-family: "Geist", system-ui, sans-serif; }
+.looks span { align-self: center; padding: 0 8px 0 10px; color: #9aa0b2; font-size: 13px; }
+.looks button { border: 0; height: 36px; padding: 0 14px; border-radius: 999px; background: #16181f; color: #e9edf7; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
+.looks button i { width: 12px; height: 12px; border-radius: 50%; }
+.looks button[aria-pressed="true"] { background: #fff; color: #000; }
+
+/* header */
+header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); transition: background-color 300ms var(--ease); }
+.bar { display: flex; align-items: center; gap: 32px; padding-block: 18px; }
+.mark { display: flex; align-items: center; gap: 12px; text-decoration: none; font-size: 24px; }
+.mark svg { width: 30px; height: 30px; }
+.nav { display: flex; gap: 28px; margin-left: auto; font-size: 16px; }
+.bar .btn { height: 44px; padding: 0 20px; font-size: 15px; }
+.signin { font-weight: 500; text-decoration: none; }
+
+/* hero */
+.hero { padding-block: clamp(40px, 6vw, 104px) clamp(64px, 7vw, 120px); }
+.hero h1 { font-size: calc(clamp(46px, 7.6vw, 148px) * var(--dsize)); max-width: 15ch; }
+.hero-grid { margin-top: clamp(40px, 5vw, 80px); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(32px, 5vw, 96px); align-items: start; }
+.lede { font-size: clamp(19px, 1.6vw, 24px); max-width: 32ch; }
+.acts { margin-top: 36px; display: flex; flex-wrap: wrap; gap: 14px; }
+.stats { margin: 56px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 32px; }
+.stats div { display: flex; flex-direction: column-reverse; gap: 4px; }
+.stats dt { color: var(--muted); font-size: 15px; }
+.stats dd { margin: 0; font-size: calc(clamp(40px, 4vw, 64px) * var(--dsize)); color: var(--ink); }
+
+/* live order */
+.order { background: var(--s1); border-radius: 28px; padding: clamp(18px, 2vw, 28px); min-width: 0; }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.tabs button { border: 0; height: 40px; padding: 0 16px; border-radius: 999px; background: var(--s2); font-weight: 600; font-size: 15px; transition: background-color 200ms, color 200ms; }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+.order-bar { margin: 20px 0 14px; display: flex; justify-content: space-between; align-items: end; gap: 16px; flex-wrap: wrap; }
+.order-bar h2 { font-size: calc(clamp(26px, 2.4vw, 38px) * var(--dsize)); }
+.order-bar p { color: var(--muted); font-size: 15px; margin-top: 6px; }
+.switch { display: inline-flex; background: var(--bg); border-radius: 999px; padding: 4px; }
+.switch button { border: 0; background: none; height: 40px; padding: 0 18px; border-radius: 999px; font-weight: 600; font-size: 15px; color: var(--muted); transition: background-color 220ms var(--ease), color 220ms; }
+.switch button[aria-pressed="true"] { background: var(--acc); color: var(--acc-ink); }
+.rows { position: relative; list-style: none; margin: 0; padding: 0; transition: height 400ms var(--ease); }
+.row { position: absolute; left: 0; right: 0; top: 0; height: 54px; transition: transform 700ms var(--ease), opacity 300ms; }
+.row button { width: 100%; height: 50px; border: 0; background: transparent; border-radius: 14px; display: grid; grid-template-columns: 38px minmax(0, 1fr) 64px 118px; gap: 14px; align-items: center; padding: 0 14px; text-align: left; transition: background-color 160ms; }
+.row button:hover { background: var(--s2); }
+.row button[aria-current="true"] { background: var(--s3); }
+.pos { color: var(--muted); font-size: 15px; text-align: right; }
+.nm { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.yr { color: var(--muted); font-size: 15px; }
+.chip { justify-self: end; display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--st-ink); white-space: nowrap; }
+.chip.none { color: var(--muted); background: var(--s2); }
+.order-foot { margin-top: 14px; color: var(--muted); font-size: 14px; }
+
+/* marquee of franchises */
+.reel { overflow: hidden; padding-block: 8px; display: grid; gap: 12px; }
+.lane { display: flex; gap: 12px; width: max-content; animation: slide 90s linear infinite; }
+.lane.rev { animation-direction: reverse; animation-duration: 110s; }
+.reel:hover .lane { animation-play-state: paused; }
+.tile { flex: none; height: 76px; padding: 0 26px; border-radius: 999px; display: flex; align-items: center; font-size: calc(22px * var(--dsize)); white-space: nowrap; background: var(--s1); }
+.tile.a { background: var(--acc); color: var(--acc-ink); }
+.tile.f { background: var(--field); color: var(--field-ink); }
+.tile.o { background: transparent; box-shadow: inset 0 0 0 2px var(--s3); }
+@keyframes slide { to { transform: translateX(-50%); } }
+
+section.blk { padding-block: clamp(96px, 10vw, 200px); }
+.sec-h { font-size: calc(clamp(40px, 5.4vw, 100px) * var(--dsize)); max-width: 16ch; }
+.say { margin-top: 28px; font-size: clamp(18px, 1.45vw, 22px); max-width: 38ch; }
+.split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(32px, 5vw, 96px); align-items: center; }
+.split.rev { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+
+/* three products */
+.tri { margin-top: clamp(48px, 5vw, 80px); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 4fr) minmax(0, 3fr); gap: 16px; }
+.prod { border-radius: 28px; padding: clamp(24px, 2.4vw, 40px); min-height: 460px; display: flex; flex-direction: column; gap: 18px; text-decoration: none; transition: transform 260ms var(--ease); }
+.prod:hover { transform: translateY(-4px); }
+.prod h3 { font-size: calc(clamp(32px, 3vw, 52px) * var(--dsize)); }
+.prod p { font-size: 17px; max-width: 34ch; }
+.prod ul { margin: auto 0 0; padding: 0; list-style: none; display: grid; gap: 10px; font-size: 15px; }
+.prod li { display: flex; justify-content: space-between; gap: 12px; padding-top: 10px; }
+.prod li b { font-weight: 600; }
+.prod.p1 { background: var(--s1); }
+.prod.p2 { background: var(--field); color: var(--field-ink); }
+.prod.p3 { background: var(--acc); color: var(--acc-ink); }
+.prod .go { font-weight: 600; display: inline-flex; gap: 8px; }
+
+/* detail panel */
+.sheet { background: var(--s1); border-radius: 28px; overflow: hidden; display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); min-width: 0; }
+.card { aspect-ratio: 2 / 3; background: var(--s3); display: flex; flex-direction: column; justify-content: space-between; padding: 26px; position: relative; overflow: hidden; }
+.card .fr { font-size: 14px; font-weight: 600; color: var(--acc); position: relative; }
+.card .t { font-size: calc(clamp(28px, 2.7vw, 46px) * var(--dsize)); position: relative; }
+.card .big { position: absolute; right: -0.08em; bottom: -0.2em; font-size: calc(clamp(160px, 17vw, 300px) * var(--dsize)); color: var(--s2); line-height: 1; }
+.card .steps { display: flex; gap: 4px; position: relative; }
+.card .steps i { flex: 1; height: 6px; border-radius: 3px; background: var(--s1); }
+.card .steps i.on { background: var(--acc); }
+.body { padding: clamp(22px, 2.4vw, 40px); display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.body h3 { font-size: calc(clamp(28px, 2.6vw, 46px) * var(--dsize)); }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; }
+.meta span { background: var(--s2); border-radius: 999px; padding: 6px 12px; font-size: 14px; color: var(--ink); }
+.blurb { font-size: 17px; max-width: 52ch; }
+.states { display: flex; flex-wrap: wrap; gap: 8px; }
+.states button { height: 42px; padding: 0 16px; border-radius: 999px; border: 0; background: var(--s2); font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; gap: 9px; transition: transform 160ms var(--ease), background-color 200ms; }
+.states button:hover { background: var(--s3); }
+.states button:active { transform: scale(0.95); }
+.states .dot { width: 10px; height: 10px; border-radius: 50%; }
+.states button[aria-pressed="true"] { color: var(--st-ink); }
+.states button[aria-pressed="true"] .dot { background: var(--st-ink) !important; }
+.rx { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.rx button { width: 52px; height: 52px; border-radius: 50%; border: 0; background: var(--s2); display: grid; place-items: center; transition: transform 160ms var(--ease), background-color 200ms; }
+.rx button svg { width: 22px; height: 22px; }
+.rx button[aria-pressed="true"] { background: var(--acc); color: var(--acc-ink); }
+.rx button:active { transform: scale(0.9); }
+.rx output { color: var(--muted); font-size: 15px; }
+.next { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; background: var(--bg); border-radius: 18px; padding: 16px 18px; }
+.next span { color: var(--muted); font-size: 15px; }
+.next button { border: 0; background: none; font-weight: 600; text-align: right; }
+.next button:hover { color: var(--acc); }
+
+/* games */
+.gtable { width: 100%; border-collapse: separate; border-spacing: 0 6px; font-size: 16px; }
+.tablebox { overflow-x: auto; margin-top: clamp(40px, 4vw, 64px); }
+.gtable th { text-align: left; font-weight: 500; color: var(--muted); font-size: 14px; padding: 0 16px 6px; }
+.gtable td { background: var(--s1); padding: 16px; white-space: nowrap; }
+.gtable td:first-child { border-radius: 14px 0 0 14px; color: var(--muted); width: 48px; text-align: right; }
+.gtable td:last-child { border-radius: 0 14px 14px 0; }
+.gtable .arc-row td { background: transparent; padding: 28px 16px 8px; font-size: calc(26px * var(--dsize)); color: var(--ink); }
+.gtable .tt { font-weight: 600; }
+.start { display: inline-block; margin-left: 10px; padding: 3px 10px; border-radius: 999px; background: var(--acc); color: var(--acc-ink); font-size: 13px; font-weight: 600; }
+.opt { color: var(--muted); }
+
+/* tracker: field section */
+.fieldsec { background: var(--field); color: var(--field-ink); transition: background-color 300ms var(--ease); }
+.lib { background: var(--bg); color: var(--ink); border-radius: 28px; padding: clamp(18px, 2vw, 28px); min-width: 0; }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.filters button { border: 0; height: 38px; padding: 0 14px; border-radius: 999px; background: var(--s2); font-weight: 600; font-size: 14px; }
+.filters button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.libl { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 6px; }
+.libl li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 14px; align-items: center; background: var(--s1); border-radius: 14px; padding: 12px 14px; }
+.libl .sub { color: var(--muted); font-size: 14px; display: block; }
+.libl .r { width: 20px; height: 20px; color: var(--acc); }
+.empty { color: var(--muted); padding: 18px 4px; }
+.prog { margin-top: clamp(32px, 3vw, 48px); display: grid; gap: 22px; }
+.pf { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px 20px; align-items: end; }
+.pf strong { font-size: calc(clamp(22px, 2vw, 32px) * var(--dsize)); font-family: var(--display); font-weight: var(--dw); letter-spacing: var(--dls); text-transform: var(--dcase); line-height: 1; }
+.bars { grid-column: 1 / -1; display: flex; gap: 3px; height: 16px; }
+.bars i { flex: 1; border-radius: 3px; background: var(--field-s); }
+.bars i.d { background: var(--field-ink); }
+.bars i.w { background: var(--field-ink); opacity: 0.5; }
+
+/* extension */
+.player { position: relative; aspect-ratio: 16 / 10; border-radius: 28px; overflow: hidden; background: #000; color: #fff; min-width: 0; }
+.player .scr { position: absolute; inset: 0; background: #07080c; }
+.player .scr::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 62%; background: #10131c; }
+.player .tt { position: absolute; left: 6%; bottom: 26%; font-family: "Geist", system-ui, sans-serif; font-weight: 700; font-size: clamp(28px, 3.4vw, 56px); letter-spacing: -0.03em; }
+.player .ep { position: absolute; left: 6%; bottom: 19%; color: #bfc3cf; font-size: 15px; font-family: "Geist", system-ui, sans-serif; }
+.player .track { position: absolute; left: 6%; right: 6%; bottom: 10%; height: 5px; border-radius: 3px; background: #2b2e38; }
+.player .track::before { content: ""; position: absolute; inset: 0 62% 0 0; border-radius: 3px; background: #e50914; }
+.ovl { position: absolute; right: 4%; top: 7%; width: min(320px, 62%); background: var(--bg); color: var(--ink); border-radius: 20px; padding: 16px; display: grid; gap: 12px; box-shadow: 0 24px 60px rgb(0 0 0 / 70%); font-size: 14px; }
+.ovl .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ovl .top b { display: flex; align-items: center; gap: 8px; font-size: 15px; }
+.ovl .top svg { width: 20px; height: 20px; }
+.ovl .stepno { font-size: calc(30px * var(--dsize)); color: var(--acc); }
+.ovl .where { color: var(--muted); }
+.ovl .where b { color: var(--ink); font-weight: 600; }
+.ovl .btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.ovl .btns button { border: 0; height: 32px; padding: 0 12px; border-radius: 999px; background: var(--s2); font-size: 13px; font-weight: 600; }
+.ovl .btns button.on { background: var(--st-watching); color: var(--st-ink); }
+.ovl .btns button.lk.on { background: var(--acc); color: var(--acc-ink); }
+.how { margin: 36px 0 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 18px; }
+.how li { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 16px; align-items: start; counter-increment: s; }
+.how li::before { content: counter(s); width: 44px; height: 44px; border-radius: 50%; background: var(--s2); display: grid; place-items: center; font-weight: 600; }
+.how b { display: block; font-size: 18px; }
+.how span { color: var(--muted); }
+.svc { margin: 32px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+.svc li { background: var(--s1); border-radius: 999px; padding: 10px 16px; font-weight: 500; font-size: 15px; }
+
+/* data */
+.data { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(32px, 5vw, 96px); }
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.fact { background: var(--s1); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 10px; }
+.fact:nth-child(2) { background: var(--s2); }
+.fact:nth-child(3) { background: var(--s2); }
+.fact b { font-size: calc(clamp(22px, 1.8vw, 28px) * var(--dsize)); font-family: var(--display); font-weight: var(--dw); letter-spacing: var(--dls); text-transform: var(--dcase); line-height: 1.05; }
+.fact span { color: var(--muted); }
+
+/* faq */
+.faq { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(32px, 5vw, 96px); }
+.qs { display: grid; gap: 8px; }
+details { background: var(--s1); border-radius: 20px; padding: 0 24px; }
+summary { cursor: pointer; list-style: none; padding-block: 22px; font-weight: 600; font-size: 19px; display: flex; justify-content: space-between; gap: 16px; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; font-size: 26px; line-height: 1; color: var(--acc); transition: transform 200ms var(--ease); }
+details[open] summary::after { transform: rotate(45deg); }
+details p { padding-bottom: 22px; max-width: 62ch; color: var(--ink); }
+
+/* close */
+.close { background: var(--acc); color: var(--acc-ink); border-radius: 36px; padding: clamp(40px, 6vw, 112px) clamp(24px, 5vw, 96px); display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px; align-items: end; }
+.close h2 { font-size: calc(clamp(40px, 5.6vw, 104px) * var(--dsize)); }
+.close .btn { background: var(--acc-ink); color: var(--acc); }
+footer { padding-block: clamp(80px, 9vw, 160px) 96px; }
+.bigname { margin: 0; font-size: calc(clamp(80px, 19.5vw, 380px) * var(--dsize)); line-height: 0.78; color: var(--s2); white-space: nowrap; }
+.site[data-look="marquee"] .bigname { font-size: clamp(80px, 25vw, 480px); }
+.fcols { margin-top: 48px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; }
+.fcols h3 { font-size: 15px; color: var(--muted); font-weight: 500; font-family: var(--text); margin-bottom: 12px; }
+.fcols ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.credit { margin-top: 48px; color: var(--muted); font-size: 14px; max-width: 80ch; }
+
+@media (max-width: 1100px) {
+  .tri { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .prod.p1 { grid-column: 1 / -1; min-height: 0; }
+  .prod { min-height: 380px; }
+}
+@media (max-width: 900px) {
+  .hero-grid, .split, .split.rev, .data, .faq, .close { grid-template-columns: minmax(0, 1fr); }
+  .nav { display: none; }
+  .bar .btn { margin-left: auto; }
+  .sheet { grid-template-columns: minmax(0, 1fr); }
+  .card { aspect-ratio: 16 / 9; }
+  .split.rev > .player { order: 2; }
+  .fcols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .tri { grid-template-columns: minmax(0, 1fr); }
+  .prod { min-height: 0; }
+  .row button { grid-template-columns: 26px minmax(0, 1fr) auto; gap: 10px; padding: 0 8px; }
+  .yr { display: none; }
+  .ovl { position: static; width: auto; border-radius: 0; box-shadow: none; }
+  .player { aspect-ratio: auto; display: grid; }
+  .player .scr { position: relative; aspect-ratio: 16 / 9; }
+  .player .tt, .player .ep, .player .track { display: none; }
+  .facts { grid-template-columns: minmax(0, 1fr); }
+  .looks span { display: none; }
+  .signin { display: none; }
+  .tile { height: 60px; padding: 0 20px; font-size: calc(18px * var(--dsize)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+  .lane { animation: none; flex-wrap: wrap; width: auto; }
+  .lane.rev { display: none; }
+}
+</style>
+
+<div class="site" id="site" data-look="plotline">
+<header>
+  <div class="wrap bar">
+    <a class="mark d" href="#top" aria-label="Lorestep home">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="currentColor" d="M6 11A5 5 0 0 1 11 6L14.5 6A2 2 0 0 1 16.5 8L16.5 19.5L26.5 19.5A2 2 0 0 1 28.5 21.5L28.5 31.5L40 31.5A2 2 0 0 1 42 33.5L42 37A5 5 0 0 1 37 42L11 42A5 5 0 0 1 6 37Z"/><path fill="var(--acc)" d="M19.5 8A2 2 0 0 1 21.5 6L37 6A5 5 0 0 1 42 11L42 26.5A2 2 0 0 1 40 28.5L33.5 28.5A2 2 0 0 1 31.5 26.5L31.5 16.5L21.5 16.5A2 2 0 0 1 19.5 14.5Z"/></svg>
+      Lorestep
+    </a>
+    <nav class="nav" aria-label="Products">
+      <a class="tl" href="#orders">Watch orders</a>
+      <a class="tl" href="#games">Games</a>
+      <a class="tl" href="#tracker">Tracker</a>
+      <a class="tl" href="#extension">Extension</a>
+    </nav>
+    <a class="signin tl" href="#close">Sign in</a>
+    <a class="btn" href="#close">Start tracking</a>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap hero">
+    <h1 class="d">Every story, in the order it happened.</h1>
+    <div class="hero-grid">
+      <div>
+        <p class="lede">Story-order guides for films, series and games, a tracker that remembers where you are, and an extension that follows you onto Netflix.</p>
+        <div class="acts">
+          <a class="btn" href="#orders">Browse watch orders <span class="arr" aria-hidden="true">→</span></a>
+          <a class="btn ghost" href="#extension">Get the extension</a>
+        </div>
+        <dl class="stats">
+          <div><dt>game franchises in order</dt><dd class="d num">126</dd></div>
+          <div><dt>games placed in story</dt><dd class="d num">690</dd></div>
+          <div><dt>screen chronologies</dt><dd class="d num">6</dd></div>
+          <div><dt>films and series placed</dt><dd class="d num">339</dd></div>
+        </dl>
+      </div>
+
+      <div class="order" role="region" aria-label="Try a watch order">
+        <div class="tabs" role="tablist" aria-label="Franchise" id="tabs"></div>
+        <div class="order-bar">
+          <div><h2 class="d" id="o-title"></h2><p id="o-sub"></p></div>
+          <div class="switch" role="group" aria-label="Sort by">
+            <button type="button" id="s-story" aria-pressed="true">Story order</button>
+            <button type="button" id="s-release" aria-pressed="false">Release order</button>
+          </div>
+        </div>
+        <ol class="rows" id="rows"></ol>
+        <p class="order-foot">Example progress. Pick a title to open it below.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="reel" aria-label="Some of the franchises on Lorestep">
+    <div class="lane d" id="lane1"></div>
+    <div class="lane rev d" id="lane2" aria-hidden="true"></div>
+  </div>
+
+  <section class="blk" aria-labelledby="three-h">
+    <div class="wrap">
+      <h2 class="d sec-h" id="three-h">One account, three ways in.</h2>
+      <div class="tri">
+        <a class="prod p1" href="#orders">
+          <h3 class="d">Watch orders</h3>
+          <p>Connected franchises sorted by where each entry sits in the story, with branches, side paths and in-universe dates.</p>
+          <ul><li><span>Films and series</span><b class="num">339</b></li><li><span>Games</span><b class="num">690</b></li><li><span>Books</span><b>Next up</b></li></ul>
+          <span class="go">Browse orders <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="prod p2" href="#tracker">
+          <h3 class="d">Tracker</h3>
+          <p>Your library: every title you mark, its status, your like or dislike, and lists in the order you choose.</p>
+          <ul><li><span>States</span><b>5</b></li><li><span>Reactions</span><b>Like · Dislike</b></li><li><span>Export</span><b>JSON</b></li></ul>
+          <span class="go">Open your library <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="prod p3" href="#extension">
+          <h3 class="d">Extension</h3>
+          <p>Lorestep for Chrome marks what you watch on six streaming services and shows its place in the story.</p>
+          <ul><li><span>Services</span><b>6</b></li><li><span>Sync</span><b>Both ways</b></li></ul>
+          <span class="go">Add to Chrome <span aria-hidden="true">→</span></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="blk" id="orders" aria-labelledby="detail-h" style="padding-top:0">
+    <div class="wrap split">
+      <div>
+        <h2 class="d sec-h" id="detail-h">Every step opens up.</h2>
+        <p class="say">Pick any entry in a watch order to read what it is, see where it falls, and mark it where you stand. The same mark shows up in your library and in the extension.</p>
+      </div>
+      <div class="sheet" role="region" aria-label="Entry detail">
+        <div class="card" aria-hidden="true">
+          <span class="big d num" id="d-big">1</span>
+          <span class="fr" id="d-fr"></span>
+          <span class="t d" id="d-card"></span>
+          <span class="steps" id="d-steps"></span>
+        </div>
+        <div class="body">
+          <h3 class="d" id="d-title"></h3>
+          <div class="meta" id="d-meta"></div>
+          <p class="blurb" id="d-blurb"></p>
+          <div class="states" role="group" aria-label="Your status" id="d-states"></div>
+          <div class="rx" role="group" aria-label="Your reaction">
+            <button type="button" id="like" aria-pressed="false" aria-label="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v11H3V10h4Zm0 0 4-8a3 3 0 0 1 3 3v4h6a2 2 0 0 1 2 2.3l-1.4 8A2 2 0 0 1 18.6 21H7"/></svg></button>
+            <button type="button" id="dislike" aria-pressed="false" aria-label="Dislike"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M17 14V3h4v11h-4Zm0 0-4 8a3 3 0 0 1-3-3v-4H4a2 2 0 0 1-2-2.3l1.4-8A2 2 0 0 1 5.4 3H17"/></svg></button>
+            <output id="rx-say">No reaction yet</output>
+          </div>
+          <div class="next"><span>Next in story order</span><button type="button" id="d-next"></button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="blk" id="games" aria-labelledby="games-h" style="padding-top:0">
+    <div class="wrap">
+      <div class="split">
+        <h2 class="d sec-h" id="games-h">Games get the same treatment.</h2>
+        <p class="say" style="margin-top:0">126 game franchises, each split into its storylines, with the version worth playing today, the platforms it runs on, how long it takes and where to start.</p>
+      </div>
+      <div class="tablebox">
+        <table class="gtable">
+          <caption class="d" style="text-align:left;font-size:calc(clamp(26px,2.4vw,38px) * var(--dsize));padding-bottom:8px">Metal Gear</caption>
+          <thead><tr><th scope="col">#</th><th scope="col">Game</th><th scope="col">Released</th><th scope="col">Hours</th><th scope="col">Play it on</th></tr></thead>
+          <tbody id="mg"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="blk fieldsec" id="tracker" aria-labelledby="tracker-h">
+    <div class="wrap split">
+      <div>
+        <h2 class="d sec-h" id="tracker-h">Your place in every story.</h2>
+        <p class="say">Everything you mark, from a watch order, your library or the extension, lands in one library. Filter it by state or by what you liked.</p>
+        <div class="prog" id="prog"></div>
+      </div>
+      <div class="lib" role="region" aria-label="Library example">
+        <div class="filters" role="group" aria-label="Filter" id="filters"></div>
+        <ul class="libl" id="libl"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="blk" id="extension" aria-labelledby="ext-h">
+    <div class="wrap split rev">
+      <div class="player" role="img" aria-label="A streaming player with the Lorestep panel open over it, showing Andor as step 9 of the Star Wars story order">
+        <div class="scr"></div>
+        <span class="tt">Andor</span>
+        <span class="ep">Season 1 · Episode 4 · Aldhani</span>
+        <span class="track"></span>
+        <div class="ovl" aria-hidden="true">
+          <div class="top"><b><svg viewBox="0 0 48 48"><path fill="currentColor" d="M6 11A5 5 0 0 1 11 6L14.5 6A2 2 0 0 1 16.5 8L16.5 19.5L26.5 19.5A2 2 0 0 1 28.5 21.5L28.5 31.5L40 31.5A2 2 0 0 1 42 33.5L42 37A5 5 0 0 1 37 42L11 42A5 5 0 0 1 6 37Z"/><path fill="var(--acc)" d="M19.5 8A2 2 0 0 1 21.5 6L37 6A5 5 0 0 1 42 11L42 26.5A2 2 0 0 1 40 28.5L33.5 28.5A2 2 0 0 1 31.5 26.5L31.5 16.5L21.5 16.5A2 2 0 0 1 19.5 14.5Z"/></svg>Lorestep</b><span class="stepno d num">9 / 17</span></div>
+          <span class="where">Step 9 in <b>Star Wars</b> story order. Next: <b>Star Wars Rebels</b></span>
+          <div class="btns"><button type="button" class="on">Watching</button><button type="button">Done</button><button type="button">Hold</button><button type="button" class="lk on">Liked</button></div>
+        </div>
+      </div>
+      <div>
+        <h2 class="d sec-h" id="ext-h">It follows you onto Netflix.</h2>
+        <ol class="how">
+          <li><div><b>Open a title on a streaming site</b><span>The extension reads the title on the page you are on, nothing else.</span></div></li>
+          <li><div><b>Lorestep finds its place</b><span>If the title is in a watch order, the panel shows its step and what comes next.</span></div></li>
+          <li><div><b>Mark it once, see it everywhere</b><span>Status and reactions sync to your library and every watch order.</span></div></li>
+        </ol>
+        <ul class="svc" aria-label="Supported services"><li>Netflix</li><li>Prime Video</li><li>JioHotstar</li><li>HBO Max</li><li>Crunchyroll</li><li>ZEE5</li></ul>
+        <div class="acts"><a class="btn" href="#close">Add to Chrome <span class="arr" aria-hidden="true">→</span></a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="blk" aria-labelledby="data-h" style="padding-top:0">
+    <div class="wrap data">
+      <h2 class="d sec-h" id="data-h" style="font-size:calc(clamp(36px,4vw,72px) * var(--dsize))">Your data stays yours.</h2>
+      <div class="facts">
+        <div class="fact"><b>Export everything</b><span>Download your whole library and every list as one JSON file, any time.</span></div>
+        <div class="fact"><b>Erase in one step</b><span>Deleting your account removes your library, lists, sessions and sign-in in one go.</span></div>
+        <div class="fact"><b>See every device</b><span>Your account page lists each signed-in browser, so you can sign one out.</span></div>
+        <div class="fact"><b>The extension reads one thing</b><span>Only the title on the page you are watching. Its sign-in stays inside the extension.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="blk" aria-labelledby="faq-h" style="padding-top:0">
+    <div class="wrap faq">
+      <h2 class="d sec-h" id="faq-h" style="font-size:calc(clamp(36px,4vw,72px) * var(--dsize))">Questions</h2>
+      <div class="qs">
+        <details open><summary>What is story order?</summary><p>The order events happen inside the fiction. Captain Marvel came out in 2019 but is set in 1995, so in story order it comes before Iron Man. Release order is the order things came out.</p></details>
+        <details><summary>Is Lorestep free?</summary><p>Yes. Browsing every watch order needs no account. The tracker and the extension need a free account so your marks can follow you.</p></details>
+        <details><summary>Which streaming services does the extension support?</summary><p>Netflix, Prime Video, JioHotstar, HBO Max, Crunchyroll and ZEE5, in Chrome and other Chromium browsers.</p></details>
+        <details><summary>What happens when something has no single right order?</summary><p>Watch orders mark branches and side paths, give in-universe dates where the source has them, and flag optional entries, so you can choose.</p></details>
+        <details><summary>Can I make my own order?</summary><p>Yes. Lists let you collect titles in any order you like, such as a weekend marathon.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap" id="close">
+    <div class="close">
+      <h2 class="d">Start at step one.</h2>
+      <div style="display:grid;gap:20px;justify-items:start">
+        <p style="font-size:19px;max-width:34ch">Make a free account and every mark you set follows you, on the site and on the streaming services you use.</p>
+        <a class="btn" href="#top">Create an account <span class="arr" aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="bigname d" aria-hidden="true">Lorestep</p>
+    <div class="fcols">
+      <div><h3>Watch orders</h3><ul><li><a class="tl" href="#orders">Movies &amp; Series</a></li><li><a class="tl" href="#games">Games</a></li><li><a class="tl" href="#orders">Books</a></li></ul></div>
+      <div><h3>Tracker</h3><ul><li><a class="tl" href="#tracker">Library</a></li><li><a class="tl" href="#tracker">Lists</a></li><li><a class="tl" href="#close">Account</a></li></ul></div>
+      <div><h3>Extension</h3><ul><li><a class="tl" href="#extension">Lorestep for Chrome</a></li><li><a class="tl" href="#extension">Supported services</a></li></ul></div>
+      <div><h3>Lorestep</h3><ul><li><a class="tl" href="#top">About</a></li><li><a class="tl" href="#top">Docs</a></li><li><a class="tl" href="#top">GitHub</a></li></ul></div>
+    </div>
+    <p class="credit">Mockup for review. Titles, story order, game hours and platforms are from the Lorestep dataset; years, runtimes and synopses for films and series are filled in by hand here and will come from TMDB in the real build. All progress and reactions shown are examples.</p>
+  </div>
+</footer>
+
+<div class="looks" role="group" aria-label="Pick a look">
+  <span>Look</span>
+  <button type="button" data-look="plotline" aria-pressed="true"><i style="background:#60a5fa;box-shadow:inset -6px 0 0 #135bec"></i>Plotline</button>
+  <button type="button" data-look="hybrid" aria-pressed="false"><i style="background:#e8b84a;box-shadow:inset -6px 0 0 #6e1620"></i>Hybrid</button>
+  <button type="button" data-look="multiverse" aria-pressed="false"><i style="background:#3fe0e8"></i>Multiverse</button>
+  <button type="button" data-look="marquee" aria-pressed="false"><i style="background:#ffc53d"></i>Marquee</button>
+  <button type="button" data-look="grimoire" aria-pressed="false"><i style="background:#d9ae62"></i>Grimoire</button>
+</div>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+  // [title, type, release (year.fraction for same-year order), runtime label, blurb, example status, example reaction]
+  const ORDERS = {
+    mcu: { name: "Marvel Cinematic Universe", short: "Marvel", note: "13 of the films", items: [
+      ["Captain America: The First Avenger", "Film", 2011.5, "2 h 4 min", "In 1942 Steve Rogers, too frail to enlist, is made into a super-soldier and sent against HYDRA and the Red Skull.", "completed", "like"],
+      ["Captain Marvel", "Film", 2019.2, "2 h 3 min", "In 1995 a Kree warrior crash-lands on Earth and, with a young Nick Fury, uncovers the life she had before.", "completed", "dislike"],
+      ["Iron Man", "Film", 2008.3, "2 h 6 min", "Arms maker Tony Stark escapes captivity in a suit he built in a cave, then builds a better one.", "completed", "like"],
+      ["The Incredible Hulk", "Film", 2008.4, "1 h 52 min", "Bruce Banner hides from the army while he looks for a cure for what he turns into.", "completed", null],
+      ["Iron Man 2", "Film", 2010.4, "2 h 4 min", "With the world knowing he is Iron Man, Stark faces a rival maker and a reactor that is poisoning him.", "completed", null],
+      ["Thor", "Film", 2011.4, "1 h 55 min", "Cast out of Asgard and stripped of his power, Thor has to earn back his hammer on Earth.", "completed", null],
+      ["The Avengers", "Film", 2012.4, "2 h 23 min", "Nick Fury gathers six heroes to stop Loki and an alien army over New York.", "completed", "like"],
+      ["Iron Man 3", "Film", 2013.4, "2 h 10 min", "After New York, Stark is shaken, sleepless and hunted by the Mandarin.", "watching", null],
+      ["Thor: The Dark World", "Film", 2013.8, "1 h 52 min", "Thor fights the Dark Elves for the Aether, a weapon older than the universe.", null, null],
+      ["Captain America: The Winter Soldier", "Film", 2014.3, "2 h 16 min", "Rogers finds S.H.I.E.L.D. rotten from within and meets an assassin with his old friend's face.", "plan", null],
+      ["Guardians of the Galaxy", "Film", 2014.6, "2 h 1 min", "A thief and four misfits keep an Infinity Stone from Ronan the Accuser.", "plan", null],
+      ["Guardians of the Galaxy Vol. 2", "Film", 2017.4, "2 h 16 min", "Peter Quill meets his father, a living planet with plans of his own.", null, null],
+      ["Avengers: Age of Ultron", "Film", 2015.4, "2 h 21 min", "Stark's peacekeeping program decides the only way to peace is the end of humanity.", null, null],
+    ], after: "Captain America: Civil War" },
+    sw: { name: "Star Wars", short: "Star Wars", note: "17 of the films and series", items: [
+      ["The Acolyte", "Series", 2024.4, "1 season", "A century before the films, a Jedi Master investigates a string of murders tied to his own past.", "dropped", "dislike"],
+      ["Episode I: The Phantom Menace", "Film", 1999.4, "2 h 16 min", "Two Jedi find a slave boy on Tatooine who may be the chosen one.", "completed", null],
+      ["Episode II: Attack of the Clones", "Film", 2002.4, "2 h 22 min", "Anakin guards a senator while Obi-Wan uncovers a secret clone army.", "completed", null],
+      ["The Clone Wars", "Series", 2008.8, "7 seasons", "The war between the Republic and the Separatists, told across Anakin, Obi-Wan and Ahsoka.", "completed", "like"],
+      ["Episode III: Revenge of the Sith", "Film", 2005.4, "2 h 20 min", "The war ends, the Republic becomes an Empire, and Anakin becomes Darth Vader.", "completed", "like"],
+      ["The Bad Batch", "Series", 2021.3, "3 seasons", "A squad of defective clones goes on the run after Order 66.", "hold", null],
+      ["Solo: A Star Wars Story", "Film", 2018.4, "2 h 15 min", "A young Han Solo falls in with smugglers and meets Chewbacca and Lando.", "completed", null],
+      ["Obi-Wan Kenobi", "Series", 2022.4, "1 season", "Ten years after the fall, Obi-Wan leaves Tatooine to rescue a young Leia.", "completed", null],
+      ["Andor", "Series", 2022.7, "2 seasons", "A thief becomes a rebel as the Empire tightens its grip.", "watching", "like"],
+      ["Star Wars Rebels", "Series", 2014.8, "4 seasons", "The crew of the Ghost fight the Empire in the years before the rebellion is born.", "plan", null],
+      ["Rogue One: A Star Wars Story", "Film", 2016.9, "2 h 13 min", "A band of rebels steals the plans to the Death Star.", "plan", null],
+      ["Episode IV: A New Hope", "Film", 1977.4, "2 h 1 min", "A farm boy, a smuggler and a princess take on the Death Star.", "completed", "like"],
+      ["Episode V: The Empire Strikes Back", "Film", 1980.4, "2 h 4 min", "Luke trains with Yoda as the Empire hunts the rebels across the galaxy.", "completed", "like"],
+      ["Episode VI: Return of the Jedi", "Film", 1983.4, "2 h 11 min", "Luke faces Vader and the Emperor as the rebels attack a second Death Star.", "completed", null],
+      ["The Mandalorian", "Series", 2019.9, "3 seasons", "A bounty hunter takes on a child he was paid to deliver.", null, null],
+      ["Ahsoka", "Series", 2023.6, "1 season", "Ahsoka Tano hunts for Grand Admiral Thrawn, who is gathering power in another galaxy.", null, null],
+      ["Episode VII: The Force Awakens", "Film", 2015.9, "2 h 18 min", "Thirty years on, a scavenger and a deserter are drawn into the search for Luke Skywalker.", null, null],
+    ], after: "Episode VIII: The Last Jedi" },
+    me: { name: "Middle-earth", short: "Middle-earth", note: "8 films and series", items: [
+      ["The Rings of Power", "Series", 2022.7, "2 seasons", "In the Second Age, thousands of years before the films, the rings are forged.", "watching", null],
+      ["The War of the Rohirrim", "Film", 2024.9, "2 h 14 min", "Helm Hammerhand, king of Rohan, holds out against an army in a long winter.", "plan", null],
+      ["The Hobbit: An Unexpected Journey", "Film", 2012.9, "2 h 49 min", "Bilbo Baggins is swept up by a wizard and thirteen dwarves to take back their mountain.", "completed", null],
+      ["The Hobbit: The Desolation of Smaug", "Film", 2013.9, "2 h 41 min", "The company reaches the Lonely Mountain, where the dragon is waiting.", "completed", null],
+      ["The Hobbit: The Battle of the Five Armies", "Film", 2014.9, "2 h 24 min", "Smaug falls and five armies march on the mountain's gold.", "completed", "dislike"],
+      ["The Fellowship of the Ring", "Film", 2001.9, "2 h 58 min", "Frodo inherits the One Ring and sets out to destroy it.", "completed", "like"],
+      ["The Two Towers", "Film", 2002.9, "2 h 59 min", "The fellowship is broken; Rohan fights for its life at Helm's Deep.", "completed", "like"],
+      ["The Return of the King", "Film", 2003.9, "3 h 21 min", "The war for Middle-earth ends at Mount Doom and the gates of Mordor.", "completed", "like"],
+    ], after: null },
+  };
+  const STATES = [["plan", "Plan to watch", "--st-plan"], ["watching", "Watching", "--st-watching"], ["completed", "Completed", "--st-completed"], ["hold", "On hold", "--st-hold"], ["dropped", "Dropped", "--st-dropped"]];
+  const ST = Object.fromEntries(STATES.map(([id, l, c]) => [id, { l, c: `var(${c})` }]));
+  const ROW = 54;
+  let key = "mcu", mode = "story", picked = 0;
+
+  const releaseRank = (items) => {
+    const sorted = items.map((it, i) => [it[2], i]).sort((a, b) => a[0] - b[0]);
+    const rank = []; sorted.forEach(([, i], r) => { rank[i] = r; }); return rank;
+  };
+  const chip = (s) => s ? `<span class="chip" style="background:${ST[s].c}">${ST[s].l}</span>` : `<span class="chip none">Not marked</span>`;
+
+  function tabs() {
+    $("tabs").innerHTML = Object.entries(ORDERS).map(([k, o]) => `<button type="button" role="tab" aria-selected="${k === key}" data-k="${k}">${esc(o.short)}</button>`).join("");
+    $("tabs").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { key = b.dataset.k; picked = 0; tabs(); rows(); detail(); }));
+  }
+  function rows() {
+    const o = ORDERS[key];
+    $("o-title").textContent = o.name;
+    $("rows").style.height = `${o.items.length * ROW}px`;
+    $("rows").innerHTML = o.items.map((it, i) => `
+      <li class="row" data-i="${i}"><button type="button" aria-current="${i === picked}">
+        <span class="pos num"></span><span class="nm">${esc(it[0])}</span><span class="yr num">${Math.floor(it[2])}</span>${chip(it[5])}
+      </button></li>`).join("");
+    $("rows").querySelectorAll(".row").forEach((li) => li.querySelector("button").addEventListener("click", () => {
+      picked = Number(li.dataset.i); rows(); detail();
+      $("orders").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    }));
+    place();
+  }
+  function place() {
+    const o = ORDERS[key]; const rank = releaseRank(o.items);
+    $("rows").querySelectorAll(".row").forEach((li) => {
+      const i = Number(li.dataset.i); const at = mode === "story" ? i : rank[i];
+      li.style.transform = `translateY(${at * ROW}px)`;
+      li.querySelector(".pos").textContent = at + 1;
+    });
+    $("o-sub").textContent = `${o.note}, in ${mode} order`;
+  }
+  for (const [id, m] of [["s-story", "story"], ["s-release", "release"]]) {
+    $(id).addEventListener("click", () => {
+      mode = m; $("s-story").setAttribute("aria-pressed", String(m === "story")); $("s-release").setAttribute("aria-pressed", String(m === "release")); place();
+    });
+  }
+  const ord = (n) => { const s = ["th", "st", "nd", "rd"], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
+  function detail() {
+    const o = ORDERS[key]; const it = o.items[picked]; const rank = releaseRank(o.items);
+    $("d-title").textContent = it[0]; $("d-card").textContent = it[0]; $("d-fr").textContent = o.name; $("d-big").textContent = picked + 1;
+    $("d-meta").innerHTML = [it[1], Math.floor(it[2]), it[3], `Step ${picked + 1} of ${o.items.length} in story`, `${ord(rank[picked] + 1)} released`].map((m) => `<span>${esc(m)}</span>`).join("");
+    $("d-blurb").textContent = it[4];
+    $("d-steps").innerHTML = o.items.map((_, i) => `<i class="${i <= picked ? "on" : ""}"></i>`).join("");
+    $("d-states").innerHTML = STATES.map(([id, l, c]) => `<button type="button" data-s="${id}" aria-pressed="${it[5] === id}" style="${it[5] === id ? `background:var(${c})` : ""}"><span class="dot" style="background:var(${c})"></span>${l}</button>`).join("");
+    $("d-states").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { it[5] = it[5] === b.dataset.s ? null : b.dataset.s; detail(); rows(); lib(); }));
+    $("like").setAttribute("aria-pressed", String(it[6] === "like")); $("dislike").setAttribute("aria-pressed", String(it[6] === "dislike"));
+    $("rx-say").textContent = it[6] === "like" ? "You liked this" : it[6] === "dislike" ? "You disliked this" : "No reaction yet";
+    const nx = o.items[picked + 1];
+    $("d-next").textContent = nx ? nx[0] : (o.after || "You have reached the end");
+    $("d-next").disabled = !nx;
+  }
+  for (const id of ["like", "dislike"]) $(id).addEventListener("click", () => { const it = ORDERS[key].items[picked]; it[6] = it[6] === id ? null : id; detail(); lib(); });
+  $("d-next").addEventListener("click", () => { if (ORDERS[key].items[picked + 1]) { picked += 1; rows(); detail(); } });
+
+  // Games: Metal Gear from the Lorestep dataset, story order by storyline.
+  const MG = [["Big Boss", [["Metal Gear Solid 3: Snake Eater", 2004, 16, "PC / PS5 / Xbox Series", true, false], ["Metal Gear Solid: Portable Ops", 2006, 10, "PSP", false, true], ["Metal Gear Solid: Peace Walker", 2010, 25, "PS3 / Xbox 360", false, false], ["Metal Gear Solid V: Ground Zeroes", 2014, 2, "PC / PS4 / Xbox One", false, false], ["Metal Gear Solid V: The Phantom Pain", 2015, 45, "PC / PS4 / Xbox One", false, false]]],
+    ["Solid Snake", [["Metal Gear", 1987, 4, "PC / PS4 / PS5 / Xbox Series / Switch", false, true], ["Metal Gear 2: Solid Snake", 1990, 6, "PC / PS4 / PS5 / Xbox Series / Switch", false, true], ["Metal Gear Solid", 1998, 12, "PC / PS4 / PS5 / Xbox Series / Switch", true, false], ["Metal Gear Solid 2: Sons of Liberty", 2001, 14, "PC / PS4 / PS5 / Xbox Series / Switch", false, false], ["Metal Gear Solid 4: Guns of the Patriots", 2008, 18, "PS3", false, false]]]];
+  let n = 0;
+  $("mg").innerHTML = MG.map(([arc, gs]) => `<tr class="arc-row"><td colspan="5" class="d">${arc}</td></tr>` + gs.map((g) => `<tr><td class="num">${++n}</td><td class="tt">${esc(g[0])}${g[4] ? '<span class="start">Start here</span>' : ""}${g[5] ? ' <span class="opt">· optional</span>' : ""}</td><td class="num">${g[1]}</td><td class="num">${g[2]} h</td><td>${esc(g[3])}</td></tr>`).join("")).join("");
+
+  // Tracker: the library lists every marked example title across the three orders.
+  const FILTERS = [["all", "All"], ["watching", "Watching"], ["completed", "Completed"], ["plan", "Plan to watch"], ["like", "Liked"], ["dislike", "Disliked"]];
+  let filter = "all";
+  function lib() {
+    $("filters").innerHTML = FILTERS.map(([id, l]) => `<button type="button" data-f="${id}" aria-pressed="${filter === id}">${l}</button>`).join("");
+    $("filters").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { filter = b.dataset.f; lib(); }));
+    const all = Object.values(ORDERS).flatMap((o) => o.items.map((it, i) => ({ it, o, i }))).filter(({ it }) => it[5] || it[6]);
+    const shown = all.filter(({ it }) => filter === "all" || it[5] === filter || it[6] === filter).slice(0, 7);
+    const thumb = '<svg class="r" viewBox="0 0 24 24" fill="currentColor" aria-label="Liked"><path d="M7 10v11H3V10h4Zm0 0 4-8a3 3 0 0 1 3 3v4h6a2 2 0 0 1 2 2.3l-1.4 8A2 2 0 0 1 18.6 21H7"/></svg>';
+    const down = '<svg class="r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-label="Disliked"><path d="M17 14V3h4v11h-4Zm0 0-4 8a3 3 0 0 1-3-3v-4H4a2 2 0 0 1-2-2.3l1.4-8A2 2 0 0 1 5.4 3H17"/></svg>';
+    $("libl").innerHTML = shown.length ? shown.map(({ it, o, i }) => `<li><div><b>${esc(it[0])}</b><span class="sub">${esc(o.name)} · step ${i + 1}</span></div>${it[6] === "like" ? thumb : it[6] === "dislike" ? down : "<span></span>"}${chip(it[5])}</li>`).join("") : `<li class="empty" style="background:none">Nothing here yet. Mark a title in a watch order and it appears here.</li>`;
+    $("prog").innerHTML = Object.values(ORDERS).map((o) => {
+      const d = o.items.filter((it) => it[5] === "completed").length, w = o.items.filter((it) => it[5] === "watching").length;
+      return `<div class="pf"><strong>${esc(o.name)}</strong><span class="num">${d} of ${o.items.length} done</span><span class="bars" aria-hidden="true">${o.items.map((it) => `<i class="${it[5] === "completed" ? "d" : it[5] === "watching" ? "w" : ""}"></i>`).join("")}</span></div>`;
+    }).join("");
+  }
+
+  // Franchise reel: real names from the dataset.
+  const NAMES1 = ["Marvel Cinematic Universe", "The Legend of Zelda", "Mass Effect", "Star Wars", "Metal Gear", "Final Fantasy", "The Witcher", "Middle-earth", "Assassin’s Creed", "Halo", "Persona", "DC Universe", "Resident Evil", "Dark Souls", "Kingdom Hearts"];
+  const NAMES2 = ["Yakuza / Like a Dragon", "Fallout", "God of War", "The Last of Us", "Silent Hill", "Xenoblade Chronicles", "Batman: Arkham", "Halo", "Red Dead", "Ace Attorney", "BioShock", "Tomb Raider", "Uncharted", "StarCraft", "Hollow Knight"];
+  const CLS = ["", "a", "o", "f", "", "o"];
+  const lane = (names, off) => [...names, ...names].map((nm, i) => `<span class="tile ${CLS[(i + off) % CLS.length]}">${esc(nm)}</span>`).join("");
+  $("lane1").innerHTML = lane(NAMES1, 0); $("lane2").innerHTML = lane(NAMES2, 3);
+
+  // Look switcher.
+  document.querySelectorAll(".looks button").forEach((b) => b.addEventListener("click", () => {
+    $("site").dataset.look = b.dataset.look;
+    document.querySelectorAll(".looks button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+  }));
+
+  tabs(); rows(); detail(); lib();
+})();
+</script>

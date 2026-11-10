@@ -1,7 +1,7 @@
 "use client";
 
 import EntryRow from "@/components/log/EntryRow";
-import { CARD_CLASS } from "@/constants/canon/ui";
+import { CARD_CLASS, TITLE_CLASS } from "@/constants/canon/ui";
 import { LOG_SECONDARY_CLASS, LOG_TH_CLASS } from "@/constants/log/classes";
 import { KIND_NAMES, LIBRARY_COPY } from "@/constants/log/copy";
 import type { ApiFailure } from "@/types/api/api";
@@ -59,7 +59,7 @@ export default function LibraryTable({
         <div aria-hidden="true" className="flex flex-col">
           {SKELETON_ROWS.map((id) => (
             <div
-              className="h-[58px] animate-pulse border-line border-b bg-surface/60 motion-reduce:animate-none"
+              className="h-[58px] animate-pulse border-line border-b bg-surface motion-reduce:animate-none"
               key={id}
             />
           ))}
@@ -71,7 +71,7 @@ export default function LibraryTable({
   if (failure !== null) {
     return (
       <div className={cn(CARD_CLASS, "flex flex-col items-start gap-3 p-5")} role="alert">
-        <h2 className="font-medium text-[16px] text-ink">{copy.error.title}</h2>
+        <h2 className={cn(TITLE_CLASS, "text-[18px] text-ink")}>{copy.error.title}</h2>
         <p className="text-[13px] text-muted">
           {copy.error.body.replace("{reason}", failureMessage(failure))}
         </p>
@@ -86,7 +86,7 @@ export default function LibraryTable({
     const empty = copy.empty;
     return (
       <div className={cn(CARD_CLASS, "flex flex-col items-start gap-3 p-5")}>
-        <h2 className="font-medium text-[16px] text-ink">
+        <h2 className={cn(TITLE_CLASS, "text-[18px] text-ink")}>
           {filtered ? empty.filtered : empty.first}
         </h2>
         <p className="max-w-prose text-[13px] text-muted">
@@ -139,7 +139,7 @@ export default function LibraryTable({
         {loadingMore && <p className="text-[13px] text-muted">{copy.loadingMore}</p>}
       </div>
       {moreFailure !== null && (
-        <p className="text-[13px] text-accent" role="alert">
+        <p className="text-[13px] text-danger" role="alert">
           {copy.moreFailed.replace("{reason}", failureMessage(moreFailure))}
         </p>
       )}

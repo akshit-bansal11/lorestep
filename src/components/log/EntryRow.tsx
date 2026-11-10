@@ -1,11 +1,14 @@
 "use client";
 
+import StatusChip from "@/components/log/StatusChip";
 import { CELL_CLASS, NUM_CLASS } from "@/constants/canon/ui";
-import { LIBRARY_COPY } from "@/constants/log/copy";
+import { LIBRARY_COPY, STATUS_LABELS } from "@/constants/log/copy";
+import { CANONICAL_STATUSES } from "@/constants/log/statuses";
 import type { Entry } from "@/types/log/entry";
 import { cn } from "@/utils/cn";
 import { formatProgress } from "@/utils/log/format-progress";
 import { isMediaKind } from "@/utils/log/media-kind";
+import { pick } from "@/utils/log/pick";
 import { statusLabel } from "@/utils/log/status-label";
 
 interface EntryRowProps {
@@ -23,6 +26,17 @@ const FAINT = <span className="text-faint">{LIBRARY_COPY.noValue}</span>;
 export default function EntryRow({ entry, onOpen }: EntryRowProps) {
   const progress = isMediaKind(entry.kind) ? formatProgress(entry.kind, entry.progress) : "";
   const status = statusLabel(entry);
+  const chipStatus = pick(CANONICAL_STATUSES, entry.status ?? "");
+  const statusCell =
+    isMediaKind(entry.kind) &&
+    chipStatus !== null &&
+    status === STATUS_LABELS[entry.kind][chipStatus] ? (
+      <StatusChip kind={entry.kind} status={chipStatus} />
+    ) : status === "" ? (
+      FAINT
+    ) : (
+      status
+    );
   const secondary = [entry.year === null ? "" : String(entry.year), progress]
     .filter(Boolean)
     .join(" · ");
@@ -45,7 +59,7 @@ export default function EntryRow({ entry, onOpen }: EntryRowProps) {
       <td className={cn(CELL_CLASS, NUM_CLASS, "hidden text-muted sm:table-cell")}>
         {entry.year ?? FAINT}
       </td>
-      <td className={CELL_CLASS}>{status === "" ? FAINT : status}</td>
+      <td className={CELL_CLASS}>{statusCell}</td>
       <td className={cn(CELL_CLASS, NUM_CLASS)}>{entry.rating ?? FAINT}</td>
       <td className={cn(CELL_CLASS, NUM_CLASS, "hidden text-muted sm:table-cell")}>
         {progress === "" ? FAINT : progress}

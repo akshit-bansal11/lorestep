@@ -32,7 +32,7 @@ Lorestep does it once, per franchise: every entry sits where it falls in the sto
 - **Track your progress** per game: status, the device you play on and the store you own it from. It lives in your browser, with no account and no sign-up, and stays in sync across tabs.
 - **Know what to buy.** Each game names the edition worth getting, marks the one to start with, flags what is optional or skippable, and shows current PC prices from [IsThereAnyDeal](https://isthereanydeal.com).
 - **Keyboard first.** `Cmd/Ctrl K` jumps to any franchise or game; every view has a shareable URL (`/games#/witcher`, `/games#/ac/desmond`).
-- **Light and dark themes**, usable at phone width, and checked against WCAG AA.
+- **A dark design** in Plotline's palette, usable at phone width, and checked against WCAG AA.
 
 ## One product, three parts
 

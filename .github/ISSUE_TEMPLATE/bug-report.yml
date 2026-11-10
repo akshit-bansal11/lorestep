@@ -37,11 +37,3 @@ body:
       placeholder: Firefox 131 on Windows 11, or Safari on an iPhone 15
     validations:
       required: true
-  - type: dropdown
-    id: theme
-    attributes:
-      label: Theme
-      options:
-        - Light
-        - Dark
-        - Not sure
