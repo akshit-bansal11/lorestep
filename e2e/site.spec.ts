@@ -60,7 +60,8 @@ test("the extension page marks its nav link and keeps headings to two lines", as
       .evaluateAll((nodes) =>
         nodes.map(
           (node) =>
-            node.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(node).lineHeight),
+            node.getBoundingClientRect().height /
+            Number.parseFloat(getComputedStyle(node).lineHeight),
         ),
       );
     for (const ratio of ratios) expect(ratio).toBeLessThanOrEqual(2.05);
