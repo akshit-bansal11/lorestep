@@ -43,7 +43,7 @@
   --t-md: 14px;
   --h2: 22px;
   --wordmark: 26px;
-  --pad: var(--sp-4);
+  --pad: 14px;
   --gap: var(--sp-3);
   --font: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --display: "Big Shoulders Display", "Arial Narrow", system-ui, sans-serif;
@@ -75,7 +75,9 @@ html {
 }
 body {
   margin: 0;
-  width: 380px;
+  /* Chrome caps a popup at 800 x 600: wide enough that the header, buttons and filters sit on one
+     line, with the list scrolling inside so the page fits the height. */
+  width: 460px;
   background: var(--bg);
   color: var(--fg);
   font: 400 var(--t-md) / 1.45 var(--font);
@@ -86,7 +88,7 @@ html.tab body {
 main {
   display: grid;
   gap: var(--gap);
-  padding: var(--sp-4);
+  padding: var(--sp-3);
 }
 html.tab main {
   max-width: 960px;
@@ -141,6 +143,7 @@ h2 {
   color: var(--muted);
   font-size: var(--t-xs);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .count::before {
   content: " · ";
@@ -170,6 +173,8 @@ button.primary {
   border-radius: var(--r-pill);
   padding: var(--sp-2) var(--sp-4);
   min-height: 32px;
+  white-space: nowrap;
+  flex: none;
   cursor: pointer;
   transition: background var(--fast);
 }
@@ -226,8 +231,8 @@ input[type="search"]::placeholder {
   padding: 0;
   min-width: 0;
   display: flex;
-  gap: var(--sp-1);
-  overflow-x: auto;
+  gap: 6px;
+  flex-wrap: wrap; /* a second line only when the states don't fit, never a scrollbar */
 }
 .tabs button {
   flex: none;
@@ -239,8 +244,9 @@ input[type="search"]::placeholder {
   background: var(--raise);
   border: 0;
   border-radius: var(--r-pill);
-  padding: 8px 12px;
+  padding: 7px 11px;
   min-height: 30px;
+  white-space: nowrap;
   cursor: pointer;
 }
 .tabs button[aria-pressed="true"] {
@@ -261,8 +267,8 @@ input[type="search"]::placeholder {
   list-style: none;
   margin: 0;
   padding: 0;
-  min-height: 180px;
-  max-height: 360px;
+  min-height: 120px;
+  max-height: 280px;
   overflow-y: auto;
 }
 html.tab .list {
