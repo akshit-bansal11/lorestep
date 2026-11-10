@@ -23,10 +23,7 @@ const walk = (dir) =>
         return statSync(p).isDirectory() ? walk(p) : [p];
       });
 
-const shipped = [
-  ...["core", "adapters", "library"].flatMap((d) => walk(join(root, d))),
-  join(root, "background.js"),
-];
+const shipped = [...["core", "adapters", "library"].flatMap((d) => walk(join(root, d))), join(root, "background.js")];
 const js = [...shipped, ...walk(join(root, "tests")), ...walk(join(root, "scripts"))].filter((f) =>
   /\.(m?js)$/.test(f),
 );
