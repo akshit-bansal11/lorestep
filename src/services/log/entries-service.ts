@@ -5,6 +5,7 @@ import { ENTRY_LIMITS } from "@/constants/log/entries";
 import { db } from "@/lib/db/client";
 import { pgErrorCode } from "@/lib/db/pg-error-code";
 import { entries, games } from "@/lib/db/schema";
+import { statusDatesInsert, statusDatesSet } from "@/lib/db/status-dates";
 import { HttpError } from "@/lib/http/http-error";
 import { ENTRY_COLUMNS, toEntry } from "@/mappers/log/entry-mapper";
 import { toCanonical } from "@/mappers/log/status-mapper";
@@ -93,7 +94,9 @@ export async function getEntry(userId: string, id: string): Promise<Entry | null
  */
 export async function createEntry(userId: string, input: EntryCreate): Promise<Entry> {
   const status = input.status ?? null;
-  const statusAt = status === null ? null : iso(new Date());
+  const now = new Date();
+  const statusAt = status === null ? null : iso(now);
+  const dates = statusDatesInsert(status, now);
   let id: string | undefined;
   try {
     const result = await db().execute<{ id: string }>(sql`
@@ -106,7 +109,8 @@ export async function createEntry(userId: string, input: EntryCreate): Promise<E
         ${JSON.stringify(input.progress ?? {})}::jsonb, ${input.repeatCount ?? 0}::integer,
         ${input.device ?? null}, ${input.storefront ?? null}, ${input.gameId ?? null},
         ${input.ext?.source ?? null}, ${input.ext?.id ?? null}, ${input.imageUrl ?? null},
-        ${iso(input.startedAt)}::timestamptz, ${iso(input.completedAt)}::timestamptz
+        ${iso(input.startedAt ?? dates.startedAt)}::timestamptz,
+        ${iso(input.completedAt ?? dates.completedAt)}::timestamptz
       WHERE (SELECT count(*) FROM entries WHERE user_id = ${userId} AND deleted_at IS NULL)
         < ${ENTRY_LIMITS.perUser}
       RETURNING id`);
@@ -131,6 +135,8 @@ export async function updateEntry(
   const { title, status, ext, ...rest } = patch;
   const now = new Date();
   const set = {
+    // Before `rest`, so a date the caller sends in the same patch wins.
+    ...(status === undefined ? {} : statusDatesSet(status, now)),
     ...rest,
     ...(title === undefined ? {} : { title, titleNorm: normTitle(title) }),
     ...(status === undefined ? {} : { status, statusAt: now }),
@@ -195,7 +201,14 @@ export async function setGameEntry(
   const state = input.status === null ? { status: null, shelf: null } : toCanonical(input.status);
   const [row] = await db()
     .update(entries)
-    .set({ ...state, statusAt: now, device, storefront, updatedAt: now })
+    .set({
+      ...state,
+      statusAt: now,
+      ...statusDatesSet(state.status, now),
+      device,
+      storefront,
+      updatedAt: now,
+    })
     .where(ownGame)
     .returning(ENTRY_COLUMNS);
   if (row !== undefined) return toEntry(row);
