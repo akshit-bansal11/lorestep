@@ -45,9 +45,7 @@ export default function GameCell({ game, onOpen }: GameCellProps) {
       </span>
 
       {game.editions.length > 1 ? (
-        <span className="text-[10px] text-faint tabular-nums">
-          {game.editions.length} editions
-        </span>
+        <span className="text-[10px] text-faint tabular-nums">{game.editions.length} editions</span>
       ) : null}
     </button>
   );

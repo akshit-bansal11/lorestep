@@ -27,9 +27,7 @@ export default function FranchiseHead({
   return (
     <div className="anim-rise flex shrink-0 flex-col gap-2.5 border-line border-b px-3 py-3">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h1 className={cn(TITLE_CLASS, "text-[22px] text-ink")}>
-          {franchise.name}
-        </h1>
+        <h1 className={cn(TITLE_CLASS, "text-[22px] text-ink")}>{franchise.name}</h1>
         <span className="text-[10px] text-faint tabular-nums">
           {stats.total} games
           {stats.hours > 0 ? ` · ${stats.hours}h` : ""}

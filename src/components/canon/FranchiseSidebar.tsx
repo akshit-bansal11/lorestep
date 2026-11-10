@@ -106,9 +106,7 @@ export default function FranchiseSidebar({
                       {stats.arcs} arcs
                     </span>
                   ) : null}
-                  <span className="text-[10px] text-faint tabular-nums">
-                    {stats.total}
-                  </span>
+                  <span className="text-[10px] text-faint tabular-nums">{stats.total}</span>
                 </span>
                 {stats.completed > 0 ? (
                   <ProgressMeter

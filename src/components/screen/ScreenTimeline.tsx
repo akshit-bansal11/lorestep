@@ -65,9 +65,7 @@ function Row({ entry, position }: { entry: ScreenEntry; position: number }) {
           <Meta entry={entry} />
         </span>
         {entry.note === "" ? null : (
-          <span className="max-w-prose text-[16px] text-muted leading-relaxed">
-            {entry.note}
-          </span>
+          <span className="max-w-prose text-[16px] text-muted leading-relaxed">{entry.note}</span>
         )}
       </span>
     </li>

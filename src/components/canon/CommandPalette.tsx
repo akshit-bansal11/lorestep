@@ -106,9 +106,7 @@ export default function CommandPalette({ franchises, onClose, onPick }: CommandP
                     {hit.kind === "franchise" ? "Series" : "Game"}
                   </span>
                   <span className="flex-1 truncate text-[13px] text-ink">{hit.label}</span>
-                  <span className="shrink-0 text-[10px] text-faint tabular-nums">
-                    {hit.sub}
-                  </span>
+                  <span className="shrink-0 text-[10px] text-faint tabular-nums">{hit.sub}</span>
                 </button>
               </li>
             ))
