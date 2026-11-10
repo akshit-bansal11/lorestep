@@ -1,26 +1,48 @@
 @import "tailwindcss";
 
-/* ── Tone spine — dark only, one accent. The owner chose a dark-only look on
-   2026-11-10, so there is no light block and no theme switch. Every text tone
-   is checked at 4.5:1 or better against canvas, surface, raise and
-   accent-soft; the accent is the only hue, and it marks what is active,
-   current or a link. ────────────────────────────────────────────────────── */
+/* ── Tone spine: Plotline, dark only, one accent. ────────────────────────
+   DES-19 rationale, owner decisions of 2026-11-10: dark only (one theme, so
+   DES-03/24 do not apply); display headings are uppercase (the Plotline look
+   is built on condensed caps); three font families (display, title, text),
+   one role each, see DECISIONS.md "Fonts". The accent is the only hue and
+   marks what is active, current or a link.
+   Measured WCAG 2.2 pairs (src/app/tokens.test.ts re-asserts them), in the
+   order canvas / surface / raise / line:
+   text 18.01 / 17.04 / 15.83 / 13.77; muted 7.73 / 7.31 / 6.79 / 5.91;
+   faint 6.17 / 5.84 / 5.43 / 4.72 (5.06 on accent-soft; #8b8b94 fails, 4.48);
+   accent 7.79 / 7.37 / 6.85 / 5.95; accent-ink on accent 7.79;
+   on accent-soft: text 14.75, muted 6.33, accent 6.38;
+   accent-line 3.91 / 3.70 / 3.44 (underline and decoration only, 3:1);
+   edge 4.10 / 3.86 / 3.60 / 3.13 (control outlines, 3:1);
+   field-ink on field 5.62 (text, muted and accent fail on field: never used);
+   danger (= st-dropped) 7.09 / 6.70 / 6.23 / 5.42;
+   status fills behind st-ink: in-progress 17.31, planned 7.43,
+   completed 10.14, on-hold 12.43, dropped 6.81. Hue never stands alone:
+   every status also carries a shape and a label (DES-11). ──────────────── */
 :root {
   color-scheme: dark;
-  --tone-canvas: #0f0e0d;
-  --tone-surface: #171615;
-  --tone-raise: #201e1c;
-  --tone-line: #2a2724;
-  --tone-edge: #403b36;
-  --tone-text: #ede9e3;
-  --tone-muted: #a9a299;
-  --tone-faint: #8e877e;
-  --tone-invert: #0f0e0d;
-  --tone-accent: #f0894a;
-  --tone-accent-ink: #1a0d05;
-  --tone-accent-soft: #2a1c14;
-  --tone-accent-line: #6b3a1f;
-  --tone-veil: rgb(0 0 0 / 62%);
+  --tone-canvas: #0a0a0a;
+  --tone-surface: #121212;
+  --tone-raise: #1a1a1a;
+  --tone-line: #262626;
+  --tone-edge: #71717a;
+  --tone-text: #f4f4f5;
+  --tone-muted: #a1a1aa;
+  --tone-faint: #8f8f98;
+  --tone-accent: #60a5fa;
+  --tone-accent-ink: #0a0a0a;
+  --tone-accent-soft: #13203a;
+  --tone-accent-line: #3b6fb8;
+  --tone-field: #135bec;
+  --tone-field-ink: #fff;
+  --tone-st-planned: #a1a1aa;
+  --tone-st-in-progress: #f4f4f5;
+  --tone-st-completed: #3dd68c;
+  --tone-st-on-hold: #facc15;
+  --tone-st-dropped: #ff6b5e;
+  --tone-st-ink: #0e1015;
+  --tone-danger: var(--tone-st-dropped);
+  --tone-veil: rgb(0 0 0 / 70%);
   --tone-cast: 0 12px 40px rgb(0 0 0 / 55%);
 
   /* Motion — one scale, no bounce. Every duration is multiplied by
@@ -34,12 +56,15 @@
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 
-  /* Radius hierarchy — controls read tighter than cards, cards than overlays. */
-  --radius-control: 3px;
-  --radius-card: 6px;
-  --radius-overlay: 10px;
+  /* Radius hierarchy — controls read tighter than cards, cards than overlays.
+     Buttons and chips use rounded-full. */
+  --radius-control: 10px;
+  --radius-card: 20px;
+  --radius-overlay: 28px;
 }
 
+/* next/font sets --nf-* on <html> (src/lib/fonts.ts). They are not named
+   --font-*, which would make these theme entries reference themselves. */
 @theme inline {
   --color-canvas: var(--tone-canvas);
   --color-surface: var(--tone-surface);
@@ -49,16 +74,26 @@
   --color-ink: var(--tone-text);
   --color-muted: var(--tone-muted);
   --color-faint: var(--tone-faint);
-  --color-invert: var(--tone-invert);
   --color-accent: var(--tone-accent);
   --color-accent-ink: var(--tone-accent-ink);
   --color-accent-soft: var(--tone-accent-soft);
   --color-accent-line: var(--tone-accent-line);
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --color-field: var(--tone-field);
+  --color-field-ink: var(--tone-field-ink);
+  --color-danger: var(--tone-danger);
+  --color-status-planned: var(--tone-st-planned);
+  --color-status-in-progress: var(--tone-st-in-progress);
+  --color-status-completed: var(--tone-st-completed);
+  --color-status-on-hold: var(--tone-st-on-hold);
+  --color-status-dropped: var(--tone-st-dropped);
+  --color-status-ink: var(--tone-st-ink);
+  --font-display: var(--nf-display), "Arial Narrow", system-ui, sans-serif;
+  --font-title: var(--nf-title), Georgia, "Times New Roman", serif;
+  --font-sans: var(--nf-text), ui-sans-serif, system-ui, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", "Menlo", monospace;
-  --radius-control: 3px;
-  --radius-card: 6px;
-  --radius-overlay: 10px;
+  --radius-control: 10px;
+  --radius-card: 20px;
+  --radius-overlay: 28px;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -67,11 +102,16 @@ body {
   background: var(--tone-canvas);
   color: var(--tone-text);
   font-family: var(--font-sans);
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
+  font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizelegibility;
+}
+
+/* Mono is for real code only. */
+code,
+pre {
+  font-family: var(--font-mono);
 }
 
 :focus-visible {

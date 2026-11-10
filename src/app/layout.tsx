@@ -3,6 +3,8 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import Observability from "@/components/site/Observability";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/constants/site";
+import { displayFont, textFont, titleFont } from "@/lib/fonts";
+import { cn } from "@/utils/cn";
 import "@/app/globals.css";
 
 export const metadata: Metadata = {
@@ -28,7 +30,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={cn(displayFont.variable, titleFont.variable, textFont.variable)}>
       <body>
         {children}
         <Observability />
