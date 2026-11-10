@@ -113,44 +113,44 @@ export default function LibraryTable({
       {view === "cards" && <LibraryCards items={items} onOpen={onOpen} />}
       {view === "list" && <LibraryList items={items} onOpen={onOpen} />}
       {view === "table" && (
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <caption className="sr-only">{copy.tableCaption}</caption>
-          <thead>
-            <tr>
-              <th className={LOG_TH_CLASS} scope="col">
-                {copy.columns.title}
-              </th>
-              <th className={cn(LOG_TH_CLASS, "hidden sm:table-cell")} scope="col">
-                {copy.columns.year}
-              </th>
-              <th className={LOG_TH_CLASS} scope="col">
-                {copy.columns.status}
-              </th>
-              <th className={LOG_TH_CLASS} scope="col">
-                {copy.columns.rating}
-              </th>
-              <th className={cn(LOG_TH_CLASS, "hidden sm:table-cell")} scope="col">
-                {copy.columns.progress}
-              </th>
-              <th className={cn(LOG_TH_CLASS, "hidden md:table-cell")} scope="col">
-                {copy.columns.completed}
-              </th>
-              <th className={cn(LOG_TH_CLASS, "hidden lg:table-cell")} scope="col">
-                {copy.columns.started}
-              </th>
-              <th className={cn(LOG_TH_CLASS, "hidden lg:table-cell")} scope="col">
-                {copy.columns.updated}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((entry) => (
-              <EntryRow entry={entry} key={entry.id} onOpen={onOpen} />
-            ))}
-          </tbody>
-        </table>
-      </div>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <caption className="sr-only">{copy.tableCaption}</caption>
+            <thead>
+              <tr>
+                <th className={LOG_TH_CLASS} scope="col">
+                  {copy.columns.title}
+                </th>
+                <th className={cn(LOG_TH_CLASS, "hidden sm:table-cell")} scope="col">
+                  {copy.columns.year}
+                </th>
+                <th className={LOG_TH_CLASS} scope="col">
+                  {copy.columns.status}
+                </th>
+                <th className={LOG_TH_CLASS} scope="col">
+                  {copy.columns.rating}
+                </th>
+                <th className={cn(LOG_TH_CLASS, "hidden sm:table-cell")} scope="col">
+                  {copy.columns.progress}
+                </th>
+                <th className={cn(LOG_TH_CLASS, "hidden md:table-cell")} scope="col">
+                  {copy.columns.completed}
+                </th>
+                <th className={cn(LOG_TH_CLASS, "hidden lg:table-cell")} scope="col">
+                  {copy.columns.started}
+                </th>
+                <th className={cn(LOG_TH_CLASS, "hidden lg:table-cell")} scope="col">
+                  {copy.columns.updated}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((entry) => (
+                <EntryRow entry={entry} key={entry.id} onOpen={onOpen} />
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <div aria-live="polite" role="status">
