@@ -42,7 +42,21 @@
       el = box;
       cs = getComputedStyle(el);
     }
-    return { el, relative: cs.position === "static" };
+    return { el, relative: cs.position === "static", radius: radiusOf(img, box) };
+  };
+
+  /**
+   * The artwork's rounded corners, so the outline and the fold follow them instead of poking
+   * out square. Netflix rounds a wrapper, others round the <img> itself: the first non-zero
+   * radius from the image up to the tile wins, "" when the artwork is square.
+   */
+  const radiusOf = (img, box) => {
+    for (let el = img; el; el = el.parentElement) {
+      const r = getComputedStyle(el).borderRadius;
+      if (r && !/^0(px)?$/.test(r)) return r;
+      if (el === box) break;
+    }
+    return "";
   };
 
   // "Netflix", "Prime Video", "Watch on Crunchyroll", "Netflix Official Site": yes.
@@ -286,7 +300,7 @@
       let mount = f.rec?.mount;
       if (!mount) {
         if (f.target.relative) f.target.el.style.position = "relative";
-        mount = D.mountCard(f.target.el);
+        mount = D.mountCard(f.target.el, f.target.radius);
         mounts.add(mount);
       }
       // Same key as before the recycle, or a new one: either way it repaints from the store.

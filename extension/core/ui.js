@@ -31,13 +31,13 @@ ${STATE_VARS}
   const CARD_CSS = `
 :host{all:initial;position:absolute!important;inset:0!important;z-index:3;pointer-events:none!important;${TOKENS}}
 ${SHARED}
-.w{position:absolute;inset:0;container-type:size}
+.w{position:absolute;inset:0;container-type:size;border-radius:var(--tile-r,0);overflow:hidden}
 .w:not([data-k]){display:none}
 .dim{position:absolute;inset:0}
 .w[data-dim][data-s="completed"] .dim{background:rgba(0,0,0,.5)}
 .w[data-dim][data-s="hold"] .dim{background:rgba(0,0,0,.3)}
 .w[data-dim][data-s="dropped"] .dim{background:rgba(0,0,0,.6)}
-.ring{position:absolute;inset:0;border-radius:4px;box-shadow:inset 0 0 0 2px var(--st);display:none}
+.ring{position:absolute;inset:0;border-radius:var(--tile-r,4px);box-shadow:inset 0 0 0 2px var(--st);display:none}
 .w[data-s="watching"] .ring{display:block}
 .w .fold{width:clamp(18px,22cqmin,44px);display:none}
 .w[data-s] .fold{display:block}`;
@@ -220,8 +220,10 @@ ${SHARED}
    * scanner keeps: update(info) points it at a (possibly different) title, paint() redraws from
    * the store.
    */
-  D.mountCard = (target) => {
+  D.mountCard = (target, radius = "") => {
     const host = document.createElement("lorestep-mark");
+    // The artwork's corner radius (scan.js radiusOf): the overlay clips to it.
+    if (radius) host.style.setProperty("--tile-r", radius);
     const root = host.attachShadow({ mode: "closed" });
     adopt(root, CARD_CSS);
     const w = el("div", "w");
