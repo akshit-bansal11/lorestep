@@ -28,7 +28,9 @@ export default function EntryRow({ entry, onOpen }: EntryRowProps) {
   const status = statusLabel(entry);
   const chipStatus = pick(CANONICAL_STATUSES, entry.status ?? "");
   const statusCell =
-    isMediaKind(entry.kind) && chipStatus !== null && status === STATUS_LABELS[entry.kind][chipStatus] ? (
+    isMediaKind(entry.kind) &&
+    chipStatus !== null &&
+    status === STATUS_LABELS[entry.kind][chipStatus] ? (
       <StatusChip kind={entry.kind} status={chipStatus} />
     ) : status === "" ? (
       FAINT
