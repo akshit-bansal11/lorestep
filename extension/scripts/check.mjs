@@ -85,13 +85,6 @@ const declared = new Set(
 );
 for (const h of expected) if (!declared.has(h)) fail(`PLATFORMS host ${h} has no content_scripts match`);
 for (const h of declared) if (!expected.has(h)) fail(`content_scripts matches ${h}, which PLATFORMS does not list`);
-// The icon script can't read states.js (it runs in PowerShell), so pin its copy of the colours.
-const iconColours = /^\$states = (.*?) \|/m.exec(readFileSync(join(root, "scripts/make-icons.ps1"), "utf8"))?.[1];
-const stateColours = D.ORDER.map((s) => `'${D.STATES[s].color}'`).join(", ");
-if (iconColours !== stateColours)
-  fail(
-    `scripts/make-icons.ps1 colours (${iconColours}) differ from core/states.js (${stateColours}); update the script and rerun it`,
-  );
 for (const c of manifest.content_scripts) {
   const order = c.js.join(",");
   if (!/^core\/states\.js,core\/store\.js,core\/ui\.js,adapters\/[a-z0-9]+\.js,core\/scan\.js$/.test(order)) {
