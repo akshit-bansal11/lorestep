@@ -28,7 +28,7 @@ export default function RatingInput({ value, error, onChange }: RatingInputProps
         <input
           aria-describedby={error === undefined ? hintId : `${hintId} ${errorId}`}
           aria-invalid={error === undefined ? undefined : true}
-          className={cn(LOG_CONTROL_CLASS, "w-28", error !== undefined && "border-accent")}
+          className={cn(LOG_CONTROL_CLASS, "w-28", error !== undefined && "border-danger")}
           inputMode="numeric"
           max={RATING_MAX}
           min={RATING_MIN}
@@ -41,7 +41,7 @@ export default function RatingInput({ value, error, onChange }: RatingInputProps
         {LIBRARY_COPY.editor.ratingHint}
       </p>
       {error !== undefined && (
-        <p className="text-[12px] text-accent" id={errorId}>
+        <p className="text-[12px] text-danger" id={errorId}>
           {error}
         </p>
       )}

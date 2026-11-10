@@ -144,7 +144,7 @@ function EditorForm({ entry, onClose, onSave, onDelete }: EditorFormProps) {
       </label>
 
       <div role="alert">
-        {failure !== "" && <p className="text-[12px] text-accent">{failure}</p>}
+        {failure !== "" && <p className="text-[12px] text-danger">{failure}</p>}
       </div>
 
       <div className="flex flex-wrap gap-2">

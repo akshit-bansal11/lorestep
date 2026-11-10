@@ -9,7 +9,7 @@ export default function OfflineNote({ online }: OfflineNoteProps) {
   return (
     <div aria-live="polite" role="status">
       {!online && (
-        <p className="rounded-card border border-accent-line bg-accent-soft px-4 py-2 text-[13px] text-ink">
+        <p className="rounded-card bg-accent-soft px-4 py-2 text-[13px] text-ink">
           {LISTS_COPY.offline}
         </p>
       )}

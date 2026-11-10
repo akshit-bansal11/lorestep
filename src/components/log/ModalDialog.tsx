@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode, useEffect, useId, useRef } from "react";
+import { TITLE_CLASS } from "@/constants/canon/ui";
 import { cn } from "@/utils/cn";
 
 interface ModalDialogProps {
@@ -49,10 +50,10 @@ export default function ModalDialog({
     <dialog
       aria-labelledby={headingId}
       className={cn(
-        "max-h-dvh overflow-y-auto border-edge bg-canvas p-0 text-ink backdrop:bg-[var(--tone-veil)]",
+        "max-h-dvh overflow-y-auto bg-surface p-0 text-ink backdrop:bg-[var(--tone-veil)]",
         variant === "drawer"
-          ? "m-0 mr-0 ml-auto h-dvh w-full max-w-md border-l"
-          : "m-auto w-[calc(100%-2rem)] max-w-lg rounded-overlay border shadow-[var(--tone-cast)]",
+          ? "m-0 mr-0 ml-auto h-dvh w-full max-w-md"
+          : "m-auto w-[calc(100%-2rem)] max-w-lg rounded-overlay shadow-[var(--tone-cast)]",
       )}
       onClose={onClose}
       ref={dialog}
@@ -60,7 +61,7 @@ export default function ModalDialog({
       {open && (
         <div className="flex flex-col gap-4 p-5">
           <h2
-            className="font-medium text-[16px] text-ink tracking-[-0.01em]"
+            className={cn(TITLE_CLASS, "text-[22px] text-ink")}
             id={headingId}
             ref={heading}
             tabIndex={-1}

@@ -22,10 +22,10 @@ export default function KindTabs({ value, onChange }: KindTabsProps) {
         <button
           aria-pressed={tab.id === value}
           className={cn(
-            "inline-flex h-11 shrink-0 items-center rounded-control px-3 text-[13px] transition-colors duration-[160ms] motion-reduce:transition-none",
+            "inline-flex h-11 shrink-0 items-center rounded-full px-4 text-[13px] transition-colors duration-[160ms] motion-reduce:transition-none",
             tab.id === value
               ? "bg-accent-soft text-ink"
-              : "text-muted hover:bg-surface hover:text-ink",
+              : "text-muted hover:bg-raise hover:text-ink",
           )}
           key={tab.id}
           onClick={() => onChange(tab.id)}

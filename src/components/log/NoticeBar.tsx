@@ -31,7 +31,7 @@ export default function NoticeBar({ notice, onDismiss }: NoticeBarProps) {
   return (
     <div aria-live="polite" role="status">
       {notice !== null && (
-        <div className="flex flex-wrap items-center gap-3 rounded-card border border-line bg-surface px-4 py-2">
+        <div className="flex flex-wrap items-center gap-3 rounded-card bg-raise px-4 py-2">
           <p className="min-w-0 flex-1 text-[13px] text-ink">{notice.text}</p>
           {notice.onUndo !== undefined && (
             <button

@@ -32,7 +32,7 @@ export default function ProgressFields({ kind, draft, errors, onChange }: Progre
                 <input
                   aria-describedby={error === undefined ? undefined : `${field.key}-error`}
                   aria-invalid={error === undefined ? undefined : true}
-                  className={cn(LOG_CONTROL_CLASS, "w-28", error !== undefined && "border-accent")}
+                  className={cn(LOG_CONTROL_CLASS, "w-28", error !== undefined && "border-danger")}
                   inputMode="numeric"
                   min={0}
                   onChange={(event) => onChange(field.key, event.target.value)}
@@ -41,7 +41,7 @@ export default function ProgressFields({ kind, draft, errors, onChange }: Progre
                 />
               </label>
               {error !== undefined && (
-                <p className="max-w-40 text-[12px] text-accent" id={`${field.key}-error`}>
+                <p className="max-w-40 text-[12px] text-danger" id={`${field.key}-error`}>
                   {error}
                 </p>
               )}
