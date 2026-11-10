@@ -41,20 +41,24 @@ async function readCandidates(userId: string | undefined): Promise<EnrichCandida
 
 /**
  * Looks one entry up and writes what was found, filling only empty fields. Movie or series moves
- * to anime when MyAnimeList lists the exact title or TMDB calls it Animation from JP, KR or CN, and
- * only while the entry has no user edits and no anime twin; the statement re-checks both, so a
- * rating or a twin added meanwhile still wins. `ext_source` and `ext_id` are never touched.
+ * to anime when TMDB calls it Animation from JP, KR or CN, or MyAnimeList lists the exact title and
+ * TMDB has no match or calls it Animation. Only while the entry has no user edits and no anime
+ * twin; the statement re-checks both, so a rating or a twin added meanwhile still wins.
+ * `ext_source` and `ext_id` are never touched.
  */
 async function enrichOne(row: EnrichCandidate): Promise<{ filled: boolean; upgraded: boolean }> {
   const tmdb = await matchTmdb(row.title, row.titleNorm, row.kind === "movie" ? "movie" : "tv");
   const canUpgrade = row.kind !== "anime" && !row.keep && !row.twin;
   // MAL is the poster and year fallback when TMDB has no match, and the second anime signal.
-  const askMal = tmdb === null || (canUpgrade && !tmdb.anime);
+  // A MAL match counts only when TMDB has no match or calls it Animation: a live-action show
+  // that shares an anime's title (One Piece, 2023) stays put.
+  const malCounts = tmdb === null || tmdb.animation;
+  const askMal = tmdb === null || (canUpgrade && !tmdb.anime && malCounts);
   const mal = askMal ? await matchMal(row.title, row.titleNorm) : null;
 
   const year = tmdb?.year ?? mal?.year ?? null;
   const image = tmdb?.image ?? mal?.image ?? null;
-  const upgraded = canUpgrade && (tmdb?.anime === true || mal !== null);
+  const upgraded = canUpgrade && (tmdb?.anime === true || (mal !== null && malCounts));
   const filled = year !== null || image !== null;
 
   const now = new Date();

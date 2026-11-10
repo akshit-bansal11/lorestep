@@ -204,6 +204,26 @@ describe("enrichEntries", () => {
     );
   });
 
+  it("keeps a series TMDB knows as live action, whatever MyAnimeList says", async () => {
+    vi.stubEnv("MAL_CLIENT_ID", "mal-id");
+    state.rows = [candidate({ title: "One Piece", titleNorm: "one piece" })];
+    state.tmdb = [
+      anime({
+        name: "One Piece",
+        first_air_date: "2023-08-31",
+        genre_ids: [10759, 10765],
+        original_language: "en",
+        origin_country: ["US"],
+      }),
+    ];
+    state.mal = [{ node: { title: "One Piece", start_date: "1999-10-20" } }];
+    const result = await enrichEntries("user-a");
+
+    expect(result).toMatchObject({ filled: 1, upgraded: 0 });
+    expect(state.sets[0]?.kind).toBeUndefined();
+    expect(render(state.sets[0]?.year).params).toContain(2023);
+  });
+
   it("does not move an entry the user edited (rating, notes, shelf or list)", async () => {
     state.rows = [
       candidate({ title: "Blue Eye Samurai", titleNorm: "blue eye samurai", keep: true }),

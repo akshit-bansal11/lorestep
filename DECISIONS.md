@@ -555,3 +555,14 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
   An entry tried while only one provider had a key is not retried for the other.
 - Revisit when: a wrong match or a wrong anime move is reported, or entries tried before a key
   was added need a backfill (clear their `enriched_at`).
+
+## 2026-11-10 MyAnimeList's anime signal defers to TMDB's genre
+
+- Context: the entry above accepted that a live-action show sharing an anime's exact title (One
+  Piece, 2023) would move to anime, because a MyAnimeList match alone counted (rule a).
+- Options: keep MAL alone sufficient; let TMDB's genre veto MAL.
+- Choice: a MyAnimeList match counts only when TMDB has no exact-title match for the entry, or
+  TMDB's match includes the Animation genre (16). A TMDB match without Animation never moves the
+  entry, whatever MAL says. Rule (b) is unchanged. This replaces the One Piece caveat above.
+- Consequence: an anime TMDB files without the Animation genre stays kind series.
+- Revisit when: a real anime is reported stuck as series because of TMDB's genres.

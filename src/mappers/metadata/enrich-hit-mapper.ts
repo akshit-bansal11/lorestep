@@ -28,6 +28,7 @@ export function tmdbHit(item: TmdbMatchItem): EnrichHit {
   return {
     year: toYear(item.release_date || item.first_air_date),
     image: toImage(item.poster_path ? `${TMDB_IMAGE_BASE}${item.poster_path}` : null),
+    animation,
     anime: animation && east,
   };
 }
@@ -37,6 +38,7 @@ export function malHit({ node }: MalMatchItem): EnrichHit {
   return {
     year: toYear(node.start_date),
     image: toImage(node.main_picture?.large ?? node.main_picture?.medium),
+    animation: true,
     anime: true,
   };
 }

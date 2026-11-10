@@ -8,6 +8,8 @@ export interface EnrichHit {
   image: string | null;
   /** TMDB: Animation from JP, KR or CN. MyAnimeList: always, it lists only anime. */
   anime: boolean;
+  /** TMDB lists the Animation genre (16). MyAnimeList: always true. */
+  animation: boolean;
 }
 
 /** The fields enrichment reads from a TMDB `/search/movie` or `/search/tv` result. */
