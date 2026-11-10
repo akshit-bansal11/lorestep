@@ -1,19 +1,37 @@
 /* Lorestep for Chrome library: the toolbar popup, and the same page opened in a tab (html.tab).
    State colours (--s-*) and --ink are set from core/states.js at load: one source of truth.
    Status colours are only ever fills behind --ink glyphs, never text on the page background. */
+@font-face {
+  font-family: "Big Shoulders Display";
+  src: url("../fonts/big-shoulders-display-latin.woff2") format("woff2");
+  font-weight: 700 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gloock";
+  src: url("../fonts/gloock-latin.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Hanken Grotesk";
+  src: url("../fonts/hanken-grotesk-latin.woff2") format("woff2");
+  font-weight: 400 600;
+  font-display: swap;
+}
 :root {
-  --bg: #f4f5f8;
-  --surface: #ffffff;
-  --fg: #16181d;
-  --muted: #555b69;
-  --line: #d8dbe2;
-  --chip: #e6e8ee;
-  --focus: #16181d;
-  --warn-bg: #fdecea;
-  --warn-fg: #8a1c12;
-  --logo-tile: #14161b; /* the icon's tile: dark in both themes, like the toolbar icon */
-  --r-control: 6px;
-  --r-card: 10px;
+  --bg: #0a0a0a;
+  --surface: #121212;
+  --fg: #f4f4f5;
+  --muted: #a1a1aa;
+  --line: #262626;
+  --chip: #1a1a1a;
+  --focus: #f4f4f5;
+  --warn-bg: #2a1210;
+  --warn-fg: #ff6b5e;
+  --logo-tile: #14161b; /* the icon's tile, like the toolbar icon */
+  --r-control: 10px;
+  --r-card: 20px;
   --r-pill: 999px;
   --sp-1: 4px;
   --sp-2: 8px;
@@ -23,25 +41,12 @@
   --t-xs: 12px;
   --t-sm: 13px;
   --t-md: 14px;
-  --t-lg: 18px;
-  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --t-lg: 22px;
+  --font: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --display: "Big Shoulders Display", "Arial Narrow", system-ui, sans-serif;
   --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
   --fast: 140ms;
-  color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0e1015;
-    --surface: #171a21;
-    --fg: #e8eaf0;
-    --muted: #9aa1b2;
-    --line: #2a2f3a;
-    --chip: #232733;
-    --focus: #e8eaf0;
-    --warn-bg: #3a1714;
-    --warn-fg: #ffb4ab;
-    color-scheme: dark;
-  }
+  color-scheme: dark;
 }
 @media (prefers-reduced-motion: reduce) {
   :root {
@@ -113,8 +118,8 @@ html.tab main {
 }
 h1 {
   margin: 0;
-  font-size: var(--t-lg);
-  line-height: 1;
+  font: 900 var(--t-lg) / 0.9 var(--display);
+  text-transform: uppercase;
   letter-spacing: -0.01em;
 }
 .count {
@@ -134,7 +139,7 @@ button.ghost {
   color: var(--fg);
   background: transparent;
   border: 1px solid var(--line);
-  border-radius: var(--r-control);
+  border-radius: var(--r-pill);
   padding: var(--sp-2) var(--sp-3);
   min-height: 28px;
   cursor: pointer;
@@ -205,7 +210,6 @@ select {
   background: var(--c);
 }
 .tabs .n {
-  font-family: var(--mono);
   font-variant-numeric: tabular-nums;
 }
 
@@ -339,7 +343,7 @@ button.primary {
   color: var(--bg);
   background: var(--fg);
   border: 1px solid var(--fg);
-  border-radius: var(--r-control);
+  border-radius: var(--r-pill);
   padding: var(--sp-2) var(--sp-3);
   min-height: 28px;
   cursor: pointer;
