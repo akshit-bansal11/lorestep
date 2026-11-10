@@ -25,8 +25,8 @@ export default function ShortcutsDialog({ onClose }: ShortcutsDialogProps) {
         aria-label="Keyboard shortcuts"
         aria-modal="true"
         className={cn(
-          "anim-lift relative w-full max-w-sm rounded-overlay border border-edge",
-          "bg-canvas p-4 shadow-[var(--tone-cast)]",
+          "anim-lift relative w-full max-w-sm rounded-overlay",
+          "bg-surface p-4 shadow-[var(--tone-cast)]",
         )}
         role="dialog"
       >

@@ -6,7 +6,7 @@ import OptionSelect from "@/components/canon/OptionSelect";
 import PriceCell from "@/components/canon/PriceCell";
 import { FIELD_LABEL, STATUSES } from "@/constants/canon/statuses";
 import { TIER_LABEL } from "@/constants/canon/tiers";
-import { CELL_CLASS, NUM_CLASS } from "@/constants/canon/ui";
+import { CELL_CLASS, NUM_CLASS, TITLE_CLASS } from "@/constants/canon/ui";
 import type { Entry } from "@/types/canon/canon";
 import type { PriceQuote } from "@/types/canon/price";
 import type { UserEntry, UserField } from "@/types/canon/user";
@@ -65,7 +65,9 @@ export default function CanonRow({
       style={{ "--row-index": index }}
     >
       {showFranchise ? (
-        <td className={cn(CELL_CLASS, "text-[11px] text-faint")}>{entry.franchise.name}</td>
+        <td className={cn(CELL_CLASS, TITLE_CLASS, "text-[13px] text-faint")}>
+          {entry.franchise.name}
+        </td>
       ) : null}
 
       <td className={cn(CELL_CLASS, NUM_CLASS, "text-right text-faint")}>{game.order}</td>
@@ -74,7 +76,7 @@ export default function CanonRow({
         className={cn(
           CELL_CLASS,
           "sticky left-0 z-10 bg-canvas group-hover:bg-surface",
-          "border-edge border-r",
+          "border-line border-r",
         )}
       >
         <GameCell game={game} onOpen={() => onOpen(game.id)} />

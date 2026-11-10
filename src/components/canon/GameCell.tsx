@@ -1,5 +1,6 @@
 "use client";
 
+import { TITLE_CLASS } from "@/constants/canon/ui";
 import type { Game } from "@/types/canon/canon";
 import { cn } from "@/utils/cn";
 
@@ -19,13 +20,18 @@ export default function GameCell({ game, onOpen }: GameCellProps) {
       onClick={onOpen}
       type="button"
     >
-      <span className="flex items-baseline gap-1.5">
-        <span className="text-ink underline decoration-transparent underline-offset-2 transition-[text-decoration-color] duration-[160ms] group-hover/title:decoration-accent motion-reduce:transition-none">
+        <span
+          className={cn(
+            TITLE_CLASS,
+            "text-[14px] text-ink underline decoration-transparent underline-offset-2 transition-[text-decoration-color] duration-[160ms] group-hover/title:decoration-accent motion-reduce:transition-none",
+          )}
+        >
+        <span className={cn(TITLE_CLASS, "text-[14px] text-ink underline decoration-transparent underline-offset-2 transition-[text-decoration-color] duration-[160ms] group-hover/title:decoration-accent motion-reduce:transition-none")}>
           {game.title}
         </span>
 
         {game.starter ? (
-          <span className="shrink-0 rounded-control border border-accent-line bg-accent-soft px-1 text-[9px] text-accent uppercase tracking-[0.1em]">
+          <span className="shrink-0 rounded-control bg-accent-soft px-1 text-[9px] text-accent uppercase tracking-[0.1em]">
             start
           </span>
         ) : null}
@@ -39,7 +45,7 @@ export default function GameCell({ game, onOpen }: GameCellProps) {
       </span>
 
       {game.editions.length > 1 ? (
-        <span className="font-mono text-[10px] text-faint tabular-nums">
+        <span className="text-[10px] text-faint tabular-nums">
           {game.editions.length} editions
         </span>
       ) : null}

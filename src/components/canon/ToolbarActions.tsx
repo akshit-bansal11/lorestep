@@ -123,7 +123,7 @@ export default function ToolbarActions({
         <span
           className={cn(
             "max-w-64 truncate px-1 text-[11px]",
-            priceStatus === "error" ? "text-ink" : "text-faint",
+            priceStatus === "error" ? "text-danger" : "text-faint",
           )}
           title={priceMessage}
         >

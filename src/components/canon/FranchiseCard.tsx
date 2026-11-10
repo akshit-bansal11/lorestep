@@ -1,7 +1,7 @@
 "use client";
 
 import ProgressMeter from "@/components/canon/ProgressMeter";
-import { CARD_CLASS } from "@/constants/canon/ui";
+import { CARD_CLASS, TITLE_CLASS } from "@/constants/canon/ui";
 import type { Franchise } from "@/types/canon/canon";
 import type { FranchiseStats } from "@/types/canon/stats";
 import { cn } from "@/utils/cn";
@@ -23,7 +23,7 @@ export default function FranchiseCard({ franchise, stats, index, onSelect }: Fra
       className={cn(
         CARD_CLASS,
         "group flex flex-col items-stretch gap-2 p-3 text-left",
-        "hover:-translate-y-0.5 hover:border-accent-line hover:shadow-[var(--tone-cast)]",
+        "hover:-translate-y-0.5 hover:shadow-[var(--tone-cast)]",
         "active:translate-y-0 motion-reduce:hover:translate-y-0",
       )}
       onClick={() => onSelect(franchise.id)}
@@ -31,7 +31,7 @@ export default function FranchiseCard({ franchise, stats, index, onSelect }: Fra
       type="button"
     >
       <span className="flex items-baseline gap-2">
-        <span className="flex-1 font-medium text-[14px] text-ink leading-tight tracking-[-0.01em]">
+        <span className={cn(TITLE_CLASS, "flex-1 text-[16px] text-ink")}>
           {franchise.name}
         </span>
         <span
@@ -42,7 +42,7 @@ export default function FranchiseCard({ franchise, stats, index, onSelect }: Fra
         </span>
       </span>
 
-      <span className="flex flex-wrap items-center gap-x-2 font-mono text-[10px] text-faint tabular-nums">
+      <span className="flex flex-wrap items-center gap-x-2 text-[10px] text-faint tabular-nums">
         <span>{stats.total} games</span>
         <span aria-hidden="true">·</span>
         <span>
@@ -72,7 +72,7 @@ export default function FranchiseCard({ franchise, stats, index, onSelect }: Fra
             label={`${franchise.name}: ${stats.completed} of ${stats.total} completed`}
             total={stats.total}
           />
-          <span className="font-mono text-[10px] text-faint tabular-nums">
+          <span className="text-[10px] text-faint tabular-nums">
             {stats.completed}/{stats.total}
           </span>
         </span>

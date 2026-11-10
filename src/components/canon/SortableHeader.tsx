@@ -17,7 +17,7 @@ export default function SortableHeader({ column, sort, onSort }: SortableHeaderP
     <th
       aria-sort={active ? (sort.direction === 1 ? "ascending" : "descending") : "none"}
       className={cn(
-        "sticky top-0 whitespace-nowrap border-edge border-b bg-canvas px-2 py-2 text-left font-medium text-[10px] text-muted uppercase tracking-[0.12em]",
+        "sticky top-0 whitespace-nowrap border-line border-b bg-canvas px-2 py-2 text-left font-medium text-[12px] text-muted",
         column.sticky === true ? "left-0 z-20" : "z-10",
         column.className,
       )}

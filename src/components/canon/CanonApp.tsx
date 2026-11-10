@@ -217,7 +217,7 @@ export default function CanonApp({ franchises: FRANCHISES }: CanonAppProps) {
   );
 
   return (
-    <div className="flex h-dvh flex-col">
+    <div className="flex h-dvh flex-col text-[13px]">
       <AppHeader
         crumb={gridView ? "" : (franchise?.name ?? "Every game")}
         onHome={showGrid}
@@ -235,7 +235,7 @@ export default function CanonApp({ franchises: FRANCHISES }: CanonAppProps) {
         {navOpen ? (
           <div className="fixed inset-0 z-40 flex lg:hidden">
             <Backdrop label="Close the franchise list" onClose={() => setNavOpen(false)} />
-            <div className="anim-slide-left relative h-full w-72 max-w-[85vw] border-edge border-r bg-canvas shadow-[var(--tone-cast)]">
+            <div className="anim-slide-left relative h-full w-72 max-w-[85vw] bg-surface shadow-[var(--tone-cast)]">
               {sidebar}
             </div>
           </div>

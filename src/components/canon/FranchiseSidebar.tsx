@@ -2,6 +2,7 @@
 
 import type { RefObject } from "react";
 import ProgressMeter from "@/components/canon/ProgressMeter";
+import { TITLE_CLASS } from "@/constants/canon/ui";
 import { ALL_FRANCHISES } from "@/constants/canon/views";
 import type { Franchise } from "@/types/canon/canon";
 import type { UserEntries } from "@/types/canon/user";
@@ -50,9 +51,9 @@ export default function FranchiseSidebar({
         <input
           aria-label="Filter franchises"
           className={cn(
-            "h-8 w-full rounded-control border border-line bg-surface px-2",
+            "h-8 w-full rounded-control bg-raise px-2",
             "text-[12px] text-ink placeholder:text-faint",
-            "transition-colors duration-[160ms] ease-out hover:border-edge focus-visible:border-edge",
+            "transition-colors duration-[160ms] ease-out hover:bg-line focus-visible:bg-line",
             "motion-reduce:transition-none",
           )}
           onChange={(event) => onQueryChange(event.target.value)}
@@ -66,7 +67,7 @@ export default function FranchiseSidebar({
       <nav aria-label="Franchises" className="min-h-0 flex-1 overflow-y-auto p-1.5">
         <button className={rowClass(gridActive)} onClick={onShowGrid} type="button">
           <span className="flex-1 truncate">All franchises</span>
-          <span className="font-mono text-[10px] text-faint tabular-nums">{franchises.length}</span>
+          <span className="text-[10px] text-faint tabular-nums">{franchises.length}</span>
         </button>
 
         <button
@@ -75,7 +76,7 @@ export default function FranchiseSidebar({
           type="button"
         >
           <span className="flex-1 truncate">Every game</span>
-          <span className="font-mono text-[10px] text-faint tabular-nums">{totalCount}</span>
+          <span className="text-[10px] text-faint tabular-nums">{totalCount}</span>
         </button>
 
         <div className="my-1.5 border-line border-t" />
@@ -94,7 +95,9 @@ export default function FranchiseSidebar({
                 type="button"
               >
                 <span className="flex items-center gap-2">
-                  <span className="flex-1 truncate">{franchise.name}</span>
+                  <span className={cn(TITLE_CLASS, "flex-1 truncate text-[14px]")}>
+                    {franchise.name}
+                  </span>
                   {stats.arcs > 0 ? (
                     <span
                       className="text-[9px] text-faint uppercase tracking-[0.1em]"
@@ -103,7 +106,7 @@ export default function FranchiseSidebar({
                       {stats.arcs} arcs
                     </span>
                   ) : null}
-                  <span className="font-mono text-[10px] text-faint tabular-nums">
+                  <span className="text-[10px] text-faint tabular-nums">
                     {stats.total}
                   </span>
                 </span>

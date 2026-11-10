@@ -64,7 +64,7 @@ export default function CommandPalette({ franchises, onClose, onPick }: CommandP
         aria-modal="true"
         className={cn(
           "anim-lift relative flex w-full max-w-lg flex-col overflow-hidden",
-          "rounded-overlay border border-edge bg-canvas shadow-[var(--tone-cast)]",
+          "rounded-overlay bg-surface shadow-[var(--tone-cast)]",
         )}
         role="dialog"
       >
@@ -106,7 +106,7 @@ export default function CommandPalette({ franchises, onClose, onPick }: CommandP
                     {hit.kind === "franchise" ? "Series" : "Game"}
                   </span>
                   <span className="flex-1 truncate text-[13px] text-ink">{hit.label}</span>
-                  <span className="shrink-0 font-mono text-[10px] text-faint tabular-nums">
+                  <span className="shrink-0 text-[10px] text-faint tabular-nums">
                     {hit.sub}
                   </span>
                 </button>
