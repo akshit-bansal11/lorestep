@@ -469,3 +469,15 @@ Append only (`.claude/CLAUDE.md` section 19). Context / options / choice / conse
 - Consequence: the earlier D-9 trade-off is closed; the displayed email is still readable by
   content scripts.
 - Revisit when: Chrome gives `chrome.storage.local` a trusted-contexts access level.
+
+## 2026-11-10 Dark only
+
+- Context: the Plotline redesign (`docs/design/PLAN.md`) is a dark look. The site shipped a light
+  theme, a dark theme, a toggle in both headers, and a pre-hydration script (`public/theme.js`).
+- Options: keep both themes and restyle each; keep both but default to dark; dark only.
+- Choice: dark only. The owner chose a dark-only Plotline look on 2026-11-10. The light theme, the
+  toggle (`ThemeToggle`, `use-theme`, `theme-store`), the theme script and `THEME_STORAGE_KEY` were
+  removed; `:root` holds the dark tones with `color-scheme: dark`.
+- Consequence: no light mode, no `prefers-color-scheme` handling, one set of contrast pairs to
+  maintain. A stale `isitcanon/theme/v1` in a visitor's storage is harmless and never read.
+- Revisit when: the owner asks for a light theme, or a measured share of visitors needs one.

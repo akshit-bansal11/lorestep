@@ -1,6 +1,5 @@
 import Link from "next/link";
 import AccountMenu from "@/components/auth/AccountMenu";
-import ThemeToggle from "@/components/canon/ThemeToggle";
 import Logo from "@/components/site/Logo";
 import SiteNav from "@/components/site/SiteNav";
 import { PAGE_CLASS } from "@/constants/canon/ui";
@@ -20,7 +19,6 @@ export default function SiteHeader() {
         </div>
         <div className="ml-auto flex items-center gap-1.5 sm:ml-0">
           <AccountMenu />
-          <ThemeToggle />
         </div>
       </div>
     </header>

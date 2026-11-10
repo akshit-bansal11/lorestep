@@ -7,16 +7,13 @@ const WCAG_TAGS = ["wcag2a", "wcag2aa"];
 // /about and /docs do not. The home page is here because its empty Books card once failed
 // contrast with no spec to notice.
 for (const path of ["/", "/screen", "/screen/mcu", "/about", "/docs"]) {
-  for (const colorScheme of ["light", "dark"] as const) {
-    test(`${path} has no WCAG A/AA violations in the ${colorScheme} theme`, async ({ page }) => {
-      await page.emulateMedia({ colorScheme });
-      await page.goto(path);
-      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  test(`${path} has no WCAG A/AA violations`, async ({ page }) => {
+    await page.goto(path);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
-      const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
-      expect(results.violations.map((violation) => violation.id)).toEqual([]);
-    });
-  }
+    const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+    expect(results.violations.map((violation) => violation.id)).toEqual([]);
+  });
 }
 
 test("every docs contents link lands on a section", async ({ page }) => {
@@ -37,17 +34,6 @@ test("the footer links to About and Docs", async ({ page }) => {
   await footer.getByRole("link", { name: "Docs" }).click();
   await expect(page).toHaveURL(/\/docs$/);
   await expect(page.getByRole("heading", { level: 1, name: "Docs" })).toBeVisible();
-});
-
-test("the header switches the theme on a content page", async ({ page }) => {
-  await page.goto("/about");
-  const before = await page.evaluate(() => document.documentElement.dataset.theme ?? "");
-
-  await page.getByRole("button", { name: /^Switch to/ }).click();
-
-  await expect
-    .poll(() => page.evaluate(() => document.documentElement.dataset.theme ?? ""))
-    .not.toBe(before);
 });
 
 test("the header marks the current section", async ({ page }) => {

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import ThemeToggle from "@/components/canon/ThemeToggle";
 import Logo from "@/components/site/Logo";
 import { CONTROL_CLASS, QUIET_LINK_CLASS } from "@/constants/canon/ui";
 import { PAGE_LINKS } from "@/constants/site";
@@ -89,8 +88,6 @@ export default function AppHeader({
         >
           <span aria-hidden="true">?</span>
         </button>
-
-        <ThemeToggle />
       </div>
     </header>
   );

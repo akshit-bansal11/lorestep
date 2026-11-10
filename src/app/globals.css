@@ -1,25 +1,27 @@
 @import "tailwindcss";
 
-/* ── Tone spine — warm neutrals and one accent. Light is the base; dark
-   redefines. Every text tone is checked at 4.5:1 or better against canvas,
-   surface, raise and accent-soft in both themes; the accent is the only hue,
-   and it marks what is active, current or a link. ───────────────────────── */
+/* ── Tone spine — dark only, one accent. The owner chose a dark-only look on
+   2026-11-10, so there is no light block and no theme switch. Every text tone
+   is checked at 4.5:1 or better against canvas, surface, raise and
+   accent-soft; the accent is the only hue, and it marks what is active,
+   current or a link. ────────────────────────────────────────────────────── */
 :root {
-  --tone-canvas: #fbfaf7;
-  --tone-surface: #f4f2ee;
-  --tone-raise: #ebe8e2;
-  --tone-line: #e3dfd8;
-  --tone-edge: #cdc7bd;
-  --tone-text: #1c1a17;
-  --tone-muted: #57524b;
-  --tone-faint: #6a645c;
-  --tone-invert: #fbfaf7;
-  --tone-accent: #ad3e0c;
-  --tone-accent-ink: #fff;
-  --tone-accent-soft: #fbeee4;
-  --tone-accent-line: #e2b597;
-  --tone-veil: rgb(28 26 23 / 32%);
-  --tone-cast: 0 12px 40px rgb(28 26 23 / 12%);
+  color-scheme: dark;
+  --tone-canvas: #0f0e0d;
+  --tone-surface: #171615;
+  --tone-raise: #201e1c;
+  --tone-line: #2a2724;
+  --tone-edge: #403b36;
+  --tone-text: #ede9e3;
+  --tone-muted: #a9a299;
+  --tone-faint: #8e877e;
+  --tone-invert: #0f0e0d;
+  --tone-accent: #f0894a;
+  --tone-accent-ink: #1a0d05;
+  --tone-accent-soft: #2a1c14;
+  --tone-accent-line: #6b3a1f;
+  --tone-veil: rgb(0 0 0 / 62%);
+  --tone-cast: 0 12px 40px rgb(0 0 0 / 55%);
 
   /* Motion — one scale, no bounce. Every duration is multiplied by
      --motion-scale, which the reduced-motion query drops to zero; that removes
@@ -36,44 +38,6 @@
   --radius-control: 3px;
   --radius-card: 6px;
   --radius-overlay: 10px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --tone-canvas: #0f0e0d;
-    --tone-surface: #171615;
-    --tone-raise: #201e1c;
-    --tone-line: #2a2724;
-    --tone-edge: #403b36;
-    --tone-text: #ede9e3;
-    --tone-muted: #a9a299;
-    --tone-faint: #8e877e;
-    --tone-invert: #0f0e0d;
-    --tone-accent: #f0894a;
-    --tone-accent-ink: #1a0d05;
-    --tone-accent-soft: #2a1c14;
-    --tone-accent-line: #6b3a1f;
-    --tone-veil: rgb(0 0 0 / 62%);
-    --tone-cast: 0 12px 40px rgb(0 0 0 / 55%);
-  }
-}
-
-:root[data-theme="dark"] {
-  --tone-canvas: #0f0e0d;
-  --tone-surface: #171615;
-  --tone-raise: #201e1c;
-  --tone-line: #2a2724;
-  --tone-edge: #403b36;
-  --tone-text: #ede9e3;
-  --tone-muted: #a9a299;
-  --tone-faint: #8e877e;
-  --tone-invert: #0f0e0d;
-  --tone-accent: #f0894a;
-  --tone-accent-ink: #1a0d05;
-  --tone-accent-soft: #2a1c14;
-  --tone-accent-line: #6b3a1f;
-  --tone-veil: rgb(0 0 0 / 62%);
-  --tone-cast: 0 12px 40px rgb(0 0 0 / 55%);
 }
 
 @theme inline {

@@ -1,6 +1,5 @@
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import type { ReactNode } from "react";
 import Observability from "@/components/site/Observability";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/constants/site";
@@ -24,17 +23,13 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   // Matches --tone-canvas, so a mobile browser's chrome runs into the page.
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fbfaf7" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f0e0d" },
-  ],
+  themeColor: "#0a0a0a",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body>
-        <Script src="/theme.js" strategy="beforeInteractive" />
         {children}
         <Observability />
         {/* Vercel Web Analytics. No account, no key and no per-project setup:
