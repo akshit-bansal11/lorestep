@@ -46,3 +46,18 @@ test("the header marks the current section", async ({ page }) => {
   );
   await expect(sections.getByRole("link", { name: "Games" })).not.toHaveAttribute("aria-current");
 });
+
+test("the home demo reorders to release order", async ({ page }) => {
+  await page.goto("/");
+  const first = page.locator('main li[aria-posinset="1"]');
+
+  await expect(first).toContainText("Metal Gear Solid 3: Snake Eater");
+  await page.getByRole("button", { name: "Release order" }).click();
+  await expect(first).toContainText("Metal Gear");
+  await expect(first).not.toContainText("Snake Eater");
+});
+
+test("the home page has exactly one Sign in link", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("link", { name: "Sign in" })).toHaveCount(1);
+});

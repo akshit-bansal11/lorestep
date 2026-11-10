@@ -48,3 +48,19 @@ test.describe("on a wide screen", () => {
     }
   });
 });
+
+/** The home headings were once three or four lines on a phone. */
+for (const width of [390, 1440] as const) {
+  test(`home headings are at most two lines at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    const lines = await page.locator("main h1, main h2").evaluateAll((headings) =>
+      headings.map((heading) => {
+        const style = getComputedStyle(heading);
+        const lineHeight = Number.parseFloat(style.lineHeight) || Number.parseFloat(style.fontSize) * 1.2;
+        return { text: heading.textContent, lines: heading.getBoundingClientRect().height / lineHeight };
+      }),
+    );
+    for (const heading of lines) expect(heading.lines, heading.text ?? "").toBeLessThanOrEqual(2.05);
+  });
+}
