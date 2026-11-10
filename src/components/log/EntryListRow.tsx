@@ -3,6 +3,7 @@ import ProgressCell from "@/components/log/ProgressCell";
 import StatusCell from "@/components/log/StatusCell";
 import { NUM_CLASS, TITLE_CLASS } from "@/constants/canon/ui";
 import { LIBRARY_COPY } from "@/constants/log/copy";
+import { POSTER_SIZES } from "@/constants/log/poster";
 import type { Entry } from "@/types/log/entry";
 import { cn } from "@/utils/cn";
 import { formatDate } from "@/utils/log/format-date";
@@ -24,7 +25,12 @@ export default function EntryListRow({ entry, onOpen }: EntryListRowProps) {
       onClick={() => onOpen(entry)}
       type="button"
     >
-      <EntryPoster className="h-[72px] w-12" entry={entry} textClassName="p-1 text-[10px]" />
+      <EntryPoster
+        className="h-[72px] w-12"
+        entry={entry}
+        sizes={POSTER_SIZES.row}
+        textClassName="p-1 text-[10px]"
+      />
       <span className="flex min-w-0 flex-1 flex-col gap-1.5">
         <span className={cn(TITLE_CLASS, "truncate text-[18px] text-ink")}>{entry.title}</span>
         <span
