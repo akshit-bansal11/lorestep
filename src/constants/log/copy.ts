@@ -9,6 +9,7 @@ export const LIBRARY_COPY = {
   statusFilter: "Filter by status",
   allStatuses: "All statuses",
   sortLabel: "Sort by",
+  viewGroup: "Layout",
   kindGroup: "Media type",
   tableCaption: "Your library",
   columns: {

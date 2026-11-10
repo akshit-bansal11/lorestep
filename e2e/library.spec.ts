@@ -71,6 +71,13 @@ test.describe("the signed-in library", () => {
     const row = page.getByRole("button", { name: "Edit Dune" });
     await expect(row).toBeVisible();
 
+    // The same title shows as a card, and the table comes back.
+    await page.getByRole("button", { name: "Cards" }).click();
+    await expect(page.getByRole("button", { name: "Edit Dune" })).toBeVisible();
+    await expect(page.getByRole("table")).toBeHidden();
+    await page.getByRole("button", { name: "Table" }).click();
+    await expect(page.getByRole("row", { name: /Dune/ })).toBeVisible();
+
     // Edit: status and rating, saved together.
     await row.click();
     const drawer = page.getByRole("dialog", { name: "Edit Dune" });

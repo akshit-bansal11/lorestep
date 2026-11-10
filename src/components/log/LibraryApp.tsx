@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 import OptionSelect from "@/components/canon/OptionSelect";
 import EntryEditor from "@/components/log/EntryEditor";
 import KindTabs from "@/components/log/KindTabs";
@@ -8,6 +8,7 @@ import LibraryTable from "@/components/log/LibraryTable";
 import NoticeBar from "@/components/log/NoticeBar";
 import SearchAddDialog from "@/components/log/SearchAddDialog";
 import StatusSelect from "@/components/log/StatusSelect";
+import ViewSwitcher from "@/components/log/ViewSwitcher";
 import { APP_TITLE_CLASS, PAGE_CLASS } from "@/constants/canon/ui";
 import { LOG_CONTROL_CLASS, LOG_PRIMARY_CLASS } from "@/constants/log/classes";
 import { KIND_NAMES, LIBRARY_COPY } from "@/constants/log/copy";
@@ -20,6 +21,11 @@ import type { LocalPatch, Notice } from "@/types/log/library";
 import { cn } from "@/utils/cn";
 import { failureMessage } from "@/utils/log/failure-message";
 import { isMediaKind } from "@/utils/log/media-kind";
+import {
+  getLibraryViewSnapshot,
+  getServerLibraryViewSnapshot,
+  subscribeLibraryView,
+} from "@/utils/log/library-view-store";
 import { pick } from "@/utils/log/pick";
 
 const copy = LIBRARY_COPY;
@@ -29,6 +35,11 @@ const SORT_IDS = SORT_CHOICES.map((option) => option.id);
 export default function LibraryApp() {
   const library = useLibrary();
   const online = useOnline();
+  const view = useSyncExternalStore(
+    subscribeLibraryView,
+    getLibraryViewSnapshot,
+    getServerLibraryViewSnapshot,
+  );
   const [editing, setEditing] = useState<Entry | null>(null);
   const [adding, setAdding] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -122,6 +133,7 @@ export default function LibraryApp() {
           selectClassName="h-11! sm:h-11! text-[13px]!"
           value={library.sort === "updated" ? "" : library.sort}
         />
+        <ViewSwitcher view={view} />
       </div>
 
       <div aria-live="polite" role="status">
@@ -148,6 +160,7 @@ export default function LibraryApp() {
         onLoadMore={library.loadMore}
         onOpen={setEditing}
         onRetry={library.reload}
+        view={view}
       />
 
       <EntryEditor entry={editing} onClose={closeEditor} onDelete={deleteEntry} onSave={save} />

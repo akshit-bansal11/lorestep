@@ -1,11 +1,14 @@
 "use client";
 
 import EntryRow from "@/components/log/EntryRow";
+import LibraryCards from "@/components/log/LibraryCards";
+import LibraryList from "@/components/log/LibraryList";
 import { CARD_CLASS, TITLE_CLASS } from "@/constants/canon/ui";
 import { LOG_SECONDARY_CLASS, LOG_TH_CLASS } from "@/constants/log/classes";
 import { KIND_NAMES, LIBRARY_COPY } from "@/constants/log/copy";
 import type { ApiFailure } from "@/types/api/api";
 import type { Entry } from "@/types/log/entry";
+import type { LibraryView } from "@/types/log/library";
 import type { MediaKind } from "@/types/metadata/metadata";
 import { cn } from "@/utils/cn";
 import { failureMessage } from "@/utils/log/failure-message";
@@ -15,6 +18,7 @@ const copy = LIBRARY_COPY;
 
 interface LibraryTableProps {
   kind: MediaKind;
+  view: LibraryView;
   items: readonly Entry[];
   loading: boolean;
   /** Why the load failed, or null. */
@@ -39,6 +43,7 @@ interface LibraryTableProps {
  */
 export default function LibraryTable({
   kind,
+  view,
   items,
   loading,
   failure,
@@ -105,6 +110,9 @@ export default function LibraryTable({
 
   return (
     <div className="flex flex-col gap-3">
+      {view === "cards" && <LibraryCards items={items} onOpen={onOpen} />}
+      {view === "list" && <LibraryList items={items} onOpen={onOpen} />}
+      {view === "table" && (
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <caption className="sr-only">{copy.tableCaption}</caption>
@@ -143,6 +151,7 @@ export default function LibraryTable({
           </tbody>
         </table>
       </div>
+      )}
 
       <div aria-live="polite" role="status">
         {loadingMore && <p className="text-[13px] text-muted">{copy.loadingMore}</p>}
