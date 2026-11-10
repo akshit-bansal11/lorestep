@@ -56,3 +56,6 @@ export const PROGRESS_FIELDS: Record<
 };
 
 export const PAGE_SIZE = 50;
+
+/** Library cell: `CELL_CLASS` with the content centred vertically instead of top-aligned. */
+export const LIBRARY_CELL_CLASS = "border-line border-b px-2 py-[7px] align-middle";

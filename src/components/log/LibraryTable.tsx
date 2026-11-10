@@ -125,6 +125,15 @@ export default function LibraryTable({
               <th className={cn(LOG_TH_CLASS, "hidden sm:table-cell")} scope="col">
                 {copy.columns.progress}
               </th>
+              <th className={cn(LOG_TH_CLASS, "hidden md:table-cell")} scope="col">
+                {copy.columns.completed}
+              </th>
+              <th className={cn(LOG_TH_CLASS, "hidden lg:table-cell")} scope="col">
+                {copy.columns.started}
+              </th>
+              <th className={cn(LOG_TH_CLASS, "hidden lg:table-cell")} scope="col">
+                {copy.columns.updated}
+              </th>
             </tr>
           </thead>
           <tbody>

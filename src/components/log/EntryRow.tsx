@@ -1,11 +1,15 @@
 "use client";
 
+import Blank from "@/components/log/Blank";
+import ProgressCell from "@/components/log/ProgressCell";
 import StatusChip from "@/components/log/StatusChip";
-import { CELL_CLASS, NUM_CLASS } from "@/constants/canon/ui";
+import { NUM_CLASS } from "@/constants/canon/ui";
 import { LIBRARY_COPY, STATUS_LABELS } from "@/constants/log/copy";
+import { LIBRARY_CELL_CLASS as CELL_CLASS } from "@/constants/log/library";
 import { CANONICAL_STATUSES } from "@/constants/log/statuses";
 import type { Entry } from "@/types/log/entry";
 import { cn } from "@/utils/cn";
+import { formatDate } from "@/utils/log/format-date";
 import { formatProgress } from "@/utils/log/format-progress";
 import { isMediaKind } from "@/utils/log/media-kind";
 import { pick } from "@/utils/log/pick";
@@ -16,7 +20,12 @@ interface EntryRowProps {
   onOpen: (entry: Entry) => void;
 }
 
-const FAINT = <span className="text-faint">{LIBRARY_COPY.noValue}</span>;
+const FAINT = <Blank />;
+
+function dateCell(iso: string | null) {
+  const text = formatDate(iso);
+  return text === "" ? FAINT : text;
+}
 
 /**
  * One library row. The title is the row's button (it opens the editor), so the row is reached and
@@ -41,6 +50,8 @@ export default function EntryRow({ entry, onOpen }: EntryRowProps) {
     .filter(Boolean)
     .join(" · ");
 
+  const completedAt = entry.completedAt ?? (entry.status === "completed" ? entry.statusAt : null);
+
   return (
     <tr>
       <th className={cn(CELL_CLASS, "text-left font-normal")} scope="row">
@@ -62,7 +73,16 @@ export default function EntryRow({ entry, onOpen }: EntryRowProps) {
       <td className={CELL_CLASS}>{statusCell}</td>
       <td className={cn(CELL_CLASS, NUM_CLASS)}>{entry.rating ?? FAINT}</td>
       <td className={cn(CELL_CLASS, NUM_CLASS, "hidden text-muted sm:table-cell")}>
-        {progress === "" ? FAINT : progress}
+        <ProgressCell entry={entry} />
+      </td>
+      <td className={cn(CELL_CLASS, NUM_CLASS, "hidden text-muted md:table-cell")}>
+        {dateCell(completedAt)}
+      </td>
+      <td className={cn(CELL_CLASS, NUM_CLASS, "hidden text-muted lg:table-cell")}>
+        {dateCell(entry.startedAt)}
+      </td>
+      <td className={cn(CELL_CLASS, NUM_CLASS, "hidden text-muted lg:table-cell")}>
+        {dateCell(entry.statusAt ?? entry.updatedAt)}
       </td>
     </tr>
   );
