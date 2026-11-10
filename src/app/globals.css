@@ -21,6 +21,7 @@
    every status also carries a shape and a label (DES-11). ──────────────── */
 :root {
   color-scheme: dark;
+
   --tone-canvas: #0a0a0a;
   --tone-surface: #121212;
   --tone-raise: #1a1a1a;
@@ -88,7 +89,7 @@
   --color-status-dropped: var(--tone-st-dropped);
   --color-status-ink: var(--tone-st-ink);
   --font-display: var(--nf-display), "Arial Narrow", system-ui, sans-serif;
-  --font-title: var(--nf-title), Georgia, "Times New Roman", serif;
+  --font-title: var(--nf-title), "Georgia", "Times New Roman", serif;
   --font-sans: var(--nf-text), ui-sans-serif, system-ui, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", "Menlo", monospace;
   --radius-control: 10px;

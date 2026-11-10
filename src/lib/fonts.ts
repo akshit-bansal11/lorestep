@@ -1,11 +1,11 @@
-import { Big_Shoulders_Display, Gloock, Hanken_Grotesk } from "next/font/google";
+import { Big_Shoulders, Gloock, Hanken_Grotesk } from "next/font/google";
 
 // The three type roles (docs/design/PLAN.md section A). globals.css maps the
 // --nf-* variables to --font-display, --font-title and --font-sans.
-export const displayFont = Big_Shoulders_Display({
+export const displayFont = Big_Shoulders({
   subsets: ["latin"],
   display: "swap",
-  weight: ["700", "800", "900"],
+  axes: ["opsz"],
   variable: "--nf-display",
 });
 
