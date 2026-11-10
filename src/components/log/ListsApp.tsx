@@ -5,7 +5,7 @@ import ListFormDialog from "@/components/log/ListFormDialog";
 import ListGrid from "@/components/log/ListGrid";
 import NoticeBar from "@/components/log/NoticeBar";
 import OfflineNote from "@/components/log/OfflineNote";
-import { PAGE_CLASS, APP_TITLE_CLASS } from "@/constants/canon/ui";
+import { APP_TITLE_CLASS, PAGE_CLASS } from "@/constants/canon/ui";
 import { LOG_PRIMARY_CLASS } from "@/constants/log/classes";
 import { LIST_LIMITS } from "@/constants/log/lists";
 import { LISTS_COPY } from "@/constants/log/lists-copy";
